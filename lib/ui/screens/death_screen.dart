@@ -5,15 +5,14 @@ import 'package:provider/provider.dart';
 import '../../engine/game_controller.dart';
 
 /// PROBLEM this screen used to have: it asked for the new hero's name
-/// directly and called a (now-removed) generic startNewRunAfterHome(name)
+/// directly and called a (now-removed) generic startNewRunAfterDeath(name)
 /// that skipped archetype selection entirely - so every resurrection was
 /// mechanically identical, defeating the whole point of adding origins.
 /// SOLUTION: DeathScreen's only job now is showing the recap. Tapping
-/// "Continue" calls GameController.acknowledgeDeath(), which flips
-/// isDead off; that makes needsCharacterCreation true, and _AppRoot
-/// (see main.dart) routes to CharacterCreationScreen automatically -
-/// where the player picks BOTH a name and an archetype for their next
-/// life, same as their very first character.
+/// "Continue" calls GameController.acknowledgeDeath(), which routes back
+/// to the main menu (see AppScreen.mainMenu) - so the player can check
+/// History for their fallen hero's final entry, or Settings, before
+/// choosing "New Game" to go through the full archetype picker again.
 class DeathScreen extends StatelessWidget {
   const DeathScreen({super.key});
 

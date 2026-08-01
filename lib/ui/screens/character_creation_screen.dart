@@ -11,9 +11,10 @@ import '../../engine/game_controller.dart';
 /// Mercenary), each with mechanical perks AND narrative hooks, and they
 /// wanted this to run both on first launch and after every death.
 /// SOLUTION: this screen now does two things in one flow - name entry,
-/// then an archetype grid - and GameController routes here automatically
-/// via needsCharacterCreation, so main.dart and DeathScreen don't need
-/// any special-case logic for "first ever run" vs "run after death."
+/// then an archetype grid - and GameController routes here via
+/// AppScreen.characterCreation (see goToCharacterCreation() and
+/// beginRun()), so MainMenuScreen and DeathScreen don't need any
+/// special-case logic for "first ever run" vs "run after death."
 class CharacterCreationScreen extends StatefulWidget {
   const CharacterCreationScreen({super.key});
 
@@ -36,6 +37,14 @@ class _CharacterCreationScreenState extends State<CharacterCreationScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.amber[200]),
+                tooltip: 'Back to menu',
+                onPressed: controller.goToMainMenu,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               child: Column(

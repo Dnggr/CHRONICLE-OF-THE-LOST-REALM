@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../engine/game_controller.dart';
+import '../../engine/settings_controller.dart';
 import '../widgets/choice_button.dart';
 import '../widgets/narrative_text.dart';
 import '../widgets/stat_bar.dart';
 import 'death_screen.dart';
 import 'journal_screen.dart';
+import 'settings_screen.dart';
 
 class SceneScreen extends StatelessWidget {
   const SceneScreen({super.key});
@@ -25,6 +27,13 @@ class SceneScreen extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         }
+
+        // PROBLEM: SettingsScreen added a "show dice roll banner" toggle,
+        // but nothing actually read it yet - a settings screen with no
+        // effect on gameplay is just decoration. SOLUTION: read
+        // SettingsController here and gate _CheckResultBanner on it.
+        final showRollBanner =
+            context.watch<SettingsController>().settings.showRollBanner;
 
         return Scaffold(
           backgroundColor: const Color(0xFFE9E2D3), // parchment page
@@ -47,7 +56,7 @@ class SceneScreen extends StatelessWidget {
                           text: controller.currentNarrative,
                           illustrationId: scene.illustrationId,
                         ),
-                        if (controller.lastCheckResult != null)
+                        if (showRollBanner && controller.lastCheckResult != null)
                           _CheckResultBanner(
                             result: controller.lastCheckResult!,
                           ),
@@ -100,15 +109,28 @@ class _CheckResultBanner extends StatelessWidget {
   }
 }
 
+/// PROBLEM: before Settings/History/MainMenu existed, there was no way
+/// back to the main menu once you started playing - the app only ever
+/// moved forward (scene -> scene -> death). SOLUTION: added a Home icon
+/// here. This is non-destructive - selectChoice() already saves after
+/// every choice via SaveManager.saveRun(), so leaving mid-scene and
+/// returning via "Continue" on the main menu resumes exactly here.
 class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final controller = context.read<GameController>();
+
     return Container(
       color: const Color(0xFFCFC7B8),
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          IconButton(
+            icon: const Icon(Icons.home_outlined),
+            tooltip: 'Main Menu',
+            onPressed: controller.goToMainMenu,
+          ),
           IconButton(
             icon: const Icon(Icons.menu_book),
             tooltip: 'Journal',
@@ -122,13 +144,14 @@ class _BottomNav extends StatelessWidget {
             icon: Icon(Icons.inventory_2_outlined),
             onPressed: null, // Phase 2: build inventory screen
           ),
-          const IconButton(
-            icon: Icon(Icons.emoji_events_outlined),
-            onPressed: null, // Phase 2: build achievements/endings screen
-          ),
-          const IconButton(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            onPressed: null,
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),

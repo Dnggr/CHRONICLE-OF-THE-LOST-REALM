@@ -9,6 +9,64 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 3 — Main Menu, Settings, History
+
+**Problem:** The app had no home base. It routed straight from "loaded"
+into either character creation or the scene reader - there was no way to
+resume a run deliberately (vs it just being auto-loaded), no settings
+surface, and no way to review the Chronicle (past heroes/world stats)
+without already being mid-game.
+
+**Solution:**
+- Added `AppScreen` enum (`mainMenu`, `characterCreation`, `playing`) to
+  `GameController`, replacing the old two-state `needsCharacterCreation`
+  boolean. All screen transitions now go through four explicit methods
+  on GameController (`goToMainMenu`, `goToCharacterCreation`,
+  `resumeGame`, plus `beginRun`/`acknowledgeDeath` setting `screen` as a
+  side effect) - kept centralized so every entry/exit point for gameplay
+  lives in one file.
+- `MainMenuScreen` — the new `home:` destination. Shows Continue (only
+  if a run exists), New Game, History, Settings. New Game warns before
+  overwriting an in-progress run, since starting a new one used to
+  silently discard the old one without recording it in the Chronicle.
+- `HistoryScreen` — reachable from the main menu (also useful right
+  after a death). Shows computed-on-the-fly aggregate stats (current
+  year, monarch, heroes fallen, longest/shortest-lived, most common
+  cause of death, total canon events) plus the full fallen-heroes list.
+  Deliberately separate from the existing in-run `JournalScreen`, which
+  stays focused on "this life" + a quick chronicle glance.
+- `SettingsScreen` — dark mode, global text-size slider, a
+  show-dice-roll-details toggle (actually wired into SceneScreen, not
+  just a decorative switch), and a guarded "Reset World" action
+  (confirmation dialog, wipes both the active run and the permanent
+  Chronicle, cannot be undone).
+- `SettingsController` + `AppSettings` (`lib/models/app_settings.dart`)
+  — a separate ChangeNotifier and Hive box from GameController/
+  world_box, specifically so Reset World can never accidentally wipe the
+  player's text-size/theme preference, and so settings persist
+  independently of any run/Chronicle state.
+- `main.dart` now uses `MultiProvider` (GameController + SettingsController)
+  and applies the theme/text-scale globally via `MaterialApp.builder` +
+  `MediaQuery` — one place controls it, no screen re-implements scaling.
+- `GameController.acknowledgeDeath()` now routes to the main menu
+  instead of straight into character creation, so the player can check
+  History/Settings before starting their next life (previously this was
+  a hard cut straight back into character creation).
+- Added a Home icon to `SceneScreen`'s bottom nav to back out to the
+  main menu mid-run without losing progress (every choice already
+  autosaves via `SaveManager.saveRun()`, so this is safe).
+
+**Design note on History vs Journal duplication:** both list deceased
+heroes. This is intentional, not an oversight — Journal is opened DURING
+a run and answers "what have I done / who came before me, quickly."
+History is opened from the main menu (often between lives) and answers
+"what has this world become," with aggregate stats Journal doesn't try
+to compute. If this duplication ever feels redundant in practice, the
+fix would be to make Journal's chronicle section link out to
+HistoryScreen rather than repeating the list, not to merge the screens
+outright — they're triggered from different mental moments.
+
+--------------------------------------------------------------------------
 ## Session 2 — Character Archetypes / Origins
 
 **Problem:** The engine only ever created a generic "Wanderer" character

@@ -10,20 +10,30 @@ import 'dice_roller.dart';
 import 'legacy_engine.dart';
 import 'save_manager.dart';
 
+/// The top-level screen the app is showing. Added this session alongside
+/// MainMenuScreen/SettingsScreen/HistoryScreen.
+///
+/// PROBLEM: before this, routing was a single boolean
+/// (`needsCharacterCreation`) with exactly two destinations
+/// (CharacterCreationScreen or SceneScreen) - fine for two screens, but
+/// adding a proper main menu meant "no character yet" could no longer
+/// mean just one thing (it now also covers "sitting at the main menu
+/// with a character in progress, deciding whether to hit Continue").
+/// SOLUTION: an explicit enum with one entry per top-level destination.
+/// History and Settings are NOT in this enum on purpose - they're
+/// pushed via Navigator.push as "excursions" you back out of, rather
+/// than swapped-in root screens, because you always return to exactly
+/// where you were (menu or mid-game) when you close them.
+enum AppScreen { mainMenu, characterCreation, playing }
+
 /// The single source of truth the UI listens to. Owns the active
 /// CharacterState, the permanent WorldHistory, and the scene graph.
 ///
 /// CHANGE LOG (see /DEVLOG.md for the full narrative of each session):
 /// - [character] used to be `late` and auto-filled with a generic
-///   "Wanderer" the instant the app opened, before the user could pick
-///   anything. PROBLEM: that made a real character-creation flow
-///   impossible to insert cleanly - there was no "no character yet"
-///   state for the UI to key off of. SOLUTION: character is now
-///   nullable. `character == null` (and not dead) IS the signal that
-///   means "show CharacterCreationScreen" - see [needsCharacterCreation]
-///   below and _AppRoot in main.dart. This removes an entire class of
-///   bugs where the UI had to track its own separate "have we shown
-///   creation yet" boolean that could drift out of sync with the engine.
+///   "Wanderer" the instant the app opened. Now nullable - null means
+///   "no run in progress," full stop, regardless of which screen is
+///   showing.
 class GameController extends ChangeNotifier {
   final SceneRepository sceneRepository;
   final DiceRoller diceRoller;
@@ -32,9 +42,9 @@ class GameController extends ChangeNotifier {
   late WorldHistory world;
   SceneNode? currentScene;
 
-  /// True once init() has finished loading scenes + save data. Lets the
-  /// UI tell "still starting up" apart from "loaded, but no character
-  /// exists yet" - both look like `character == null` otherwise.
+  AppScreen screen = AppScreen.mainMenu;
+
+  /// True once init() has finished loading scenes + save data.
   bool isLoaded = false;
 
   /// Set right after a stat check so the UI can show "Roll: 14 + 2 = 16
@@ -49,10 +59,9 @@ class GameController extends ChangeNotifier {
     DiceRoller? diceRoller,
   }) : diceRoller = diceRoller ?? DiceRoller();
 
-  /// True when the UI should show CharacterCreationScreen: either this
-  /// is a fresh install with no saved run, or the previous character
-  /// just died and acknowledgeDeath() has been called.
-  bool get needsCharacterCreation => isLoaded && character == null && !isDead;
+  /// True if there's a run to resume - drives whether MainMenuScreen
+  /// shows a "Continue" button at all.
+  bool get hasActiveRun => character != null;
 
   Future<void> init() async {
     await sceneRepository.loadAll();
@@ -62,8 +71,10 @@ class GameController extends ChangeNotifier {
       character = savedRun;
       _loadCurrentScene();
     }
-    // else: leave character null on purpose - _AppRoot will route to
-    // CharacterCreationScreen via needsCharacterCreation above.
+    // NOTE: even with a saved run present, we deliberately start at
+    // AppScreen.mainMenu (the enum's default) rather than jumping
+    // straight into SceneScreen - the player should always land on the
+    // main menu first and choose Continue, same as most games.
     isLoaded = true;
     notifyListeners();
   }
@@ -78,9 +89,8 @@ class GameController extends ChangeNotifier {
     final activeCharacter = character;
     if (activeCharacter == null) {
       throw StateError(
-        'ConditionEvaluator requested with no active character - this '
-        'means a screen tried to read scene content before character '
-        'creation finished. Check needsCharacterCreation first.',
+        'ConditionEvaluator requested with no active character - a '
+        'screen tried to read scene content while screen != playing.',
       );
     }
     return ConditionEvaluator(character: activeCharacter, world: world);
@@ -110,10 +120,35 @@ class GameController extends ChangeNotifier {
         .toList();
   }
 
-  /// Starts a brand-new run for a freshly created (or freshly
-  /// resurrected-as-someone-else) character. Used both for the very
-  /// first character in a fresh install AND after a death, once the
-  /// player has picked a name + Archetype on CharacterCreationScreen.
+  // ---- Top-level navigation ----
+  //
+  // These four methods are the ONLY way `screen` should change. Keeping
+  // every transition here (instead of screens setting `screen` directly)
+  // means every entry/exit point for gameplay is in one place - useful
+  // the next time a bug report says "how did the player end up here."
+
+  void goToMainMenu() {
+    screen = AppScreen.mainMenu;
+    notifyListeners();
+  }
+
+  void goToCharacterCreation() {
+    screen = AppScreen.characterCreation;
+    notifyListeners();
+  }
+
+  /// Called from MainMenuScreen's "Continue" button. No-ops if there's
+  /// nothing to resume (button should be hidden in that case anyway -
+  /// this is a defensive backstop, not the primary guard).
+  void resumeGame() {
+    if (character == null) return;
+    screen = AppScreen.playing;
+    notifyListeners();
+  }
+
+  /// Starts a brand-new run for a freshly created character. Used both
+  /// for the very first character in a fresh install AND after a death,
+  /// once the player has picked a name + Archetype.
   Future<void> beginRun({
     required String name,
     required Archetype archetype,
@@ -124,6 +159,7 @@ class GameController extends ChangeNotifier {
     character = CharacterState.fromArchetype(name: name, archetype: archetype);
     _loadCurrentScene();
     await SaveManager.saveRun(character!);
+    screen = AppScreen.playing;
     notifyListeners();
   }
 
@@ -189,22 +225,39 @@ class GameController extends ChangeNotifier {
       world: world,
       causeOfDeath: cause,
     );
-    // OPTIMIZATION/CLARITY NOTE: clearing character here (rather than in
-    // beginRun) means "isDead == true" and "character == null" become
-    // true at the same moment - DeathScreen can safely read the character
-    // that just died from LegacyEngine's result (world.mostRecentHero)
-    // instead of holding a stale CharacterState reference around.
     character = null;
     currentScene = null;
     notifyListeners();
   }
 
-  /// Called from DeathScreen once the player has read the death recap
-  /// and is ready to move on. Flips isDead off so needsCharacterCreation
-  /// becomes true and _AppRoot routes to CharacterCreationScreen.
+  /// Called from DeathScreen once the player has read the death recap.
+  ///
+  /// PROBLEM: this used to send the player straight back into
+  /// CharacterCreationScreen. Once a real main menu existed, that felt
+  /// wrong - after a death, the player should be able to check History
+  /// (see their fallen hero's final Chronicle entry) or Settings before
+  /// deciding to start again. SOLUTION: route to the main menu instead;
+  /// "New Game" from there goes to character creation same as always.
   void acknowledgeDeath() {
     isDead = false;
     deathCause = null;
+    screen = AppScreen.mainMenu;
+    notifyListeners();
+  }
+
+  /// Settings > Reset World. Wipes BOTH the active run and the permanent
+  /// Chronicle - this is the only place in the app allowed to touch
+  /// world_box's contents. Always gate the call site behind a
+  /// confirmation dialog (see SettingsScreen) - there is no undo.
+  Future<void> resetWorld() async {
+    await SaveManager.clearRun();
+    await SaveManager.clearWorld();
+    character = null;
+    currentScene = null;
+    world = WorldHistory();
+    isDead = false;
+    deathCause = null;
+    screen = AppScreen.mainMenu;
     notifyListeners();
   }
 }

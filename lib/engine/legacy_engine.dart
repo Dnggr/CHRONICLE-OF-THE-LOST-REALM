@@ -1,3 +1,4 @@
+import '../data/archetypes.dart';
 import '../models/character_state.dart';
 import '../models/world_history.dart';
 import 'save_manager.dart';
@@ -12,14 +13,24 @@ class LegacyEngine {
     required CharacterState character,
     required WorldHistory world,
     required String causeOfDeath,
-    String title = 'The Wanderer',
+    String? title,
     String alignment = 'Neutral',
     String graveLocation = 'An unmarked grave',
   }) async {
+    // PROBLEM: this used to hardcode title: 'The Wanderer' for every
+    // deceased hero, which was wrong the moment Archetypes shipped - a
+    // dead Royal Heir or Vampire shouldn't be remembered as "The
+    // Wanderer" in the Chronicle. SOLUTION: if no explicit title is
+    // passed, derive one from the archetype the player actually picked.
+    // originTags[0] is always the archetype's own id by convention (see
+    // CharacterState.fromArchetype), so we look it up in the Archetypes
+    // registry for its display name.
+    final resolvedTitle = title ?? _titleFromOrigin(character.originTags);
+
     final hero = DeceasedHero(
       heroId: 'hero_${DateTime.now().millisecondsSinceEpoch}',
       name: character.name,
-      title: title,
+      title: resolvedTitle,
       causeOfDeath: causeOfDeath,
       yearOfDeath: world.currentYear,
       ageAtDeath: character.age,
@@ -49,11 +60,18 @@ class LegacyEngine {
     world.worldFlags[key] = value;
   }
 
-  /// Creates a fresh CharacterState to begin a new run. The opening
-  /// scene id is fixed here (prologue_start); which NARRATIVE TEXT that
-  /// scene shows is decided later by ConditionEvaluator + the scene's
-  /// narrativeVariants, using data already sitting in [world].
-  static CharacterState startNewRun({required String name}) {
-    return CharacterState(name: name);
+  static String _titleFromOrigin(List<String> originTags) {
+    if (originTags.isEmpty) return 'The Adventurer';
+    final archetypeId = originTags.first;
+    for (final archetype in Archetypes.all) {
+      if (archetype.id == archetypeId) return archetype.displayName;
+    }
+    return 'The Adventurer';
   }
+
+  // NOTE: the old generic startNewRun({name}) factory was removed here -
+  // character creation now always goes through
+  // CharacterState.fromArchetype(name, archetype) so that archetype
+  // perks (stats/gear/gold/origin tags) can never accidentally be
+  // skipped. See CharacterCreationScreen + GameController.beginRun().
 }

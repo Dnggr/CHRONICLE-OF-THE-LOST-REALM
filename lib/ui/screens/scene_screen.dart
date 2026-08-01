@@ -31,7 +31,11 @@ class SceneScreen extends StatelessWidget {
           body: SafeArea(
             child: Column(
               children: [
-                StatBar(character: controller.character),
+                // Safe to force-unwrap: reaching this line means isDead
+                // was false AND currentScene was non-null above, and
+                // GameController only ever has a non-null currentScene
+                // while character is also non-null (see _loadCurrentScene).
+                StatBar(character: controller.character!),
                 Container(height: 3, color: Colors.amber[800]),
                 Expanded(
                   child: SingleChildScrollView(

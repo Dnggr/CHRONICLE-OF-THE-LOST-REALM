@@ -10,7 +10,10 @@ class JournalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<GameController>();
-    final history = controller.character.runHistory;
+    // Safe to force-unwrap: JournalScreen is only ever pushed from
+    // SceneScreen's bottom nav, which itself is only shown once a
+    // character exists (see _AppRoot in main.dart).
+    final history = controller.character!.runHistory;
     final deceased = controller.world.deceasedHeroes;
 
     return Scaffold(
@@ -19,6 +22,10 @@ class JournalScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text('This Life', style: GoogleFonts.cinzel(fontSize: 18)),
+          Text(
+            controller.character!.name,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
           const SizedBox(height: 8),
           if (history.isEmpty)
             const Text('No notable deeds... yet.')

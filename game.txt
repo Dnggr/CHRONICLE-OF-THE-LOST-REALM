@@ -1,0 +1,2986 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+android/
+  app/
+    src/
+      debug/
+        AndroidManifest.xml
+      main/
+        kotlin/
+          com/
+            example/
+              lost_realm/
+                MainActivity.kt
+        res/
+          drawable/
+            launch_background.xml
+          drawable-v21/
+            launch_background.xml
+          mipmap-hdpi/
+            ic_launcher.png
+          mipmap-mdpi/
+            ic_launcher.png
+          mipmap-xhdpi/
+            ic_launcher.png
+          mipmap-xxhdpi/
+            ic_launcher.png
+          mipmap-xxxhdpi/
+            ic_launcher.png
+          values/
+            styles.xml
+          values-night/
+            styles.xml
+        AndroidManifest.xml
+      profile/
+        AndroidManifest.xml
+    build.gradle.kts
+  gradle/
+    wrapper/
+      gradle-wrapper.properties
+  .gitignore
+  build.gradle.kts
+  gradle.properties
+  lost_realm_android.iml
+  settings.gradle.kts
+assets/
+  images/
+    illustrations/
+      .gitkeep
+    portraits/
+      .gitkeep
+  scenes/
+    prologue.json
+lib/
+  data/
+    archetypes.dart
+    scene_repository.dart
+  engine/
+    condition_evaluator.dart
+    dice_roller.dart
+    game_controller.dart
+    legacy_engine.dart
+    save_manager.dart
+  models/
+    character_state.dart
+    scene_node.dart
+    world_history.dart
+  ui/
+    screens/
+      character_creation_screen.dart
+      death_screen.dart
+      journal_screen.dart
+      scene_screen.dart
+    widgets/
+      choice_button.dart
+      narrative_text.dart
+      stat_bar.dart
+  main.dart
+test/
+  widget_test.dart
+.gitignore
+.metadata
+analysis_options.yaml
+DEVLOG.md
+lost_realm.iml
+pubspec.yaml
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="assets/images/illustrations/.gitkeep">
+
+</file>
+
+<file path="assets/images/portraits/.gitkeep">
+
+</file>
+
+<file path="lib/data/archetypes.dart">
+// ============================================================================
+// ARCHETYPES (playable origins)
+// ----------------------------------------------------------------------------
+// STORY DESIGN NOTE:
+// The original build plan (see the .txt plan doc) only specced a single
+// generic "adventurer" start, like Life in Adventure's default. The user
+// asked for a proper origin-select screen instead - Wanderer, Civilian,
+// royalty, and a few fantasy races - each with mechanical perks (stat
+// bonuses, starting gear/gold) AND narrative hooks (origin tags that scene
+// JSON can check, so the story actually reacts to who you picked, not just
+// your stat sheet).
+//
+// The Royal Heir archetype is deliberately tied to "House Aldric" - which
+// matches WorldHistory's default monarchInPower ("King Aldric III") in
+// world_history.dart. That's intentional continuity: if you play a Royal
+// Heir, you are, narratively, kin to the currently-reigning king. Keep this
+// in sync if you ever rename the default monarch.
+//
+// ENGINE NOTE:
+// Each archetype's perks are applied ONCE, at character creation, inside
+// CharacterState.fromArchetype() (see character_state.dart). Origin itself
+// is preserved for the rest of the run via CharacterState.originTags, which
+// ConditionEvaluator reads through the "origin.<tag> == true" expression
+// pattern (see condition_evaluator.dart) - that's what lets scene JSON gate
+// choices/text on "did the player pick Vampire", not just on stats.
+// ============================================================================
+
+class Archetype {
+  final String id;
+  final String displayName;
+  final String tagline;
+  final String description;
+
+  /// Added on top of the base 10 in every attribute. Can be negative
+  /// (e.g. Dwarf trades Presence for Might/Endurance) - tradeoffs make
+  /// the choice matter instead of every option being strictly better.
+  final Map<String, int> attributeBonuses;
+
+  final List<String> startingInventory;
+  final int startingGoldBonus;
+
+  /// Written into CharacterState.originTags on creation. Scene JSON
+  /// checks these via "origin.<tag> == true". Always includes [id]
+  /// automatically (see CharacterState.fromArchetype) - only list EXTRA
+  /// tags here beyond the archetype's own id.
+  final List<String> extraOriginTags;
+
+  final int? maxAgeOverride;
+
+  const Archetype({
+    required this.id,
+    required this.displayName,
+    required this.tagline,
+    required this.description,
+    this.attributeBonuses = const {},
+    this.startingInventory = const [],
+    this.startingGoldBonus = 0,
+    this.extraOriginTags = const [],
+    this.maxAgeOverride,
+  });
+
+  /// Short "+2 Might, +1 Endurance" style summary for the selection card.
+  String get perkSummary {
+    final parts = attributeBonuses.entries
+        .where((e) => e.value != 0)
+        .map((e) => '${e.value > 0 ? "+" : ""}${e.value} ${_label(e.key)}')
+        .toList();
+    if (startingGoldBonus != 0) {
+      parts.add('${startingGoldBonus > 0 ? "+" : ""}$startingGoldBonus Gold');
+    }
+    return parts.join(', ');
+  }
+
+  static String _label(String attrKey) {
+    switch (attrKey) {
+      case 'might':
+        return 'Might';
+      case 'cunning':
+        return 'Cunning';
+      case 'lore':
+        return 'Lore';
+      case 'presence':
+        return 'Presence';
+      case 'endurance':
+        return 'Endurance';
+      default:
+        return attrKey;
+    }
+  }
+}
+
+/// The full roster of playable origins. Add new ones here - nothing else
+/// needs to change, CharacterCreationScreen renders this list directly.
+class Archetypes {
+  static const wanderer = Archetype(
+    id: 'wanderer',
+    displayName: 'Wanderer',
+    tagline: 'No home, no ties, no one waiting for you.',
+    description:
+        'You left the road behind you long ago. Hardship taught you to '
+        'keep moving and keep quiet.',
+    attributeBonuses: {'endurance': 2},
+    startingInventory: ['Traveler\'s Cloak', 'Worn Waterskin'],
+    startingGoldBonus: 0,
+  );
+
+  static const civilian = Archetype(
+    id: 'civilian',
+    displayName: 'Civilian',
+    tagline: 'A farmer\'s child, chasing a hero\'s dream.',
+    description:
+        'You grew up among ordinary people, and they still trust you like '
+        'one of their own - that counts for more than a blade, sometimes.',
+    attributeBonuses: {'presence': 2},
+    startingInventory: ['Family Heirloom Ring'],
+    startingGoldBonus: 5,
+  );
+
+  static const royalHeir = Archetype(
+    id: 'royal_heir',
+    displayName: 'Heir of House Aldric',
+    tagline: 'Born to the throne. Burdened by it, too.',
+    description:
+        'You are blood of the ruling house. Doors open for you that stay '
+        'shut to others - but so do old grudges, and every guard in the '
+        'realm knows your face.',
+    attributeBonuses: {'lore': 1, 'presence': 2},
+    startingInventory: ['Signet Ring of House Aldric', 'Fine Steel Dagger'],
+    startingGoldBonus: 25,
+    extraOriginTags: ['royal', 'recognized_by_guards'],
+  );
+
+  static const elf = Archetype(
+    id: 'elf',
+    displayName: 'Elf',
+    tagline: 'Centuries of memory behind quiet eyes.',
+    description:
+        'You have watched empires rise and fall before. Little in this '
+        'age surprises you, and you have had a long time to master the bow '
+        'and the old tongues.',
+    attributeBonuses: {'lore': 2, 'cunning': 1},
+    startingInventory: ['Heirloom Longbow', 'Pressed Silverleaf'],
+    maxAgeOverride: 200,
+    extraOriginTags: ['longlived'],
+  );
+
+  static const dwarf = Archetype(
+    id: 'dwarf',
+    displayName: 'Dwarf',
+    tagline: 'Stone-stubborn, iron-armed, plain-spoken.',
+    description:
+        'You were raised under the mountain, where a handshake means more '
+        'than a smile. You hit hard and you outlast almost anyone.',
+    attributeBonuses: {'might': 2, 'endurance': 2, 'presence': -1},
+    startingInventory: ['Dwarven War-Axe'],
+    startingGoldBonus: 10,
+  );
+
+  static const vampire = Archetype(
+    id: 'vampire',
+    displayName: 'Vampire',
+    tagline: 'Something ancient wears a human face.',
+    description:
+        'Cursed or blessed, depending who you ask, with unnatural charm '
+        'and an unnatural hunger. Common folk feel it, even if they '
+        'couldn\'t say why they\'re uneasy around you.',
+    attributeBonuses: {'cunning': 2, 'presence': 2, 'endurance': -1},
+    startingInventory: ['Cold Iron Ring (sealed)'],
+    extraOriginTags: ['unnatural', 'distrusted_by_commonfolk'],
+  );
+
+  static const mercenary = Archetype(
+    id: 'mercenary',
+    displayName: 'Exiled Mercenary',
+    tagline: 'Sold your sword until your last company sold you out.',
+    description:
+        'You have killed for coin on three different battlefields, and '
+        'you\'d rather not talk about why your old company wants you dead.',
+    attributeBonuses: {'might': 2, 'cunning': 1},
+    startingInventory: ['Notched Longsword', 'Boiled Leather Armor'],
+    startingGoldBonus: -5,
+    extraOriginTags: ['hunted'],
+  );
+
+  static const List<Archetype> all = [
+    wanderer,
+    civilian,
+    royalHeir,
+    elf,
+    dwarf,
+    vampire,
+    mercenary,
+  ];
+}
+</file>
+
+<file path="DEVLOG.md">
+# DEVLOG
+
+This file is the running record of every build session: what problem we
+were solving, what we changed to solve it, and why. Inline code comments
+cover the "how" at the line level; this file covers the "why" at the
+decision level, in one place, so you don't have to reconstruct the
+reasoning from git history later.
+
+New entries go at the TOP (most recent first).
+
+--------------------------------------------------------------------------
+## Session 2 — Character Archetypes / Origins
+
+**Problem:** The engine only ever created a generic "Wanderer" character
+automatically on first launch. There was no player-facing choice of who
+you're playing as, and the legacy/origin system had nothing to hook into
+besides raw attribute numbers.
+
+**Solution:**
+- Added `lib/data/archetypes.dart` — a static roster of 7 playable
+  origins (Wanderer, Civilian, Heir of House Aldric, Elf, Dwarf, Vampire,
+  Exiled Mercenary), each with attribute bonuses/penalties, starting
+  gear/gold, and `originTags`.
+- Added `CharacterState.originTags` + `CharacterState.fromArchetype()` —
+  a single factory that's now the ONLY way a character gets created, so
+  archetype perks can't be silently skipped.
+- Extended `ConditionEvaluator` with an `origin.<tag> == true/false`
+  pattern, mirroring the existing `flags.<key>` syntax but reading from
+  the character instead of the world. This is what lets scene JSON
+  differentiate "you rolled high Presence" from "you specifically ARE a
+  Vampire."
+- Reworked `GameController`: `character` is now nullable.
+  `character == null && !isDead` (via the new `needsCharacterCreation`
+  getter) is the single signal the whole app uses to decide whether to
+  show `CharacterCreationScreen`. This replaced a design where a
+  "Wanderer" was auto-created instantly on boot, which left no window
+  for a real creation flow.
+- `CharacterCreationScreen` rewritten from an unwired name-only scaffold
+  into the real flow: name field + scrollable archetype cards showing
+  perks and starting gear, wired to `GameController.beginRun()`.
+- `DeathScreen` simplified: it no longer collects a name itself. It just
+  shows the recap and calls `acknowledgeDeath()`, which hands control
+  back to `_AppRoot` → `CharacterCreationScreen` — so choosing your next
+  life after death goes through the SAME full archetype picker as your
+  very first character, instead of a cut-down "just type a name" flow.
+- `LegacyEngine.recordDeath` no longer hardcodes `title: 'The Wanderer'`
+  for every dead hero — it now derives the Chronicle title from whichever
+  archetype the player actually picked.
+- Added two origin-gated example scenes in `prologue.json` (a Royal Heir
+  can invoke House Aldric's name to clear the caravan road with no dice
+  roll needed; a Vampire can attempt a Cunning-based compulsion instead)
+  to prove the wiring works end-to-end, not just in theory.
+
+**Story/design note:** House Aldric (the Royal Heir's family) is
+deliberately the same name as `WorldHistory.monarchInPower`'s default
+("King Aldric III") — playing a Royal Heir means you are, canonically,
+kin to the current king. If you ever rename the default monarch, update
+`Archetypes.royalHeir` to match.
+
+**Compatibility note:** `CharacterState.fromJson` defaults `originTags`
+to `[]` if missing, so a save written before this session (which has no
+`originTags` field) still loads without crashing.
+
+--------------------------------------------------------------------------
+## Session 1 — Phase 1 MVP (initial engine)
+
+**Problem:** Needed a working reading/choice engine before any content
+or polish work made sense — prove scenes can load, branch on stat
+checks, branch on world flags, and persist, before building on top of
+that foundation.
+
+**Solution:**
+- Built the data models (`SceneNode`/`SceneChoice`, `CharacterState`,
+  `WorldHistory`) matching the build plan's schema.
+- Built the engine layer: `DiceRoller` (1d20 + modifier vs DC),
+  `ConditionEvaluator` (a small hand-rolled expression language — chose
+  regex-based pattern matching over a full parser/grammar because the
+  actual condition vocabulary needed is small and fixed; a real
+  expression parser would be over-engineering for "flags.x == true" /
+  "attributes.x >= N" / "inventory.contains('x')"), `SaveManager` (Hive,
+  two separate boxes — one for the wipeable per-run save, one for the
+  permanent cross-playthrough world save, kept deliberately separate so
+  a "new game" can never accidentally wipe legacy data), and
+  `LegacyEngine` (the death → DeceasedHero → WorldHistory pipeline).
+- Built the UI to match the reference screenshot (Life in Adventure):
+  `StatBar`, `ChoiceButton`, `NarrativeText` (renders reward lines in
+  green/red and drops in an inline illustration if one is specified,
+  with a graceful placeholder box if the art asset doesn't exist yet —
+  so writing/testing scenes is never blocked on having final art).
+- Wrote a 5-scene prologue proving both branch types work: a Presence
+  stat check with two different outcome scenes, and a scene whose text
+  changes based on a world flag (`sun_temple_destroyed`).
+
+**Engine choice:** Flutter over Unity — this project is a UI/state
+problem (text, images, buttons, stat panels), not a rendering/physics
+problem, and Flutter is much lighter on the dev's integrated-GPU PC than
+Unity's editor + render loop. Full reasoning is in the original build
+plan doc.
+</file>
+
+<file path="android/app/src/debug/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
+</file>
+
+<file path="android/app/src/main/kotlin/com/example/lost_realm/MainActivity.kt">
+package com.example.lost_realm
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
+</file>
+
+<file path="android/app/src/main/res/drawable/launch_background.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/white" />
+
+    <!-- You can insert your own image assets here -->
+    <!-- <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item> -->
+</layer-list>
+</file>
+
+<file path="android/app/src/main/res/drawable-v21/launch_background.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="?android:colorBackground" />
+
+    <!-- You can insert your own image assets here -->
+    <!-- <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item> -->
+</layer-list>
+</file>
+
+<file path="android/app/src/main/res/values/styles.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <!-- Show a splash screen on the activity. Automatically removed when
+             the Flutter engine draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
+</file>
+
+<file path="android/app/src/main/res/values-night/styles.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is on -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Show a splash screen on the activity. Automatically removed when
+             the Flutter engine draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
+</file>
+
+<file path="android/app/src/main/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="lost_realm"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
+</file>
+
+<file path="android/app/src/profile/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
+</file>
+
+<file path="android/app/build.gradle.kts">
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
+android {
+    namespace = "com.example.lost_realm"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.example.lost_realm"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+</file>
+
+<file path="android/gradle/wrapper/gradle-wrapper.properties">
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-all.zip
+</file>
+
+<file path="android/.gitignore">
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+</file>
+
+<file path="android/build.gradle.kts">
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
+}
+</file>
+
+<file path="android/gradle.properties">
+org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
+android.useAndroidX=true
+</file>
+
+<file path="android/lost_realm_android.iml">
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
+        <option name="GEN_FOLDER_RELATIVE_PATH_APT" value="/gen" />
+        <option name="GEN_FOLDER_RELATIVE_PATH_AIDL" value="/gen" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/app/src/main/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/app/src/main/res" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/app/src/main/assets" />
+        <option name="LIBS_FOLDER_RELATIVE_PATH" value="/app/src/main/libs" />
+        <option name="PROGUARD_LOGS_FOLDER_RELATIVE_PATH" value="/app/src/main/proguard_logs" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/app/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/app/src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
+    </content>
+    <orderEntry type="jdk" jdkName="Android API 24 Platform" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Flutter for Android" level="project" />
+    <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
+  </component>
+</module>
+</file>
+
+<file path="android/settings.gradle.kts">
+pluginManagement {
+    val flutterSdkPath =
+        run {
+            val properties = java.util.Properties()
+            file("local.properties").inputStream().use { properties.load(it) }
+            val flutterSdkPath = properties.getProperty("flutter.sdk")
+            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
+            flutterSdkPath
+        }
+
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+    id("com.android.application") version "8.11.1" apply false
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
+}
+
+include(":app")
+</file>
+
+<file path="assets/scenes/prologue.json">
+[
+  {
+    "sceneId": "prologue_start",
+    "illustrationId": "king_honors_hero",
+    "narrative": "A strong-looking individual was escorted to a platform. The individual slowly knelt before the king.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people! This adventurer here is our country's hero!\"\n\nWith the king's decree, the crowd went wild. Ever since you witnessed the event with your own eyes, you dreamt of becoming an honorable adventurer, instead of inheriting your father's farm. Years have passed, and that dream still remains in your heart to this day. It finally motivated you to start your own adventure.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
+    "narrativeVariants": {
+      "flags.sun_temple_destroyed == true": "A strong-looking individual was escorted to a platform, beneath the blackened, still-smoking ruin of what was once the Sun Temple. The crowd's cheers feel thinner than the old stories describe.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people!\"\n\nYou grew up in the shadow of that ruin, and of the tales of the one who burned it. Years have passed, and your own dream of adventure still remains in your heart.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
+      "origin.royal == true": "A strong-looking individual was escorted to a platform. The individual slowly knelt before your father, the king.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people! This adventurer here is our country's hero!\"\n\nYou watched from beside the throne, close enough to see the hero's hands shake. It was that day, not any lesson from your tutors, that taught you what House Aldric's name is actually worth to the people who kneel beneath it. Years have passed, and you mean to earn that name yourself, not just inherit it.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
+      "origin.vampire == true": "A strong-looking individual was escorted to a platform. The individual slowly knelt before the king, and you felt the crowd's heartbeat quicken around you like a single animal.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people!\"\n\nYou have watched a hundred such ceremonies over the centuries, and worn a hundred different names doing it. This age's dream of adventure has crept into you again anyway. Some hungers never really fade.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor"
+    },
+    "choices": [
+      {
+        "id": "begin",
+        "label": "Begin",
+        "outcomeSuccessNode": "prologue_village"
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_village",
+    "illustrationId": "outskirt_village",
+    "narrative": "The road out of your village splits at an old stone marker. To the west, smoke rises from the direction of a burned-out shrine the locals no longer speak of. To the east, a merchant caravan struggles to right an overturned cart.",
+    "narrativeVariants": {
+      "flags.sun_temple_destroyed == true": "The road out of your village splits at an old stone marker, one arm pointing toward the ruin of the Sun Temple - the one your childhood hero is said to have destroyed. To the east, a merchant caravan struggles to right an overturned cart."
+    },
+    "choices": [
+      {
+        "id": "help_caravan_presence",
+        "label": "Talk the frightened merchants into calm and organize the lift (Presence check)",
+        "requiredAttribute": "presence",
+        "difficultyClass": 12,
+        "outcomeSuccessNode": "prologue_altar_blessing",
+        "outcomeFailNode": "prologue_altar_curse",
+        "effects": {
+          "run_history": "Helped the merchant caravan on the village road"
+        }
+      },
+      {
+        "id": "help_caravan_royal",
+        "label": "Invoke House Aldric's name and order the road cleared",
+        "condition": "origin.royal == true",
+        "outcomeSuccessNode": "prologue_altar_blessing",
+        "effects": {
+          "run_history": "Used the Aldric name to clear the caravan road"
+        }
+      },
+      {
+        "id": "help_caravan_vampire",
+        "label": "Meet the caravan master's eyes and quietly compel him to calm (Cunning check)",
+        "condition": "origin.vampire == true",
+        "requiredAttribute": "cunning",
+        "difficultyClass": 10,
+        "outcomeSuccessNode": "prologue_altar_blessing",
+        "outcomeFailNode": "prologue_altar_curse",
+        "effects": {
+          "run_history": "Used unnatural charm on the caravan master"
+        }
+      },
+      {
+        "id": "visit_ruin",
+        "label": "Walk west toward the ruined shrine instead",
+        "outcomeSuccessNode": "prologue_ruin_visit"
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_altar_blessing",
+    "illustrationId": null,
+    "narrative": "Your steady voice cuts through the panic. Within minutes the cart is upright, the goods secured, and the caravan master presses a few coins into your hand along with a word of thanks that spreads ahead of you on the road.\n\n+ Gold, 5\n+ Reputation with local merchants",
+    "choices": [
+      {
+        "id": "continue_1",
+        "label": "Continue toward the capital",
+        "outcomeSuccessNode": "prologue_ruin_visit"
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_altar_curse",
+    "illustrationId": null,
+    "narrative": "Your attempt to organize the lift only adds to the chaos. A crate slips, and in the scramble a masked figure in the crowd lifts your coin pouch clean before vanishing down a side street.\n\n- Gold, 10",
+    "choices": [
+      {
+        "id": "continue_2",
+        "label": "Shake it off and continue toward the capital",
+        "outcomeSuccessNode": "prologue_ruin_visit"
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_ruin_visit",
+    "illustrationId": "ruined_watchtower",
+    "narrative": "Blackened pillars rise from the hillside, all that remains of the old shrine. Local children dare each other to spend a night among the ruins; none ever have.",
+    "narrativeVariants": {
+      "flags.sun_temple_destroyed == true": "Blackened pillars rise from the hillside - the Sun Temple, burned twenty years past by a hero whose name is still spoken in this village, in equal parts reverence and fear. A weathered marker nearby reads only: here he knelt, before the end."
+    },
+    "choices": [
+      {
+        "id": "search_ruin",
+        "label": "Search the ruin (this is a placeholder - build Chapter 1 from here)",
+        "outcomeSuccessNode": "prologue_start"
+      }
+    ]
+  }
+]
+</file>
+
+<file path="lib/data/scene_repository.dart">
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
+
+import '../models/scene_node.dart';
+
+/// Loads scene JSON files bundled under assets/scenes/ and gives fast
+/// lookup by sceneId. Add new files to the [_sceneFiles] list AND to
+/// pubspec.yaml's assets section when you add new chapters.
+class SceneRepository {
+  final Map<String, SceneNode> _scenesById = {};
+
+  static const List<String> _sceneFiles = [
+    'assets/scenes/prologue.json',
+  ];
+
+  Future<void> loadAll() async {
+    for (final path in _sceneFiles) {
+      final raw = await rootBundle.loadString(path);
+      final decoded = jsonDecode(raw);
+
+      // Each file is a JSON array of scene node objects.
+      final List<dynamic> list = decoded as List<dynamic>;
+      for (final entry in list) {
+        final node = SceneNode.fromJson(entry as Map<String, dynamic>);
+        _scenesById[node.sceneId] = node;
+      }
+    }
+  }
+
+  SceneNode getScene(String sceneId) {
+    final node = _scenesById[sceneId];
+    if (node == null) {
+      throw StateError(
+        'No scene found with id "$sceneId". Check assets/scenes/*.json '
+        'for a typo, and confirm the file is listed in pubspec.yaml assets.',
+      );
+    }
+    return node;
+  }
+
+  bool hasScene(String sceneId) => _scenesById.containsKey(sceneId);
+}
+</file>
+
+<file path="lib/engine/condition_evaluator.dart">
+import '../models/character_state.dart';
+import '../models/world_history.dart';
+
+/// Evaluates the small condition-expression language used in scene JSON.
+///
+/// Supported forms (whitespace-insensitive):
+///   flags.<key> == true
+///   flags.<key> == false
+///   flags.<key> == 'someString'
+///   inventory.contains('itemName')
+///   attributes.<key> >= 12        (also <=, >, <, ==)
+///   origin.<tag> == true          (also == false) - checks the archetype
+///                                  the player chose at creation, e.g.
+///                                  "origin.royal == true" or
+///                                  "origin.vampire == true"
+///
+/// This is intentionally NOT a full expression parser - it covers the
+/// handful of patterns the game actually needs. If you find yourself
+/// wanting AND/OR combinators, either add a second condition field
+/// (conditionAll: [...]) rather than growing this into a real parser,
+/// or write a second expression and check both from Dart.
+class ConditionEvaluator {
+  final CharacterState character;
+  final WorldHistory world;
+
+  ConditionEvaluator({required this.character, required this.world});
+
+  bool evaluate(String? expression) {
+    if (expression == null || expression.trim().isEmpty) return true;
+    final expr = expression.trim();
+
+    final flagBool = RegExp(
+      r"^flags\.(\w+)\s*==\s*(true|false)$",
+    ).firstMatch(expr);
+    if (flagBool != null) {
+      final key = flagBool.group(1)!;
+      final expected = flagBool.group(2) == 'true';
+      final actual = world.worldFlags[key] == true;
+      return actual == expected;
+    }
+
+    final flagString = RegExp(
+      r"^flags\.(\w+)\s*==\s*'([^']*)'$",
+    ).firstMatch(expr);
+    if (flagString != null) {
+      final key = flagString.group(1)!;
+      final expected = flagString.group(2)!;
+      return world.worldFlags[key] == expected;
+    }
+
+    final invContains = RegExp(
+      r"^inventory\.contains\('([^']*)'\)$",
+    ).firstMatch(expr);
+    if (invContains != null) {
+      final item = invContains.group(1)!;
+      return character.inventory.contains(item);
+    }
+
+    // PROBLEM: after adding Archetypes (Royal Heir, Vampire, Elf, etc),
+    // scene writers needed a way to gate content on WHICH origin the
+    // player picked, separate from world_flags (which are global/shared
+    // across every playthrough) and separate from attribute checks
+    // (which can be true for any build that rolls well, not just one
+    // origin). SOLUTION: mirror the flags.<key> syntax but read from
+    // CharacterState.originTags instead of WorldHistory.worldFlags.
+    // Example usage in scene JSON: "origin.royal == true"
+    final originBool = RegExp(
+      r"^origin\.(\w+)\s*==\s*(true|false)$",
+    ).firstMatch(expr);
+    if (originBool != null) {
+      final tag = originBool.group(1)!;
+      final expected = originBool.group(2) == 'true';
+      final actual = character.originTags.contains(tag);
+      return actual == expected;
+    }
+
+    final attrCompare = RegExp(
+      r"^attributes\.(\w+)\s*(>=|<=|>|<|==)\s*(\d+)$",
+    ).firstMatch(expr);
+    if (attrCompare != null) {
+      final key = attrCompare.group(1)!;
+      final op = attrCompare.group(2)!;
+      final value = int.parse(attrCompare.group(3)!);
+      final actual = character.attributes[key] ?? 0;
+      switch (op) {
+        case '>=':
+          return actual >= value;
+        case '<=':
+          return actual <= value;
+        case '>':
+          return actual > value;
+        case '<':
+          return actual < value;
+        case '==':
+          return actual == value;
+      }
+    }
+
+    // Unknown expression format - fail safe by hiding the content rather
+    // than crashing the game. Check your JSON syntax against the
+    // patterns documented above if a choice/variant is missing.
+    return false;
+  }
+}
+</file>
+
+<file path="lib/engine/dice_roller.dart">
+import 'dart:math';
+
+class StatCheckResult {
+  final int roll;
+  final int modifier;
+  final int total;
+  final int difficultyClass;
+  final bool success;
+
+  const StatCheckResult({
+    required this.roll,
+    required this.modifier,
+    required this.total,
+    required this.difficultyClass,
+    required this.success,
+  });
+}
+
+class DiceRoller {
+  final Random _random;
+
+  DiceRoller({Random? random}) : _random = random ?? Random();
+
+  /// Rolls 1d20, adds [modifier] (an attribute score, or a derived
+  /// modifier if you switch to D&D-style (score-10)/2 later), and
+  /// compares to [difficultyClass].
+  StatCheckResult check({
+    required int modifier,
+    required int difficultyClass,
+  }) {
+    final roll = _random.nextInt(20) + 1; // 1-20
+    final total = roll + modifier;
+    return StatCheckResult(
+      roll: roll,
+      modifier: modifier,
+      total: total,
+      difficultyClass: difficultyClass,
+      success: total >= difficultyClass,
+    );
+  }
+}
+</file>
+
+<file path="lib/engine/game_controller.dart">
+import 'package:flutter/foundation.dart';
+
+import '../data/archetypes.dart';
+import '../data/scene_repository.dart';
+import '../models/character_state.dart';
+import '../models/scene_node.dart';
+import '../models/world_history.dart';
+import 'condition_evaluator.dart';
+import 'dice_roller.dart';
+import 'legacy_engine.dart';
+import 'save_manager.dart';
+
+/// The single source of truth the UI listens to. Owns the active
+/// CharacterState, the permanent WorldHistory, and the scene graph.
+///
+/// CHANGE LOG (see /DEVLOG.md for the full narrative of each session):
+/// - [character] used to be `late` and auto-filled with a generic
+///   "Wanderer" the instant the app opened, before the user could pick
+///   anything. PROBLEM: that made a real character-creation flow
+///   impossible to insert cleanly - there was no "no character yet"
+///   state for the UI to key off of. SOLUTION: character is now
+///   nullable. `character == null` (and not dead) IS the signal that
+///   means "show CharacterCreationScreen" - see [needsCharacterCreation]
+///   below and _AppRoot in main.dart. This removes an entire class of
+///   bugs where the UI had to track its own separate "have we shown
+///   creation yet" boolean that could drift out of sync with the engine.
+class GameController extends ChangeNotifier {
+  final SceneRepository sceneRepository;
+  final DiceRoller diceRoller;
+
+  CharacterState? character;
+  late WorldHistory world;
+  SceneNode? currentScene;
+
+  /// True once init() has finished loading scenes + save data. Lets the
+  /// UI tell "still starting up" apart from "loaded, but no character
+  /// exists yet" - both look like `character == null` otherwise.
+  bool isLoaded = false;
+
+  /// Set right after a stat check so the UI can show "Roll: 14 + 2 = 16
+  /// vs DC 12 - Success!" before the player taps to continue.
+  StatCheckResult? lastCheckResult;
+
+  bool isDead = false;
+  String? deathCause;
+
+  GameController({
+    required this.sceneRepository,
+    DiceRoller? diceRoller,
+  }) : diceRoller = diceRoller ?? DiceRoller();
+
+  /// True when the UI should show CharacterCreationScreen: either this
+  /// is a fresh install with no saved run, or the previous character
+  /// just died and acknowledgeDeath() has been called.
+  bool get needsCharacterCreation => isLoaded && character == null && !isDead;
+
+  Future<void> init() async {
+    await sceneRepository.loadAll();
+    world = SaveManager.loadWorld();
+    final savedRun = SaveManager.loadRun();
+    if (savedRun != null) {
+      character = savedRun;
+      _loadCurrentScene();
+    }
+    // else: leave character null on purpose - _AppRoot will route to
+    // CharacterCreationScreen via needsCharacterCreation above.
+    isLoaded = true;
+    notifyListeners();
+  }
+
+  void _loadCurrentScene() {
+    final activeCharacter = character;
+    if (activeCharacter == null) return;
+    currentScene = sceneRepository.getScene(activeCharacter.currentSceneId);
+  }
+
+  ConditionEvaluator get _evaluator {
+    final activeCharacter = character;
+    if (activeCharacter == null) {
+      throw StateError(
+        'ConditionEvaluator requested with no active character - this '
+        'means a screen tried to read scene content before character '
+        'creation finished. Check needsCharacterCreation first.',
+      );
+    }
+    return ConditionEvaluator(character: activeCharacter, world: world);
+  }
+
+  /// Returns the narrative text to display for the current scene,
+  /// substituting in a flag- or origin-gated variant if one matches.
+  String get currentNarrative {
+    final scene = currentScene;
+    if (scene == null) return '';
+    for (final entry in scene.narrativeVariants.entries) {
+      if (_evaluator.evaluate(entry.key)) {
+        return entry.value;
+      }
+    }
+    return scene.narrative;
+  }
+
+  /// Choices filtered down to only the ones whose condition currently
+  /// evaluates true (this is where origin-gated choices, like a Royal
+  /// Heir being recognized by guards, get hidden from everyone else).
+  List<SceneChoice> get availableChoices {
+    final scene = currentScene;
+    if (scene == null) return const [];
+    return scene.choices
+        .where((c) => _evaluator.evaluate(c.conditionExpression))
+        .toList();
+  }
+
+  /// Starts a brand-new run for a freshly created (or freshly
+  /// resurrected-as-someone-else) character. Used both for the very
+  /// first character in a fresh install AND after a death, once the
+  /// player has picked a name + Archetype on CharacterCreationScreen.
+  Future<void> beginRun({
+    required String name,
+    required Archetype archetype,
+  }) async {
+    isDead = false;
+    deathCause = null;
+    lastCheckResult = null;
+    character = CharacterState.fromArchetype(name: name, archetype: archetype);
+    _loadCurrentScene();
+    await SaveManager.saveRun(character!);
+    notifyListeners();
+  }
+
+  Future<void> selectChoice(SceneChoice choice) async {
+    final activeCharacter = character;
+    if (activeCharacter == null) return; // defensive - UI shouldn't allow this
+    lastCheckResult = null;
+
+    // Apply immediate effects (world flags, run history entries) first.
+    choice.effects.forEach((key, value) {
+      if (key.startsWith('world_flags.')) {
+        final flagKey = key.substring('world_flags.'.length);
+        LegacyEngine.applyFlagEffect(world, flagKey, value);
+      } else if (key == 'run_history') {
+        activeCharacter.runHistory.add(value as String);
+      }
+    });
+
+    if (choice.isFatal) {
+      await _handleDeath(choice.fatalCause ?? 'Unknown cause');
+      return;
+    }
+
+    String nextSceneId;
+    if (choice.hasStatCheck) {
+      final modifier =
+          activeCharacter.attributes[choice.requiredAttribute!] ?? 0;
+      final result = diceRoller.check(
+        modifier: modifier,
+        difficultyClass: choice.difficultyClass!,
+      );
+      lastCheckResult = result;
+      nextSceneId = result.success
+          ? choice.outcomeSuccessNode
+          : (choice.outcomeFailNode ?? choice.outcomeSuccessNode);
+    } else {
+      nextSceneId = choice.outcomeSuccessNode;
+    }
+
+    activeCharacter.currentSceneId = nextSceneId;
+    _loadCurrentScene();
+    await SaveManager.saveRun(activeCharacter);
+
+    if (activeCharacter.isDead) {
+      await _handleDeath(
+        activeCharacter.age >= activeCharacter.maxAge
+            ? 'Old age'
+            : 'Wounds sustained',
+      );
+      return;
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> _handleDeath(String cause) async {
+    final activeCharacter = character;
+    if (activeCharacter == null) return;
+    isDead = true;
+    deathCause = cause;
+    world = await LegacyEngine.recordDeath(
+      character: activeCharacter,
+      world: world,
+      causeOfDeath: cause,
+    );
+    // OPTIMIZATION/CLARITY NOTE: clearing character here (rather than in
+    // beginRun) means "isDead == true" and "character == null" become
+    // true at the same moment - DeathScreen can safely read the character
+    // that just died from LegacyEngine's result (world.mostRecentHero)
+    // instead of holding a stale CharacterState reference around.
+    character = null;
+    currentScene = null;
+    notifyListeners();
+  }
+
+  /// Called from DeathScreen once the player has read the death recap
+  /// and is ready to move on. Flips isDead off so needsCharacterCreation
+  /// becomes true and _AppRoot routes to CharacterCreationScreen.
+  void acknowledgeDeath() {
+    isDead = false;
+    deathCause = null;
+    notifyListeners();
+  }
+}
+</file>
+
+<file path="lib/engine/legacy_engine.dart">
+import '../data/archetypes.dart';
+import '../models/character_state.dart';
+import '../models/world_history.dart';
+import 'save_manager.dart';
+
+/// Handles the death -> canon -> new run pipeline described in the plan.
+class LegacyEngine {
+  /// Call this the moment a character dies (health hits 0, age hits
+  /// maxAge, or a fatal choice is taken). Builds a DeceasedHero record
+  /// from the run, appends it to WorldHistory, applies any pending
+  /// world-flag changes, and persists both.
+  static Future<WorldHistory> recordDeath({
+    required CharacterState character,
+    required WorldHistory world,
+    required String causeOfDeath,
+    String? title,
+    String alignment = 'Neutral',
+    String graveLocation = 'An unmarked grave',
+  }) async {
+    // PROBLEM: this used to hardcode title: 'The Wanderer' for every
+    // deceased hero, which was wrong the moment Archetypes shipped - a
+    // dead Royal Heir or Vampire shouldn't be remembered as "The
+    // Wanderer" in the Chronicle. SOLUTION: if no explicit title is
+    // passed, derive one from the archetype the player actually picked.
+    // originTags[0] is always the archetype's own id by convention (see
+    // CharacterState.fromArchetype), so we look it up in the Archetypes
+    // registry for its display name.
+    final resolvedTitle = title ?? _titleFromOrigin(character.originTags);
+
+    final hero = DeceasedHero(
+      heroId: 'hero_${DateTime.now().millisecondsSinceEpoch}',
+      name: character.name,
+      title: resolvedTitle,
+      causeOfDeath: causeOfDeath,
+      yearOfDeath: world.currentYear,
+      ageAtDeath: character.age,
+      alignment: alignment,
+      graveLocation: graveLocation,
+      relicsLeft: List<String>.from(character.inventory),
+      majorCanonEvents: List<String>.from(character.runHistory),
+    );
+
+    world.deceasedHeroes.add(hero);
+    world.currentYear += 1;
+
+    await SaveManager.saveWorld(world);
+    await SaveManager.clearRun();
+
+    return world;
+  }
+
+  /// Applies a single world-flag change. Call this from wherever a
+  /// SceneChoice.effects map is processed, e.g.
+  /// effects: { "world_flags.sun_temple_destroyed": true }
+  static void applyFlagEffect(
+    WorldHistory world,
+    String key,
+    dynamic value,
+  ) {
+    world.worldFlags[key] = value;
+  }
+
+  static String _titleFromOrigin(List<String> originTags) {
+    if (originTags.isEmpty) return 'The Adventurer';
+    final archetypeId = originTags.first;
+    for (final archetype in Archetypes.all) {
+      if (archetype.id == archetypeId) return archetype.displayName;
+    }
+    return 'The Adventurer';
+  }
+
+  // NOTE: the old generic startNewRun({name}) factory was removed here -
+  // character creation now always goes through
+  // CharacterState.fromArchetype(name, archetype) so that archetype
+  // perks (stats/gear/gold/origin tags) can never accidentally be
+  // skipped. See CharacterCreationScreen + GameController.beginRun().
+}
+</file>
+
+<file path="lib/engine/save_manager.dart">
+import 'dart:convert';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../models/character_state.dart';
+import '../models/world_history.dart';
+
+/// Handles all local persistence. Two SEPARATE boxes on purpose:
+///
+/// - `run_box`     -> the active CharacterState. Overwritten on save,
+///                    CLEARED when a new run starts after death.
+/// - `world_box`   -> the permanent WorldHistory. Only ever appended to,
+///                    never cleared - this is the whole point of the
+///                    legacy system.
+class SaveManager {
+  static const _runBoxName = 'run_box';
+  static const _worldBoxName = 'world_box';
+  static const _runKey = 'current_run';
+  static const _worldKey = 'world_history';
+
+  static Future<void> init() async {
+    await Hive.initFlutter();
+    await Hive.openBox<String>(_runBoxName);
+    await Hive.openBox<String>(_worldBoxName);
+  }
+
+  // ---- Current run ----
+
+  static Future<void> saveRun(CharacterState state) async {
+    final box = Hive.box<String>(_runBoxName);
+    await box.put(_runKey, jsonEncode(state.toJson()));
+  }
+
+  static CharacterState? loadRun() {
+    final box = Hive.box<String>(_runBoxName);
+    final raw = box.get(_runKey);
+    if (raw == null) return null;
+    return CharacterState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  }
+
+  static Future<void> clearRun() async {
+    final box = Hive.box<String>(_runBoxName);
+    await box.delete(_runKey);
+  }
+
+  // ---- World history (permanent legacy save) ----
+
+  static Future<void> saveWorld(WorldHistory world) async {
+    final box = Hive.box<String>(_worldBoxName);
+    await box.put(_worldKey, jsonEncode(world.toJson()));
+  }
+
+  static WorldHistory loadWorld() {
+    final box = Hive.box<String>(_worldBoxName);
+    final raw = box.get(_worldKey);
+    if (raw == null) return WorldHistory();
+    return WorldHistory.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  }
+}
+</file>
+
+<file path="lib/models/character_state.dart">
+import '../data/archetypes.dart';
+
+/// The active playthrough's character. This is wiped/reset on death -
+/// permanent legacy data lives in WorldHistory instead.
+///
+/// CHANGE LOG (see /DEVLOG.md for the full story):
+/// - Added [originTags] so the story can react to which Archetype the
+///   player picked at creation (royal, elf, vampire, etc), not just to
+///   raw attribute numbers. PROBLEM this solves: attribute bonuses alone
+///   (e.g. Royal Heir having +2 Presence) are indistinguishable from any
+///   other build that happens to roll high Presence - there was no way
+///   for scene JSON to say "only if you ARE a vampire" vs "only if your
+///   Cunning is high enough to convincingly fake being unsettling."
+///   SOLUTION: originTags is a permanent, un-earnable label set once at
+///   creation and read via ConditionEvaluator's "origin.<tag> == true"
+///   pattern (see condition_evaluator.dart).
+class CharacterState {
+  String name;
+  int age;
+  int maxAge;
+
+  /// might, cunning, lore, presence, endurance
+  Map<String, int> attributes;
+
+  int healthCurrent;
+  int healthMax;
+  int gold;
+  List<String> inventory;
+  List<String> statusEffects;
+
+  /// Set once at character creation from the chosen Archetype (its id,
+  /// plus any extraOriginTags - e.g. picking Royal Heir gives
+  /// ["royal_heir", "royal", "recognized_by_guards"]). Never mutated
+  /// during play - this is "what you were born as," not a flag you earn.
+  List<String> originTags;
+
+  /// Log of major choices taken this run, used both for the Journal
+  /// screen and to decide what gets written into WorldHistory on death.
+  List<String> runHistory;
+
+  String currentSceneId;
+
+  CharacterState({
+    required this.name,
+    this.age = 18,
+    this.maxAge = 65,
+    Map<String, int>? attributes,
+    this.healthCurrent = 100,
+    this.healthMax = 100,
+    this.gold = 10,
+    List<String>? inventory,
+    List<String>? statusEffects,
+    List<String>? originTags,
+    List<String>? runHistory,
+    this.currentSceneId = 'prologue_start',
+  })  : attributes = attributes ??
+            {
+              'might': 10,
+              'cunning': 10,
+              'lore': 10,
+              'presence': 10,
+              'endurance': 10,
+            },
+        inventory = inventory ?? [],
+        statusEffects = statusEffects ?? [],
+        originTags = originTags ?? [],
+        runHistory = runHistory ?? [];
+
+  /// Builds a brand-new character from a player-chosen name + Archetype.
+  /// This is the ONLY place archetype perks get applied - attribute
+  /// bonuses, starting gear/gold, and origin tags all flow from here so
+  /// there's a single source of truth instead of scattering "if royal
+  /// then +gold" logic across the UI and the engine.
+  factory CharacterState.fromArchetype({
+    required String name,
+    required Archetype archetype,
+  }) {
+    final baseAttributes = {
+      'might': 10,
+      'cunning': 10,
+      'lore': 10,
+      'presence': 10,
+      'endurance': 10,
+    };
+    archetype.attributeBonuses.forEach((key, bonus) {
+      baseAttributes[key] = (baseAttributes[key] ?? 10) + bonus;
+    });
+
+    return CharacterState(
+      name: name,
+      attributes: baseAttributes,
+      gold: 10 + archetype.startingGoldBonus,
+      inventory: List<String>.from(archetype.startingInventory),
+      originTags: [archetype.id, ...archetype.extraOriginTags],
+      maxAge: archetype.maxAgeOverride ?? 65,
+    );
+  }
+
+  bool get isDead => healthCurrent <= 0 || age >= maxAge;
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'age': age,
+        'maxAge': maxAge,
+        'attributes': attributes,
+        'healthCurrent': healthCurrent,
+        'healthMax': healthMax,
+        'gold': gold,
+        'inventory': inventory,
+        'statusEffects': statusEffects,
+        'originTags': originTags,
+        'runHistory': runHistory,
+        'currentSceneId': currentSceneId,
+      };
+
+  factory CharacterState.fromJson(Map<String, dynamic> json) {
+    return CharacterState(
+      name: json['name'] as String,
+      age: json['age'] as int,
+      maxAge: json['maxAge'] as int,
+      attributes: (json['attributes'] as Map).cast<String, int>(),
+      healthCurrent: json['healthCurrent'] as int,
+      healthMax: json['healthMax'] as int,
+      gold: json['gold'] as int,
+      inventory: (json['inventory'] as List).cast<String>(),
+      statusEffects: (json['statusEffects'] as List).cast<String>(),
+      // OPTIMIZATION/COMPATIBILITY NOTE: originTags was added after the
+      // first save format shipped. Default to [] instead of throwing if
+      // an old save (written before this field existed) doesn't have it,
+      // so existing saves on your phone don't break when you update.
+      originTags: (json['originTags'] as List?)?.cast<String>() ?? [],
+      runHistory: (json['runHistory'] as List).cast<String>(),
+      currentSceneId: json['currentSceneId'] as String,
+    );
+  }
+}
+</file>
+
+<file path="lib/models/scene_node.dart">
+/// A single choice available inside a scene.
+///
+/// [conditionExpression] gates whether the choice is even shown, e.g.
+/// "flags.sun_temple_destroyed == true" or "inventory.contains('poultice')".
+/// Leave null for a choice that is always available.
+///
+/// [requiredAttribute] + [difficultyClass] together define an optional
+/// 1d20 + attribute-modifier stat check. If [requiredAttribute] is null,
+/// the choice always resolves to [outcomeSuccessNode] with no roll.
+class SceneChoice {
+  final String id;
+  final String label;
+  final String? conditionExpression;
+  final String? requiredAttribute;
+  final int? difficultyClass;
+  final String outcomeSuccessNode;
+  final String? outcomeFailNode;
+
+  /// Set of "world_flags" or "run_history" entries to apply when this
+  /// choice is taken, regardless of success/fail. Example:
+  /// { "world_flags.sun_temple_destroyed": true }
+  final Map<String, dynamic> effects;
+
+  /// If true, taking this choice ends the current run in death.
+  final bool isFatal;
+  final String? fatalCause;
+
+  const SceneChoice({
+    required this.id,
+    required this.label,
+    this.conditionExpression,
+    this.requiredAttribute,
+    this.difficultyClass,
+    required this.outcomeSuccessNode,
+    this.outcomeFailNode,
+    this.effects = const {},
+    this.isFatal = false,
+    this.fatalCause,
+  });
+
+  factory SceneChoice.fromJson(Map<String, dynamic> json) {
+    return SceneChoice(
+      id: json['id'] as String,
+      label: json['label'] as String,
+      conditionExpression: json['condition'] as String?,
+      requiredAttribute: json['requiredAttribute'] as String?,
+      difficultyClass: json['difficultyClass'] as int?,
+      outcomeSuccessNode: json['outcomeSuccessNode'] as String,
+      outcomeFailNode: json['outcomeFailNode'] as String?,
+      effects: (json['effects'] as Map?)?.cast<String, dynamic>() ?? const {},
+      isFatal: json['isFatal'] as bool? ?? false,
+      fatalCause: json['fatalCause'] as String?,
+    );
+  }
+
+  bool get hasStatCheck => requiredAttribute != null && difficultyClass != null;
+}
+
+/// A single node in the story graph. Loaded from assets/scenes/*.json.
+///
+/// [narrativeVariants] lets one scene id show different prose depending on
+/// which world flag is currently true, without needing a separate node.
+/// Keys are condition expressions (same syntax as SceneChoice.condition),
+/// checked in order; the first match wins, otherwise [narrative] is used.
+class SceneNode {
+  final String sceneId;
+  final String? illustrationId;
+  final String narrative;
+  final Map<String, String> narrativeVariants;
+  final List<SceneChoice> choices;
+
+  const SceneNode({
+    required this.sceneId,
+    this.illustrationId,
+    required this.narrative,
+    this.narrativeVariants = const {},
+    required this.choices,
+  });
+
+  factory SceneNode.fromJson(Map<String, dynamic> json) {
+    final choicesJson = (json['choices'] as List?) ?? const [];
+    final variantsJson = (json['narrativeVariants'] as Map?) ?? const {};
+    return SceneNode(
+      sceneId: json['sceneId'] as String,
+      illustrationId: json['illustrationId'] as String?,
+      narrative: json['narrative'] as String,
+      narrativeVariants: variantsJson.cast<String, String>(),
+      choices: choicesJson
+          .map((c) => SceneChoice.fromJson(c as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+</file>
+
+<file path="lib/models/world_history.dart">
+/// A record of one dead character, permanently stored in WorldHistory.
+class DeceasedHero {
+  final String heroId;
+  final String name;
+  final String title;
+  final String causeOfDeath;
+  final int yearOfDeath;
+  final int ageAtDeath;
+  final String alignment;
+  final String graveLocation;
+  final List<String> relicsLeft;
+  final List<String> majorCanonEvents;
+
+  const DeceasedHero({
+    required this.heroId,
+    required this.name,
+    required this.title,
+    required this.causeOfDeath,
+    required this.yearOfDeath,
+    required this.ageAtDeath,
+    required this.alignment,
+    required this.graveLocation,
+    required this.relicsLeft,
+    required this.majorCanonEvents,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'heroId': heroId,
+        'name': name,
+        'title': title,
+        'causeOfDeath': causeOfDeath,
+        'yearOfDeath': yearOfDeath,
+        'ageAtDeath': ageAtDeath,
+        'alignment': alignment,
+        'graveLocation': graveLocation,
+        'relicsLeft': relicsLeft,
+        'majorCanonEvents': majorCanonEvents,
+      };
+
+  factory DeceasedHero.fromJson(Map<String, dynamic> json) {
+    return DeceasedHero(
+      heroId: json['heroId'] as String,
+      name: json['name'] as String,
+      title: json['title'] as String,
+      causeOfDeath: json['causeOfDeath'] as String,
+      yearOfDeath: json['yearOfDeath'] as int,
+      ageAtDeath: json['ageAtDeath'] as int,
+      alignment: json['alignment'] as String,
+      graveLocation: json['graveLocation'] as String,
+      relicsLeft: (json['relicsLeft'] as List).cast<String>(),
+      majorCanonEvents: (json['majorCanonEvents'] as List).cast<String>(),
+    );
+  }
+}
+
+/// The permanent, cross-playthrough world save. NEVER wiped on death or
+/// new game - only ever appended to. This is what makes past runs feel
+/// canon in future ones.
+class WorldHistory {
+  int currentYear;
+  String monarchInPower;
+  List<DeceasedHero> deceasedHeroes;
+  Map<String, dynamic> worldFlags;
+
+  WorldHistory({
+    this.currentYear = 1200,
+    this.monarchInPower = 'King Aldric III',
+    List<DeceasedHero>? deceasedHeroes,
+    Map<String, dynamic>? worldFlags,
+  })  : deceasedHeroes = deceasedHeroes ?? [],
+        worldFlags = worldFlags ?? {};
+
+  DeceasedHero? get mostRecentHero =>
+      deceasedHeroes.isEmpty ? null : deceasedHeroes.last;
+
+  Map<String, dynamic> toJson() => {
+        'currentYear': currentYear,
+        'monarchInPower': monarchInPower,
+        'deceasedHeroes': deceasedHeroes.map((h) => h.toJson()).toList(),
+        'worldFlags': worldFlags,
+      };
+
+  factory WorldHistory.fromJson(Map<String, dynamic> json) {
+    return WorldHistory(
+      currentYear: json['currentYear'] as int,
+      monarchInPower: json['monarchInPower'] as String,
+      deceasedHeroes: (json['deceasedHeroes'] as List)
+          .map((h) => DeceasedHero.fromJson(h as Map<String, dynamic>))
+          .toList(),
+      worldFlags: (json['worldFlags'] as Map).cast<String, dynamic>(),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/screens/character_creation_screen.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../data/archetypes.dart';
+import '../../engine/game_controller.dart';
+
+/// PHASE UPDATE: this used to be an unwired scaffold that only asked for
+/// a name. PROBLEM: the user wanted real build variety at the start of
+/// each life (Wanderer / Civilian / royalty / Elf / Dwarf / Vampire /
+/// Mercenary), each with mechanical perks AND narrative hooks, and they
+/// wanted this to run both on first launch and after every death.
+/// SOLUTION: this screen now does two things in one flow - name entry,
+/// then an archetype grid - and GameController routes here automatically
+/// via needsCharacterCreation, so main.dart and DeathScreen don't need
+/// any special-case logic for "first ever run" vs "run after death."
+class CharacterCreationScreen extends StatefulWidget {
+  const CharacterCreationScreen({super.key});
+
+  @override
+  State<CharacterCreationScreen> createState() =>
+      _CharacterCreationScreenState();
+}
+
+class _CharacterCreationScreenState extends State<CharacterCreationScreen> {
+  final _nameController = TextEditingController();
+  Archetype? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.read<GameController>();
+    final hasPastHeroes = controller.world.deceasedHeroes.isNotEmpty;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF1B1712),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              child: Column(
+                children: [
+                  Text(
+                    'Chronicle of the Lost Realm',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.cinzel(
+                      color: Colors.amber[200],
+                      fontSize: 22,
+                    ),
+                  ),
+                  if (hasPastHeroes) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      // STORY NOTE: this line is the player-facing proof
+                      // that the legacy system is real - it only shows
+                      // once a hero has actually died and been recorded.
+                      'The realm remembers ${controller.world.deceasedHeroes.length} '
+                      'who came before you.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.merriweather(
+                        color: Colors.white54,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Name your adventurer',
+                      hintStyle: const TextStyle(color: Colors.white38),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber[700]!),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber[400]!),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: Archetypes.all.length,
+                itemBuilder: (context, index) {
+                  final archetype = Archetypes.all[index];
+                  final isSelected = archetype.id == _selected?.id;
+                  return _ArchetypeCard(
+                    archetype: archetype,
+                    isSelected: isSelected,
+                    onTap: () => setState(() => _selected = archetype),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _selected == null
+                      ? null
+                      : () {
+                          final name = _nameController.text.trim();
+                          controller.beginRun(
+                            name: name.isEmpty ? _selected!.displayName : name,
+                            archetype: _selected!,
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber[800],
+                    disabledBackgroundColor: Colors.white12,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Begin Your Chronicle'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ArchetypeCard extends StatelessWidget {
+  final Archetype archetype;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ArchetypeCard({
+    required this.archetype,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      color: isSelected ? Colors.amber.withOpacity(0.15) : const Color(0xFF262019),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: isSelected ? Colors.amber[400]! : Colors.white12,
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      archetype.displayName,
+                      style: GoogleFonts.cinzel(
+                        color: Colors.amber[100],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (isSelected)
+                    Icon(Icons.check_circle, color: Colors.amber[400], size: 18),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                archetype.tagline,
+                style: GoogleFonts.merriweather(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                archetype.description,
+                style: GoogleFonts.merriweather(
+                  color: Colors.white60,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (archetype.perkSummary.isNotEmpty)
+                Text(
+                  archetype.perkSummary,
+                  style: const TextStyle(
+                    color: Colors.greenAccent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              if (archetype.startingInventory.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    'Starts with: ${archetype.startingInventory.join(', ')}',
+                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/screens/death_screen.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../engine/game_controller.dart';
+
+/// PROBLEM this screen used to have: it asked for the new hero's name
+/// directly and called a (now-removed) generic startNewRunAfterHome(name)
+/// that skipped archetype selection entirely - so every resurrection was
+/// mechanically identical, defeating the whole point of adding origins.
+/// SOLUTION: DeathScreen's only job now is showing the recap. Tapping
+/// "Continue" calls GameController.acknowledgeDeath(), which flips
+/// isDead off; that makes needsCharacterCreation true, and _AppRoot
+/// (see main.dart) routes to CharacterCreationScreen automatically -
+/// where the player picks BOTH a name and an archetype for their next
+/// life, same as their very first character.
+class DeathScreen extends StatelessWidget {
+  const DeathScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<GameController>();
+    final hero = controller.world.mostRecentHero;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF1B1712),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'The Chronicle Remembers',
+                  style: GoogleFonts.cinzel(
+                    color: Colors.amber[200],
+                    fontSize: 22,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (hero != null)
+                  Text(
+                    '${hero.name}, ${hero.title}, died in the year '
+                    '${hero.yearOfDeath}, aged ${hero.ageAtDeath}.\n'
+                    'Cause: ${hero.causeOfDeath}',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.merriweather(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  ),
+                if (hero != null && hero.majorCanonEvents.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ...hero.majorCanonEvents.map(
+                    (event) => Text(
+                      '- $event',
+                      style: GoogleFonts.merriweather(
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  'Their deeds are now canon. The world will remember.',
+                  style: GoogleFonts.merriweather(
+                    color: Colors.white38,
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: controller.acknowledgeDeath,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber[800],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 14,
+                    ),
+                  ),
+                  child: const Text('Begin a New Legend'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/screens/journal_screen.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../engine/game_controller.dart';
+
+class JournalScreen extends StatelessWidget {
+  const JournalScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<GameController>();
+    // Safe to force-unwrap: JournalScreen is only ever pushed from
+    // SceneScreen's bottom nav, which itself is only shown once a
+    // character exists (see _AppRoot in main.dart).
+    final history = controller.character!.runHistory;
+    final deceased = controller.world.deceasedHeroes;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Journal')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text('This Life', style: GoogleFonts.cinzel(fontSize: 18)),
+          Text(
+            controller.character!.name,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+          const SizedBox(height: 8),
+          if (history.isEmpty)
+            const Text('No notable deeds... yet.')
+          else
+            ...history.map((h) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text('• $h'),
+                )),
+          const SizedBox(height: 24),
+          Text('The Chronicle (past lives)',
+              style: GoogleFonts.cinzel(fontSize: 18)),
+          const SizedBox(height: 8),
+          if (deceased.isEmpty)
+            const Text('No hero has yet fallen. You are the first.')
+          else
+            ...deceased.reversed.map((h) => Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${h.name}, ${h.title}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold)),
+                        Text(
+                          'Died ${h.yearOfDeath}, aged ${h.ageAtDeath} '
+                          '(${h.causeOfDeath})',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(height: 4),
+                        ...h.majorCanonEvents.map(
+                          (e) => Text('- $e', style: const TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+        ],
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/screens/scene_screen.dart">
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../engine/game_controller.dart';
+import '../widgets/choice_button.dart';
+import '../widgets/narrative_text.dart';
+import '../widgets/stat_bar.dart';
+import 'death_screen.dart';
+import 'journal_screen.dart';
+
+class SceneScreen extends StatelessWidget {
+  const SceneScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GameController>(
+      builder: (context, controller, _) {
+        if (controller.isDead) {
+          return const DeathScreen();
+        }
+
+        final scene = controller.currentScene;
+        if (scene == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFE9E2D3), // parchment page
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Safe to force-unwrap: reaching this line means isDead
+                // was false AND currentScene was non-null above, and
+                // GameController only ever has a non-null currentScene
+                // while character is also non-null (see _loadCurrentScene).
+                StatBar(character: controller.character!),
+                Container(height: 3, color: Colors.amber[800]),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        NarrativeText(
+                          text: controller.currentNarrative,
+                          illustrationId: scene.illustrationId,
+                        ),
+                        if (controller.lastCheckResult != null)
+                          _CheckResultBanner(
+                            result: controller.lastCheckResult!,
+                          ),
+                        const SizedBox(height: 16),
+                        ...controller.availableChoices.map(
+                          (choice) => ChoiceButton(
+                            label: choice.label,
+                            onTap: () => controller.selectChoice(choice),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                _BottomNav(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CheckResultBanner extends StatelessWidget {
+  final dynamic result; // StatCheckResult
+
+  const _CheckResultBanner({required this.result});
+
+  @override
+  Widget build(BuildContext context) {
+    final success = result.success as bool;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: success ? Colors.green.withOpacity(0.12) : Colors.red.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        'Roll: ${result.roll} + ${result.modifier} = ${result.total} '
+        'vs DC ${result.difficultyClass} - ${success ? "Success" : "Failure"}',
+        style: TextStyle(
+          color: success ? Colors.green[800] : Colors.red[800],
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomNav extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFCFC7B8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: 'Journal',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const JournalScreen()),
+              );
+            },
+          ),
+          const IconButton(
+            icon: Icon(Icons.inventory_2_outlined),
+            onPressed: null, // Phase 2: build inventory screen
+          ),
+          const IconButton(
+            icon: Icon(Icons.emoji_events_outlined),
+            onPressed: null, // Phase 2: build achievements/endings screen
+          ),
+          const IconButton(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            onPressed: null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/widgets/choice_button.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ChoiceButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const ChoiceButton({super.key, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            side: BorderSide(color: Colors.amber[700]!, width: 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            foregroundColor: Colors.amber[100],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.diamond_outlined, size: 14, color: Colors.amber[700]),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.merriweather(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/widgets/narrative_text.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// Renders narrative prose in a serif "book page" style, with an
+/// optional illustration dropped inline (matching the reference
+/// screenshot, where the image sits between two blocks of text).
+///
+/// [illustrationId] maps to assets/images/illustrations/<id>.png.
+/// If the asset is missing (e.g. you haven't added art yet), this
+/// widget shows a placeholder box instead of crashing - useful while
+/// you're still writing scenes before sourcing final art.
+class NarrativeText extends StatelessWidget {
+  final String text;
+  final String? illustrationId;
+
+  const NarrativeText({super.key, required this.text, this.illustrationId});
+
+  @override
+  Widget build(BuildContext context) {
+    // Reward lines like "+ Gold, 10" get their own styling, matching
+    // the green highlight in the reference screenshot.
+    final lines = text.split('\n');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...(() {
+          final widgets = <Widget>[];
+          for (final line in lines) {
+            if (line.trim().startsWith('+') || line.trim().startsWith('-')) {
+              widgets.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(
+                    line.trim(),
+                    style: GoogleFonts.merriweather(
+                      fontSize: 14,
+                      color: line.trim().startsWith('+')
+                          ? Colors.green[700]
+                          : Colors.red[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
+            } else if (line.trim().isEmpty) {
+              widgets.add(const SizedBox(height: 12));
+            } else {
+              widgets.add(
+                Text(
+                  line,
+                  style: GoogleFonts.merriweather(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: const Color(0xFF2A2420),
+                  ),
+                ),
+              );
+            }
+          }
+          return widgets;
+        })(),
+        if (illustrationId != null) ...[
+          const SizedBox(height: 16),
+          _Illustration(illustrationId: illustrationId!),
+          const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+}
+
+class _Illustration extends StatelessWidget {
+  final String illustrationId;
+
+  const _Illustration({required this.illustrationId});
+
+  @override
+  Widget build(BuildContext context) {
+    final path = 'assets/images/illustrations/$illustrationId.png';
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          height: 180,
+          alignment: Alignment.center,
+          color: Colors.black12,
+          child: Text(
+            '[ illustration: $illustrationId ]',
+            style: const TextStyle(color: Colors.black45, fontSize: 12),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/ui/widgets/stat_bar.dart">
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../../models/character_state.dart';
+
+/// Recreates the top bar from the reference screenshot: portrait + name
+/// on the left, a grid of small stat readouts on the right.
+class StatBar extends StatelessWidget {
+  final CharacterState character;
+
+  const StatBar({super.key, required this.character});
+
+  @override
+  Widget build(BuildContext context) {
+    final attrs = character.attributes;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        color: Color(0xFFCFC7B8), // parchment/tan like the reference
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: Colors.black26,
+            child: Text(
+              character.name.isNotEmpty
+                  ? character.name[0].toUpperCase()
+                  : '?',
+              style: GoogleFonts.cinzel(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  character.name,
+                  style: GoogleFonts.cinzel(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 4,
+                  children: [
+                    _StatChip(label: 'MGT', value: attrs['might'] ?? 0),
+                    _StatChip(label: 'CUN', value: attrs['cunning'] ?? 0),
+                    _StatChip(label: 'LORE', value: attrs['lore'] ?? 0),
+                    _StatChip(label: 'PRE', value: attrs['presence'] ?? 0),
+                    _StatChip(label: 'END', value: attrs['endurance'] ?? 0),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.favorite, size: 14, color: Colors.red[700]),
+                    const SizedBox(width: 4),
+                    Text('${character.healthCurrent}/${character.healthMax}'),
+                    const SizedBox(width: 12),
+                    const Icon(Icons.circle, size: 12, color: Colors.amber),
+                    const SizedBox(width: 4),
+                    Text('${character.gold}'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final String label;
+  final int value;
+
+  const _StatChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        '$label $value',
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+</file>
+
+<file path="lib/main.dart">
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'data/scene_repository.dart';
+import 'engine/game_controller.dart';
+import 'engine/save_manager.dart';
+import 'ui/screens/character_creation_screen.dart';
+import 'ui/screens/scene_screen.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SaveManager.init();
+  runApp(const LostRealmApp());
+}
+
+class LostRealmApp extends StatelessWidget {
+  const LostRealmApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<GameController>(
+      create: (_) => GameController(
+        sceneRepository: SceneRepository(),
+      )..init(),
+      child: MaterialApp(
+        title: 'Chronicle of the Lost Realm',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.amber,
+          brightness: Brightness.light,
+        ),
+        home: const _AppRoot(),
+      ),
+    );
+  }
+}
+
+/// Top-level router. PROBLEM this replaced: the old version only checked
+/// "is there a scene loaded" to decide between a spinner and SceneScreen
+/// - there was no state for "loaded, but the player hasn't created a
+/// character yet." SOLUTION: three explicit states, checked in order:
+///   1. still loading save data / scene JSON  -> spinner
+///   2. loaded, but no character exists yet   -> CharacterCreationScreen
+///      (covers BOTH first-ever launch and "just died, pick your next
+///      hero" - see GameController.acknowledgeDeath())
+///   3. otherwise                              -> SceneScreen, which
+///      internally branches to DeathScreen if isDead is somehow true
+///      here (defensive; shouldn't happen given #2, but cheap to keep).
+class _AppRoot extends StatelessWidget {
+  const _AppRoot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GameController>(
+      builder: (context, controller, _) {
+        if (!controller.isLoaded) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (controller.needsCharacterCreation) {
+          return const CharacterCreationScreen();
+        }
+        return const SceneScreen();
+      },
+    );
+  }
+}
+</file>
+
+<file path="test/widget_test.dart">
+// This is a basic Flutter widget test.
+//
+// To perform an interaction with a widget in your test, use the WidgetTester
+// utility in the flutter_test package. For example, you can send tap and scroll
+// gestures. You can also use WidgetTester to find child widgets in the widget
+// tree, read text, and verify that the values of widget properties are correct.
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:lost_realm/main.dart';
+
+void main() {
+  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+
+    // Verify that our counter starts at 0.
+    expect(find.text('0'), findsOneWidget);
+    expect(find.text('1'), findsNothing);
+
+    // Tap the '+' icon and trigger a frame.
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
+
+    // Verify that our counter has incremented.
+    expect(find.text('0'), findsNothing);
+    expect(find.text('1'), findsOneWidget);
+  });
+}
+</file>
+
+<file path=".gitignore">
+# Miscellaneous
+*.class
+*.lock
+*.log
+*.pyc
+*.swp
+.buildlog/
+.history
+
+
+
+# Flutter repo-specific
+/bin/cache/
+/bin/internal/bootstrap.bat
+/bin/internal/bootstrap.sh
+/bin/mingit/
+/dev/benchmarks/mega_gallery/
+/dev/bots/.recipe_deps
+/dev/bots/android_tools/
+/dev/devicelab/ABresults*.json
+/dev/docs/doc/
+/dev/docs/flutter.docs.zip
+/dev/docs/lib/
+/dev/docs/pubspec.yaml
+/dev/integration_tests/**/xcuserdata
+/dev/integration_tests/**/Pods
+/packages/flutter/coverage/
+version
+analysis_benchmark.json
+
+# packages file containing multi-root paths
+.packages.generated
+
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/generated_plugin_registrant.dart
+.packages
+.pub-preload-cache/
+.pub/
+build/
+flutter_*.png
+linked_*.ds
+unlinked.ds
+unlinked_spec.ds
+
+# Android related
+**/android/**/gradle-wrapper.jar
+.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+*.jks
+
+# iOS/XCode related
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+**/Flutter/ephemeral/
+**/Pods/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral
+**/xcuserdata/
+
+# Windows
+**/windows/flutter/generated_plugin_registrant.cc
+**/windows/flutter/generated_plugin_registrant.h
+**/windows/flutter/generated_plugins.cmake
+
+# Linux
+**/linux/flutter/generated_plugin_registrant.cc
+**/linux/flutter/generated_plugin_registrant.h
+**/linux/flutter/generated_plugins.cmake
+
+# Coverage
+coverage/
+
+# Symbols
+app.*.symbols
+
+# Exceptions to above rules.
+!**/ios/**/default.mode1v3
+!**/ios/**/default.mode2v3
+!**/ios/**/default.pbxuser
+!**/ios/**/default.perspectivev3
+!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+!/dev/ci/**/Gemfile.lock
+</file>
+
+<file path=".metadata">
+# This file tracks properties of this Flutter project.
+# Used by Flutter tool to assess capabilities and perform upgrades etc.
+#
+# This file should be version controlled and should not be manually edited.
+
+version:
+  revision: "ff37bef603469fb030f2b72995ab929ccfc227f0"
+  channel: "stable"
+
+project_type: app
+
+# Tracks metadata for the flutter migrate command
+migration:
+  platforms:
+    - platform: root
+      create_revision: ff37bef603469fb030f2b72995ab929ccfc227f0
+      base_revision: ff37bef603469fb030f2b72995ab929ccfc227f0
+    - platform: android
+      create_revision: ff37bef603469fb030f2b72995ab929ccfc227f0
+      base_revision: ff37bef603469fb030f2b72995ab929ccfc227f0
+
+  # User provided section
+
+  # List of Local paths (relative to this file) that should be
+  # ignored by the migrate tool.
+  #
+  # Files that are not part of the templates will be ignored by default.
+  unmanaged_files:
+    - 'lib/main.dart'
+    - 'ios/Runner.xcodeproj/project.pbxproj'
+</file>
+
+<file path="analysis_options.yaml">
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
+</file>
+
+<file path="lost_realm.iml">
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/lib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Flutter Plugins" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
+  </component>
+</module>
+</file>
+
+<file path="pubspec.yaml">
+name: lost_realm
+description: "Chronicle of the Lost Realm - a branching dark-fantasy text RPG."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  google_fonts: ^6.2.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/scenes/
+    - assets/images/illustrations/
+    - assets/images/portraits/
+</file>
+
+<file path="README.md">
+# Chronicle of the Lost Realm — Dev Build
+
+See **DEVLOG.md** for the full session-by-session history of what was
+built, what problem each change solved, and why — this README is just
+the setup + current-state snapshot. Every source file also carries
+inline "PROBLEM / SOLUTION" comments at the point of the actual change,
+so the reasoning lives next to the code, not just in this file.
+
+I don't have the Flutter SDK in the sandbox that generates these
+projects, so `android/`, `ios/`, etc. are NOT included — you generate
+those locally in one step below. Everything under `lib/` and `assets/`
+is complete and ready to drop in over your existing project (it will
+NOT touch your already-generated `android/` folder).
+
+## Setup (Android only)
+
+1. Install Flutter if you haven't: https://docs.flutter.dev/get-started/install
+   Run `flutter doctor`, make sure the Android toolchain is green.
+
+2. Unzip this project (or copy `lib/`, `assets/`, `pubspec.yaml` over
+   your existing project folder), `cd` into it. If `android/` doesn't
+   exist yet:
+
+       flutter create --platforms=android .
+
+3. Get packages:
+
+       flutter pub get
+
+4. Plug in your phone (USB debugging on, "Allow USB debugging?" popup
+   accepted), confirm it shows up:
+
+       flutter devices
+
+5. Run:
+
+       flutter run
+
+## What's implemented
+
+**Engine (`lib/engine/`, `lib/models/`, `lib/data/`)**
+- `SceneNode`/`SceneChoice` — the scene graph data model, loaded from
+  `assets/scenes/*.json`.
+- `CharacterState` — the active run's character. Now created ONLY via
+  `CharacterState.fromArchetype(name, archetype)` — see below.
+- `WorldHistory` — the permanent, cross-playthrough legacy save
+  (deceased heroes + world flags). Never wiped.
+- `Archetype` / `Archetypes` (`lib/data/archetypes.dart`) — the 7
+  playable origins: **Wanderer, Civilian, Heir of House Aldric, Elf,
+  Dwarf, Vampire, Exiled Mercenary**. Each has attribute bonuses,
+  starting gear/gold, and `originTags` that scene JSON can react to.
+- `DiceRoller` — 1d20 + attribute modifier vs DC.
+- `ConditionEvaluator` — the small expression language scene JSON uses
+  to gate choices/text:
+  - `flags.<key> == true/false/'string'` — world state (permanent, all playthroughs)
+  - `origin.<tag> == true/false` — which Archetype the player picked
+  - `attributes.<key> >= N` (also `<=`, `>`, `<`, `==`)
+  - `inventory.contains('item')`
+- `SaveManager` — Hive-backed, two separate boxes: one for the
+  per-run save (wiped on death), one for WorldHistory (permanent).
+- `LegacyEngine` — death → `DeceasedHero` → `WorldHistory`, with the
+  Chronicle title auto-derived from the dead character's archetype.
+- `GameController` — the ChangeNotifier the whole UI listens to.
+  `character` is nullable; `needsCharacterCreation` (true when
+  `character == null && !isDead`) is the single signal that drives
+  whether `CharacterCreationScreen` shows, both on first launch AND
+  after every death.
+
+**UI (`lib/ui/`)**
+- `CharacterCreationScreen` — name field + scrollable archetype cards
+  (perks + starting gear shown per card). Used for both the very first
+  character and every character after a death.
+- `SceneScreen` — the reading/choice view (top stat bar, book-style
+  prose with inline illustrations, choice buttons, bottom nav).
+- `DeathScreen` — recap of the fallen hero's cause of death, age, and
+  major canon events, then hands off to `CharacterCreationScreen` via
+  `acknowledgeDeath()`.
+- `JournalScreen` — this life's choice log + the full Chronicle of past
+  heroes.
+
+**Content**
+- `assets/scenes/prologue.json` — 5 connected scenes demonstrating:
+  a Presence stat check with two different outcomes, a world-flag-gated
+  narrative variant (`sun_temple_destroyed`), and now two
+  **origin-gated** examples — a Royal Heir can invoke House Aldric's
+  name to skip a stat check entirely, and a Vampire gets a Cunning-based
+  compulsion option instead — proving `origin.<tag>` conditions work
+  end-to-end, not just in the engine code.
+
+## What's NOT implemented yet
+
+- No illustrations are bundled. Missing art shows a
+  `[ illustration: id ]` placeholder instead of crashing — drop PNGs
+  into `assets/images/illustrations/<id>.png` whenever you have them.
+- Inventory screen, Achievements screen, and audio are all later-phase
+  work per the original build plan.
+- Only the prologue chapter exists. New chapters = new
+  `assets/scenes/*.json` file + add its path to `SceneRepository._sceneFiles`.
+
+## Testing the full loop right now
+
+1. Run the app. You'll land on `CharacterCreationScreen` — name your
+   hero, pick an archetype, tap Begin.
+2. At the village fork, if you picked Royal Heir or Vampire, you'll see
+   an extra origin-only choice.
+3. To test death → legacy → next life: open `assets/scenes/prologue.json`,
+   add `"isFatal": true` and `"fatalCause": "Slain by bandits"` to any
+   choice object, run it, pick that choice. Confirm DeathScreen shows
+   the right cause/title, tap "Begin a New Legend," confirm you land
+   back on `CharacterCreationScreen` — and that the intro banner now
+   says "The realm remembers 1 who came before you." Check the Journal
+   to see the fallen hero listed under "The Chronicle."
+</file>
+
+</files>

@@ -1,88 +1,112 @@
-# Chronicle of the Lost Realm — Phase 1 MVP
+# Chronicle of the Lost Realm — Dev Build
 
-This is the Phase 1 skeleton from the build plan: the reading/choice
-engine, save system, and legacy (death → canon → new run) pipeline,
-with a 5-scene prologue that demonstrates a stat-check branch and a
-world-flag-gated narrative variant.
+See **DEVLOG.md** for the full session-by-session history of what was
+built, what problem each change solved, and why — this README is just
+the setup + current-state snapshot. Every source file also carries
+inline "PROBLEM / SOLUTION" comments at the point of the actual change,
+so the reasoning lives next to the code, not just in this file.
 
-I don't have the Flutter SDK available in the sandbox that generated this
-project, so `android/`, `ios/`, etc. are NOT included — you'll generate
+I don't have the Flutter SDK in the sandbox that generates these
+projects, so `android/`, `ios/`, etc. are NOT included — you generate
 those locally in one step below. Everything under `lib/` and `assets/`
-is complete and ready to drop in.
+is complete and ready to drop in over your existing project (it will
+NOT touch your already-generated `android/` folder).
 
 ## Setup (Android only)
 
-1. Install Flutter (if you haven't): https://docs.flutter.dev/get-started/install
-   Run `flutter doctor` and make sure Android toolchain is green.
+1. Install Flutter if you haven't: https://docs.flutter.dev/get-started/install
+   Run `flutter doctor`, make sure the Android toolchain is green.
 
-2. Unzip this project somewhere, `cd` into it, then generate the missing
-   native scaffolding (this creates `android/` and the other platform
-   folders that couldn't be included from the sandbox):
+2. Unzip this project (or copy `lib/`, `assets/`, `pubspec.yaml` over
+   your existing project folder), `cd` into it. If `android/` doesn't
+   exist yet:
 
        flutter create --platforms=android .
-
-   This will NOT overwrite any of the `lib/` or `assets/` files already
-   here — it only fills in the missing native project files.
 
 3. Get packages:
 
        flutter pub get
 
-4. Plug in your Android phone (USB debugging on) or start an emulator,
-   then run:
+4. Plug in your phone (USB debugging on, "Allow USB debugging?" popup
+   accepted), confirm it shows up:
+
+       flutter devices
+
+5. Run:
 
        flutter run
 
-## What's implemented (Phase 1)
+## What's implemented
 
-- `lib/models/` — SceneNode/SceneChoice, CharacterState, WorldHistory
-  data models (see build plan section 5).
-- `lib/engine/` — dice roller (1d20 + attribute vs DC), condition
-  evaluator (the small `flags.x == true` / `attributes.x >= N` /
-  `inventory.contains('x')` expression language), save manager (Hive,
-  two separate boxes for the per-run save vs the permanent world save),
-  legacy engine (death → DeceasedHero → WorldHistory), and
-  `game_controller.dart`, the ChangeNotifier the whole UI listens to.
-- `lib/ui/` — StatBar (top bar matching the reference screenshot),
-  ChoiceButton, NarrativeText (renders prose + reward lines + optional
-  inline illustration), SceneScreen, DeathScreen, JournalScreen, and a
-  Phase-2-scaffold CharacterCreationScreen (not yet wired in — see the
-  comment at the top of that file for how to wire it).
-- `assets/scenes/prologue.json` — 5 connected scenes: the opening
-  (matches your reference screenshot's text almost verbatim), a village
-  fork, a Presence stat check with two different outcome scenes, and a
-  scene whose text changes if `sun_temple_destroyed` is set — proving
-  the world-flag branching system works.
+**Engine (`lib/engine/`, `lib/models/`, `lib/data/`)**
+- `SceneNode`/`SceneChoice` — the scene graph data model, loaded from
+  `assets/scenes/*.json`.
+- `CharacterState` — the active run's character. Now created ONLY via
+  `CharacterState.fromArchetype(name, archetype)` — see below.
+- `WorldHistory` — the permanent, cross-playthrough legacy save
+  (deceased heroes + world flags). Never wiped.
+- `Archetype` / `Archetypes` (`lib/data/archetypes.dart`) — the 7
+  playable origins: **Wanderer, Civilian, Heir of House Aldric, Elf,
+  Dwarf, Vampire, Exiled Mercenary**. Each has attribute bonuses,
+  starting gear/gold, and `originTags` that scene JSON can react to.
+- `DiceRoller` — 1d20 + attribute modifier vs DC.
+- `ConditionEvaluator` — the small expression language scene JSON uses
+  to gate choices/text:
+  - `flags.<key> == true/false/'string'` — world state (permanent, all playthroughs)
+  - `origin.<tag> == true/false` — which Archetype the player picked
+  - `attributes.<key> >= N` (also `<=`, `>`, `<`, `==`)
+  - `inventory.contains('item')`
+- `SaveManager` — Hive-backed, two separate boxes: one for the
+  per-run save (wiped on death), one for WorldHistory (permanent).
+- `LegacyEngine` — death → `DeceasedHero` → `WorldHistory`, with the
+  Chronicle title auto-derived from the dead character's archetype.
+- `GameController` — the ChangeNotifier the whole UI listens to.
+  `character` is nullable; `needsCharacterCreation` (true when
+  `character == null && !isDead`) is the single signal that drives
+  whether `CharacterCreationScreen` shows, both on first launch AND
+  after every death.
 
-## What's NOT implemented yet (see the plan's Phase 2+)
+**UI (`lib/ui/`)**
+- `CharacterCreationScreen` — name field + scrollable archetype cards
+  (perks + starting gear shown per card). Used for both the very first
+  character and every character after a death.
+- `SceneScreen` — the reading/choice view (top stat bar, book-style
+  prose with inline illustrations, choice buttons, bottom nav).
+- `DeathScreen` — recap of the fallen hero's cause of death, age, and
+  major canon events, then hands off to `CharacterCreationScreen` via
+  `acknowledgeDeath()`.
+- `JournalScreen` — this life's choice log + the full Chronicle of past
+  heroes.
 
-- No illustrations are bundled. `NarrativeText` gracefully shows a
-  `[ illustration: id ]` placeholder box if the asset is missing, so the
-  game runs fine without art — drop PNGs into
-  `assets/images/illustrations/<id>.png` whenever you have them (must
-  match the `illustrationId` used in the scene JSON).
-- Character creation screen exists but isn't wired into the startup
-  flow yet — right now a "Wanderer" is auto-created on first launch so
-  you can test the engine immediately.
-- Inventory screen, Achievements screen, and audio are all Phase 5 in
-  the plan.
-- Only one chapter (the prologue) exists. Adding more chapters means
-  adding more `assets/scenes/*.json` files AND listing their paths in
-  `lib/data/scene_repository.dart`'s `_sceneFiles` list AND in
-  `pubspec.yaml` (already globbed via `assets/scenes/`, so new files in
-  that folder are picked up automatically — you only need to add them to
-  `_sceneFiles`).
+**Content**
+- `assets/scenes/prologue.json` — 5 connected scenes demonstrating:
+  a Presence stat check with two different outcomes, a world-flag-gated
+  narrative variant (`sun_temple_destroyed`), and now two
+  **origin-gated** examples — a Royal Heir can invoke House Aldric's
+  name to skip a stat check entirely, and a Vampire gets a Cunning-based
+  compulsion option instead — proving `origin.<tag>` conditions work
+  end-to-end, not just in the engine code.
 
-## Testing the legacy loop right now
+## What's NOT implemented yet
 
-There's no fatal choice wired into the prologue yet (on purpose, so you
-can read through it safely first). To test the death → new run → canon
-loop:
+- No illustrations are bundled. Missing art shows a
+  `[ illustration: id ]` placeholder instead of crashing — drop PNGs
+  into `assets/images/illustrations/<id>.png` whenever you have them.
+- Inventory screen, Achievements screen, and audio are all later-phase
+  work per the original build plan.
+- Only the prologue chapter exists. New chapters = new
+  `assets/scenes/*.json` file + add its path to `SceneRepository._sceneFiles`.
 
-1. Open `assets/scenes/prologue.json`.
-2. Add `"isFatal": true` and `"fatalCause": "Slain by bandits"` to any
-   choice object.
-3. Run the app, pick that choice, confirm the DeathScreen appears with
-   the correct cause, name a new hero, and confirm you land back on
-   `prologue_start` — then check the Journal screen to see the fallen
-   hero listed under "The Chronicle."
+## Testing the full loop right now
+
+1. Run the app. You'll land on `CharacterCreationScreen` — name your
+   hero, pick an archetype, tap Begin.
+2. At the village fork, if you picked Royal Heir or Vampire, you'll see
+   an extra origin-only choice.
+3. To test death → legacy → next life: open `assets/scenes/prologue.json`,
+   add `"isFatal": true` and `"fatalCause": "Slain by bandits"` to any
+   choice object, run it, pick that choice. Confirm DeathScreen shows
+   the right cause/title, tap "Begin a New Legend," confirm you land
+   back on `CharacterCreationScreen` — and that the intro banner now
+   says "The realm remembers 1 who came before you." Check the Journal
+   to see the fallen hero listed under "The Chronicle."

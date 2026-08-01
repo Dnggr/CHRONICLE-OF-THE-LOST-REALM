@@ -4,15 +4,18 @@ import 'package:provider/provider.dart';
 
 import '../../engine/game_controller.dart';
 
-class DeathScreen extends StatefulWidget {
+/// PROBLEM this screen used to have: it asked for the new hero's name
+/// directly and called a (now-removed) generic startNewRunAfterHome(name)
+/// that skipped archetype selection entirely - so every resurrection was
+/// mechanically identical, defeating the whole point of adding origins.
+/// SOLUTION: DeathScreen's only job now is showing the recap. Tapping
+/// "Continue" calls GameController.acknowledgeDeath(), which flips
+/// isDead off; that makes needsCharacterCreation true, and _AppRoot
+/// (see main.dart) routes to CharacterCreationScreen automatically -
+/// where the player picks BOTH a name and an archetype for their next
+/// life, same as their very first character.
+class DeathScreen extends StatelessWidget {
   const DeathScreen({super.key});
-
-  @override
-  State<DeathScreen> createState() => _DeathScreenState();
-}
-
-class _DeathScreenState extends State<DeathScreen> {
-  final _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +41,9 @@ class _DeathScreenState extends State<DeathScreen> {
                 const SizedBox(height: 16),
                 if (hero != null)
                   Text(
-                    '${hero.name} died in the year ${hero.yearOfDeath}, '
-                    'aged ${hero.ageAtDeath}.\nCause: ${hero.causeOfDeath}',
+                    '${hero.name}, ${hero.title}, died in the year '
+                    '${hero.yearOfDeath}, aged ${hero.ageAtDeath}.\n'
+                    'Cause: ${hero.causeOfDeath}',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.merriweather(
                       color: Colors.white70,
@@ -47,6 +51,18 @@ class _DeathScreenState extends State<DeathScreen> {
                       height: 1.5,
                     ),
                   ),
+                if (hero != null && hero.majorCanonEvents.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ...hero.majorCanonEvents.map(
+                    (event) => Text(
+                      '- $event',
+                      style: GoogleFonts.merriweather(
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Text(
                   'Their deeds are now canon. The world will remember.',
@@ -57,25 +73,8 @@ class _DeathScreenState extends State<DeathScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                TextField(
-                  controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Name your new hero',
-                    hintStyle: const TextStyle(color: Colors.white38),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.amber[700]!),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    final name = _nameController.text.trim();
-                    controller.startNewRunAfterDeath(
-                      name: name.isEmpty ? 'Wanderer' : name,
-                    );
-                  },
+                  onPressed: controller.acknowledgeDeath,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber[800],
                     padding: const EdgeInsets.symmetric(

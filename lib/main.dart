@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'data/scene_repository.dart';
 import 'engine/game_controller.dart';
 import 'engine/save_manager.dart';
+import 'ui/screens/character_creation_screen.dart';
 import 'ui/screens/scene_screen.dart';
 
 Future<void> main() async {
@@ -35,8 +36,17 @@ class LostRealmApp extends StatelessWidget {
   }
 }
 
-/// Waits for GameController.init() to finish loading scenes + save data
-/// before showing the reading screen.
+/// Top-level router. PROBLEM this replaced: the old version only checked
+/// "is there a scene loaded" to decide between a spinner and SceneScreen
+/// - there was no state for "loaded, but the player hasn't created a
+/// character yet." SOLUTION: three explicit states, checked in order:
+///   1. still loading save data / scene JSON  -> spinner
+///   2. loaded, but no character exists yet   -> CharacterCreationScreen
+///      (covers BOTH first-ever launch and "just died, pick your next
+///      hero" - see GameController.acknowledgeDeath())
+///   3. otherwise                              -> SceneScreen, which
+///      internally branches to DeathScreen if isDead is somehow true
+///      here (defensive; shouldn't happen given #2, but cheap to keep).
 class _AppRoot extends StatelessWidget {
   const _AppRoot();
 
@@ -44,10 +54,13 @@ class _AppRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GameController>(
       builder: (context, controller, _) {
-        if (controller.currentScene == null && !controller.isDead) {
+        if (!controller.isLoaded) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
+        }
+        if (controller.needsCharacterCreation) {
+          return const CharacterCreationScreen();
         }
         return const SceneScreen();
       },

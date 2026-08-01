@@ -4,7 +4,9 @@
     "illustrationId": "king_honors_hero",
     "narrative": "A strong-looking individual was escorted to a platform. The individual slowly knelt before the king.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people! This adventurer here is our country's hero!\"\n\nWith the king's decree, the crowd went wild. Ever since you witnessed the event with your own eyes, you dreamt of becoming an honorable adventurer, instead of inheriting your father's farm. Years have passed, and that dream still remains in your heart to this day. It finally motivated you to start your own adventure.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
     "narrativeVariants": {
-      "flags.sun_temple_destroyed == true": "A strong-looking individual was escorted to a platform, beneath the blackened, still-smoking ruin of what was once the Sun Temple. The crowd's cheers feel thinner than the old stories describe.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people!\"\n\nYou grew up in the shadow of that ruin, and of the tales of the one who burned it. Years have passed, and your own dream of adventure still remains in your heart.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor"
+      "flags.sun_temple_destroyed == true": "A strong-looking individual was escorted to a platform, beneath the blackened, still-smoking ruin of what was once the Sun Temple. The crowd's cheers feel thinner than the old stories describe.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people!\"\n\nYou grew up in the shadow of that ruin, and of the tales of the one who burned it. Years have passed, and your own dream of adventure still remains in your heart.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
+      "origin.royal == true": "A strong-looking individual was escorted to a platform. The individual slowly knelt before your father, the king.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people! This adventurer here is our country's hero!\"\n\nYou watched from beside the throne, close enough to see the hero's hands shake. It was that day, not any lesson from your tutors, that taught you what House Aldric's name is actually worth to the people who kneel beneath it. Years have passed, and you mean to earn that name yourself, not just inherit it.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor",
+      "origin.vampire == true": "A strong-looking individual was escorted to a platform. The individual slowly knelt before the king, and you felt the crowd's heartbeat quicken around you like a single animal.\n\n\"Everyone in the kingdom will remember your adventure. Gaze upon this one, people!\"\n\nYou have watched a hundred such ceremonies over the centuries, and worn a hundred different names doing it. This age's dream of adventure has crept into you again anyway. Some hungers never really fade.\n\n+ Gold, 10\n+ Shortbow\n+ Hide Armor"
     },
     "choices": [
       {
@@ -31,6 +33,27 @@
         "outcomeFailNode": "prologue_altar_curse",
         "effects": {
           "run_history": "Helped the merchant caravan on the village road"
+        }
+      },
+      {
+        "id": "help_caravan_royal",
+        "label": "Invoke House Aldric's name and order the road cleared",
+        "condition": "origin.royal == true",
+        "outcomeSuccessNode": "prologue_altar_blessing",
+        "effects": {
+          "run_history": "Used the Aldric name to clear the caravan road"
+        }
+      },
+      {
+        "id": "help_caravan_vampire",
+        "label": "Meet the caravan master's eyes and quietly compel him to calm (Cunning check)",
+        "condition": "origin.vampire == true",
+        "requiredAttribute": "cunning",
+        "difficultyClass": 10,
+        "outcomeSuccessNode": "prologue_altar_blessing",
+        "outcomeFailNode": "prologue_altar_curse",
+        "effects": {
+          "run_history": "Used unnatural charm on the caravan master"
         }
       },
       {

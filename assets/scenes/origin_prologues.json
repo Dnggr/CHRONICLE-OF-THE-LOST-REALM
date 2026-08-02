@@ -1,0 +1,296 @@
+[
+  {
+    "sceneId": "origin_wanderer_fork",
+    "illustrationId": null,
+    "narrative": "At a fork beyond the yellow field, a woman kneels beside a broken axle while her son holds a lantern too close to the oil. The boy looks at your pack, then at the road behind you—the quick look of someone deciding whether a stranger is a danger or an answer.\n\n@Woman: We can manage.\n\nThe lie is gentle. It is also familiar. You have survived on lies like that: _I can manage. I only need one more mile. I am not lost._\n\nYou set your pack down beside the wheel. The boy relaxes first; his mother is too tired to do so until the work is finished.",
+    "choices": [
+      {
+        "id": "wanderer_help_axle",
+        "label": "Brace the cart and ask where the road has been failing",
+        "preview": "You make help practical before you make it personal.",
+        "aftermath": "The axle holds. In return, the woman tells you of rain that smells of pennies and wheat that dies standing up.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"reputation.commonfolk": 1, "world_flags.wanderer_helped_axle": true, "run_history": "Helped a stranded family and learned of the failing Salt Road fields"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_civilian_table",
+    "illustrationId": null,
+    "narrative": "Before you leave, your family makes you sit at the table. No one says this is a farewell. Your mother puts the good bowl in front of you anyway, the one with the blue line around its rim.\n\n@Mother: Eat while it is hot. A brave fool still needs breakfast.\n\nYour younger sibling keeps asking whether sick wheat can make people sick. Your father counts the remaining seed grain with his thumb, stopping whenever he notices you watching. Ordinary households have their own court etiquette: the person doing the worrying pretends the worry belongs to nobody.\n\nYou tell them you will send word from the next town. The promise lands heavily, because all of you know the road may ask more of you first.",
+    "choices": [
+      {
+        "id": "civilian_leave_bowl",
+        "label": "Leave half your meal for the children and take only the road ration",
+        "preview": "You cannot fix a harvest tonight, but you can refuse to take the larger share.",
+        "aftermath": "Your mother says nothing until you reach the door, then presses a wrapped heel of bread into your hand.",
+        "outcomeSuccessNode": "origin_civilian_debt",
+        "effects": {"reputation.honor": 1, "world_flags.civilian_shared_meal": true, "run_history": "Left home after sharing the household's last comfortable meal"}
+      },
+      {
+        "id": "civilian_take_meal",
+        "label": "Eat the meal; promise to bring food back before the pantry is bare",
+        "preview": "You accept care as a debt to be repaid, not a comfort to be ashamed of.",
+        "aftermath": "Your father finally meets your eyes. The promise is heard by everyone at the table.",
+        "outcomeSuccessNode": "origin_civilian_debt",
+        "effects": {"world_flags.civilian_promised_return": true, "run_history": "Promised the family to return with an answer for the failing fields"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_civilian_debt",
+    "illustrationId": null,
+    "narrative": "At the village gate, Bailiff Nera is pinning red debt-ribbons to three doors. The ribbons are new; the faces behind the doors are not. A miller named Joren argues that a failed crop should not count as a broken promise. Nera keeps her voice soft, which makes the words crueller.\n\n@Nera: The Crown's grain office does not accept weather as payment.\n\n@Joren: Then it should try eating paperwork.\n\nThe crowd sees you preparing to leave. For one breath, they expect you to be the sort of person who can make officials listen. It is unfair. It is also the first thing the road asks of you.",
+    "choices": [
+      {
+        "id": "civilian_record_names",
+        "label": "Write down the names behind the red ribbons before you go",
+        "preview": "You cannot erase the debt, but you refuse to let it become a number without a face.",
+        "aftermath": "Joren gives you a list of farms along the Salt Road. Nera watches, uneasy, but does not stop you.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"reputation.commonfolk": 1, "world_flags.civilian_debt_names": true, "run_history": "Carried the names of indebted Salt Road families toward the crisis"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_elf_boundary",
+    "illustrationId": null,
+    "narrative": "The boundary grove is marked by nine white stones, one for each treaty the lowland kingdoms believe still protects it. Moss has swallowed the oldest three. Your aunt Sael waits beside the last stone with a basket of winter pears.\n\n@Sael: You always leave after the birds do. A poor habit for someone who claims to understand omens.\n\nShe cuts a pear with a small bone knife and offers you half. Among your people, sharing fruit at a boundary means: _I will not pretend I did not see you go._ It is blessing, accusation, and farewell in one gesture.\n\nYou tell her the wind carries the old blight-name. She does not correct you. That is worse than disbelief.",
+    "choices": [
+      {
+        "id": "elf_take_pear",
+        "label": "Accept the boundary fruit and ask what the elders are withholding",
+        "preview": "You ask for truth before you ask for permission.",
+        "aftermath": "Sael names no secret, but her hand closes over yours: 'Do not let the young kingdoms call this new.'",
+        "outcomeSuccessNode": "origin_elf_reedboat",
+        "effects": {"world_flags.elf_blighthistory": true, "run_history": "Learned that the elven elders recognize the returning blight"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_elf_reedboat",
+    "illustrationId": null,
+    "narrative": "Below the grove, a child from the reed settlements is trying to free a paper boat from a culvert. The boat bears a charcoal sun with a dark circle scratched through it. A nursery charm, perhaps. Or a copied sign from somewhere no child should have seen.\n\n@Child: It is sailing to the king. It has to tell him the river tastes wrong.\n\nYou kneel in the mud. The water has the same metallic edge as the blight-wind. Not enough to poison a cup. Enough to make an old memory wake up and refuse to lie down.",
+    "choices": [
+      {
+        "id": "elf_send_boat",
+        "label": "Free the boat and teach the child the old warning-song",
+        "preview": "You make the warning small enough for a child to carry without being crushed by it.",
+        "aftermath": "The boat slips free. The child sings the first line badly, then correctly, then runs home with it.",
+        "outcomeSuccessNode": "origin_elf_parting",
+        "effects": {"reputation.commonfolk": 1, "world_flags.elf_warning_song": true, "run_history": "Passed an old blight warning into the reed settlements"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_elf_parting",
+    "illustrationId": null,
+    "narrative": "Sael meets you again at the road, though you never heard her follow. She has tied red thread around the grip of your bow—the lowland color, not yours.\n\n@Sael: Their grief will not speak our language. Learn it anyway.\n\nYou want to ask whether she is afraid. Instead, you ask whether she will tell the council you left.\n\n@Sael: I will tell them the truth. That is why they will be angry.\n\nThe lowlands open below you, crowded with smoke, fields, and brief human lives. You have time enough to mourn every one of them. That is not the same as having the right to arrive late.",
+    "choices": [
+      {
+        "id": "elf_descend_lowlands",
+        "label": "Descend toward the Salt Road before the warning becomes an elegy",
+        "preview": "You choose intervention over the safety of being correct from afar.",
+        "aftermath": "The red thread moves against your wrist as you leave the grove behind.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"world_flags.elf_left_council": true, "run_history": "Left the elven boundary to warn the lowlands in person"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_dwarf_forge",
+    "illustrationId": null,
+    "narrative": "The miller's request is waiting under your workshop door, but first you return to the forge. You heat a bent iron hoop until it glows the color of a sunset seen through dust. Your old master called that color _the liar's red_: bright enough to convince a novice the metal is ready, too cold to hold when pressure comes.\n\n@Master's memory: Never strike because the iron looks impressive. Strike because you know what it can bear.\n\nYou reshape the hoop slowly. Outside, the mountain's water-pipes knock in their walls. Three knocks, then a pause. The old miners' sign for a tunnel that needs inspection.\n\nA neighbor calls that the road courier is waiting. You look once at the dark stair leading down, once at the tools already packed for the lowlands.",
+    "choices": [
+      {
+        "id": "dwarf_mark_tunnel",
+        "label": "Mark the tunnel for the watch and take the miller's job yourself",
+        "preview": "You trust the mountain to those assigned to it and answer the trouble no one else has claimed.",
+        "aftermath": "You leave your maker's mark on the stair rail: a promise that someone must come back and check the crack.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"world_flags.dwarf_tunnel_marked": true, "run_history": "Left a mountain warning behind to answer the miller's call"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_vampire_inn",
+    "illustrationId": null,
+    "narrative": "The innkeeper finds you at the stable door with your cloak already fastened. Her name is Sella; you know because the child at dinner called it when a spoon fell. She does not ask what you are. That restraint is a kind of bravery.\n\n@Sella: You noticed the girl. Her brother is at the farms. He has not come home in four days.\n\nThe pulse in her throat is fast, but not from fear of you. That unsettles you more than fear would. She holds out a small brass button stamped with a sheaf of wheat.\n\n@Sella: If you find Tomas, give him this. Tell him I have kept his soup from burning.\n\nThe button is warm from her palm. You remember the button you kept for reasons you never explain to anyone.",
+    "choices": [
+      {
+        "id": "vampire_take_button",
+        "label": "Take the button and promise to look for Tomas",
+        "preview": "You accept a human promise without pretending it will be easy to keep.",
+        "aftermath": "Sella exhales. For a moment, she looks at you as though you are simply another traveler heading into bad weather.",
+        "outcomeSuccessNode": "origin_vampire_well",
+        "effects": {"world_flags.vampire_tomas_button": true, "run_history": "Carried an innkeeper's button while searching for a missing farm boy"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_vampire_well",
+    "illustrationId": null,
+    "narrative": "At the next well, Tomas is alive. He is also shaking so hard he cannot raise the bucket. He says he ran from the farm after his father began coughing black water into the trough. He says he is thirsty.\n\nYou smell fever beneath the mud and rain. You smell blood beneath the fever. Your own hunger answers before your conscience has formed a sentence.\n\n@Tomas: Are you a physician?\n\nYou are not. But you have watched illness take rooms one breath at a time, and you have learned that the first mercy is often making a frightened person move.",
+    "choices": [
+      {
+        "id": "vampire_send_tomas",
+        "label": "Give Tomas water, send him to Sella, and follow the sickness alone",
+        "preview": "You choose distance where hunger would make closeness dangerous.",
+        "aftermath": "Tomas runs with the brass button clenched in his fist. You wait until his heartbeat is gone before facing the farm road.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"reputation.honor": 1, "world_flags.vampire_spared_tomas": true, "run_history": "Helped Tomas flee the sick farm without giving in to hunger"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_mercenary_scout",
+    "illustrationId": null,
+    "narrative": "You find the granary before noon and know at once that it is not under attack. It is under observation. Bootprints circle the fence without crossing it. Someone has counted the guards, the exits, the height of the grain bins. Someone trained them.\n\nA townsperson, a broad-shouldered baker with flour on both sleeves, sees you crouched in the dust.\n\n@Baker: Is it bandits?\n\nYour hand goes to your sword. You do not draw it. The old captain used to say that a blade in hand makes a crowd imagine a battle before there is one. You learned the lesson. You just never learned whether he meant it kindly.",
+    "choices": [
+      {
+        "id": "mercenary_warn_baker",
+        "label": "Tell the baker to move families indoors and keep the guards calm",
+        "preview": "You use command without turning the town into a camp.",
+        "aftermath": "The baker does not salute. She nods once and starts giving the right people the right jobs.",
+        "outcomeSuccessNode": "origin_mercenary_badge",
+        "effects": {"reputation.commonfolk": 1, "world_flags.mercenary_granary_warned": true, "run_history": "Read the signs around a threatened granary and organized its civilians"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_mercenary_badge",
+    "illustrationId": null,
+    "narrative": "Behind the granary, you find a brass badge caught in the rain gutter: a broken wheel above three black pikes. The Grey Vetch Company. Your old company.\n\nThe badge is too new to be yours and too clean to be lost by accident. It is a message, which means someone wants you to know the past has found your trail.\n\nA young guard steps into the alley with a crossbow aimed at your ribs. He cannot be more than nineteen. His hands are steady because he has not yet seen what a bolt does at close range.\n\n@Guard: Drop the sword.\n\nYou could take the weapon from him. You could explain. Neither would make him feel safer.",
+    "choices": [
+      {
+        "id": "mercenary_show_badge",
+        "label": "Set the badge down and tell the guard who trained the watchers",
+        "preview": "You risk being believed because the town deserves the whole danger, not a convenient version.",
+        "aftermath": "The guard lowers the crossbow by an inch. He listens. That inch is enough to keep the alley from becoming a grave.",
+        "outcomeSuccessNode": "origin_mercenary_broken_company",
+        "effects": {"world_flags.mercenary_grey_vetch_seen": true, "run_history": "Revealed the Grey Vetch Company's involvement to a frightened town guard"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_mercenary_broken_company",
+    "illustrationId": null,
+    "narrative": "No attack comes that day. That is how you know it is not about grain alone. A proper raid takes what it came for; a threat that waits wants people to make worse choices first.\n\nYou leave the guard with a map of the back lanes and every weak fence you can see. The baker slips a heel of bread into your pack when she thinks you are not looking. You let her. Soldiers used to call gifts like that payment. You have begun to understand they are something else.\n\nAt the road's bend, the rain starts. You have a company behind you, hungry people ahead, and no illusion that one sword will settle either problem.",
+    "choices": [
+      {
+        "id": "mercenary_leave_granary",
+        "label": "Take the Salt Road and look for the source of the famine",
+        "preview": "You leave defenses behind and follow the pressure that created the threat.",
+        "aftermath": "The old badge stays in your pocket, heavier than a coin and less useful than either hand on a weapon.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"world_flags.mercenary_protected_granary": true, "run_history": "Left the granary guarded and pursued the hunger driving the threat"}
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_orc_intro",
+    "illustrationId": null,
+    "narrative": "The Ashbound do not say a person _belongs_ to a clan. Belonging can be taken, traded, or used as an excuse. They say a person is _answered for_. When you act, the people who taught you must be able to name the reason.\n\nAt dawn, your war-camp hears the lowland bell carried over the ridge: six slow strokes, a pause, then six more. A grain-warning. Not an alarm for war. Not yet.\n\nYour aunt, Kesh, presses a thumb of ash across your brow.\n\n@Kesh: The lowlanders will call you raider if you arrive armed. They will call you coward if you do not arrive. Let them be wrong in whichever way saves the most lives.\n\nShe hands you the clan token. On one side: an open hand. On the other: a closed fist.",
+    "choices": [
+      {
+        "id": "orc_take_token",
+        "label": "Take the token and swear to return with the truth",
+        "preview": "You accept an oath that asks for witness, not victory.",
+        "aftermath": "The camp answers with one hand against one chest: not applause, but a promise to remember your words.",
+        "outcomeSuccessNode": "origin_orc_border",
+        "effects": {"world_flags.orc_truth_oath": true, "run_history": "Swore an Ashbound oath to learn the truth behind the lowland famine"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_orc_border",
+    "illustrationId": null,
+    "narrative": "At the border ford, three kingdom guards have stopped a wagon carrying Ashbound salt-cakes. Their captain insists the cakes are contraband. The old woman driving the wagon says they are food for the field workers and uses a clan idiom that translates poorly: _A hungry mouth has no flag._\n\nThe captain looks at your spear, then at your green-gray skin, and decides what you are before you speak.\n\n@Captain: Turn around. We have enough trouble without clans crossing armed.\n\nThe old woman begins to unload the cakes into the mud rather than let them be seized. Each one is stamped with the open-hand mark. You know how long it takes to make a hundred of them. You know exactly who will go without if they spoil.",
+    "choices": [
+      {
+        "id": "orc_offer_witness",
+        "label": "Offer your name as witness for the wagon and ask the captain to inspect the cargo",
+        "preview": "You meet suspicion with a public promise he can hold you to.",
+        "aftermath": "The captain searches the wagon, finds only salt and hard bread, and has to return it in front of his own soldiers.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"reputation.commonfolk": 1, "world_flags.orc_border_witness": true, "run_history": "Used an Ashbound oath to get famine food across the border"}
+      },
+      {
+        "id": "orc_share_cakes",
+        "label": "Buy the guards' silence with half the salt-cakes and take the loss yourself",
+        "preview": "You choose an ugly compromise over a delay that could starve the workers.",
+        "aftermath": "The old woman curses you for wasting food, then grips your forearm when the guards look away.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"gold": -2, "world_flags.orc_border_compromise": true, "run_history": "Sacrificed supplies to move Ashbound food through the border checkpoint"}
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_demon_intro",
+    "illustrationId": null,
+    "narrative": "The first name the summoner gave you was a command. The second was an insult. The third was the name you chose after you escaped, spoken alone into a rain barrel because no one else was there to hear it.\n\nYears later, a chapel bell sounds over the city where you have been passing as human. Its bronze note vibrates against the sealed ember pendant at your throat. A summons is being attempted somewhere nearby. You know the feeling: the air becomes a hand closing around a door.\n\nIn the alley, a frightened apprentice has drawn a circle in chalk and spilled lamp oil over the final symbol. The circle is wrong. The apprentice is crying anyway.\n\n@Apprentice: I only wanted something to tell me whether my mother will live.\n\nYou know what answers such requests when no one stops them.",
+    "choices": [
+      {
+        "id": "demon_break_circle",
+        "label": "Smear the circle with your boot and tell the apprentice to run",
+        "preview": "You break the ritual before it can turn grief into a doorway.",
+        "aftermath": "The chalk sparks against your heel. Something on the other side notices that you chose refusal.",
+        "outcomeSuccessNode": "origin_demon_name",
+        "effects": {"reputation.honor": 1, "world_flags.demon_broke_circle": true, "run_history": "Stopped a desperate apprentice from opening an infernal summons"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_demon_name",
+    "illustrationId": null,
+    "narrative": "You take the apprentice to a public fountain. Crowds are safer than alleys, even when crowds are cruel. The apprentice keeps glancing at the faint ember-light beneath your collar.\n\n@Apprentice: Are you one of them?\n\nThe question has been asked with knives, prayers, curiosity, and once by a child holding a dead sparrow. It is never the same question twice.\n\n@You: I am the person who stopped you. Start there.\n\nThe apprentice nods as if given a lesson, not an evasion. Then a temple warden turns the corner. His eyes go straight to the pendant.",
+    "choices": [
+      {
+        "id": "demon_claim_name",
+        "label": "Give the warden your chosen name and demand he protect the apprentice",
+        "preview": "You make yourself visible so the frightened child is not the easiest target.",
+        "aftermath": "The warden hesitates at the certainty in your voice. The apprentice slips behind the fountain keeper.",
+        "outcomeSuccessNode": "origin_demon_suspicion",
+        "effects": {"world_flags.demon_claimed_name": true, "run_history": "Claimed a chosen name before a temple warden and protected an apprentice"}
+      },
+      {
+        "id": "demon_draw_warden",
+        "label": "Draw the warden down the alley and let the apprentice escape",
+        "preview": "You choose to be hunted rather than let suspicion settle on someone weaker.",
+        "aftermath": "Boots follow you into the rain. By the time the warden realizes the trick, the apprentice is gone.",
+        "outcomeSuccessNode": "origin_demon_suspicion",
+        "effects": {"reputation.infamy": 1, "world_flags.demon_evaded_warden": true, "run_history": "Led a temple warden away so a frightened apprentice could escape"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_demon_suspicion",
+    "illustrationId": null,
+    "narrative": "The warden does not arrest you. That would require evidence, and the chapel has learned to value evidence when it is convenient. Instead, he gives you a warning dressed as mercy.\n\n@Warden: There are reports from the Salt Road. Sick grain. Strange lights. If you know anything about that sort of corruption, leave before people decide the cause has found them.\n\nThe insult is deliberate. So is the information. You could take it as permission to disappear. You could also hear the fear underneath it: a man who wants the world simple enough that monsters always come from outside the city wall.\n\nThe ember pendant grows warm. Not a summons now. A direction.",
+    "choices": [
+      {
+        "id": "demon_follow_ember",
+        "label": "Follow the pendant's pull toward the Salt Road",
+        "preview": "You go toward the sign that may condemn you because it may also explain what is coming.",
+        "aftermath": "The warden watches you leave and does not call the guards. That is not trust. It is a beginning of uncertainty.",
+        "outcomeSuccessNode": "origin_demon_departure",
+        "effects": {"world_flags.demon_ember_direction": true, "run_history": "Followed an infernal disturbance toward the Salt Road"}
+      }
+    ]
+  },
+  {
+    "sceneId": "origin_demon_departure",
+    "illustrationId": null,
+    "narrative": "Outside the city, you stop at a roadside shrine where travelers leave knots of thread for those they cannot protect. Someone has tied a child's red ribbon around the cracked stone hand of the saint.\n\nYou add nothing. You have no prayer that feels honest. Instead, you sit in the wet grass until the heat behind your ribs settles enough to be yours again.\n\nThe person you were made to be would have welcomed a frightened realm. The person you are has to choose, again and again, what to do with its fear.\n\nWhen you stand, the road is empty except for rain, cart tracks, and the first smell of woodsmoke ahead.",
+    "choices": [
+      {
+        "id": "demon_take_road",
+        "label": "Walk toward the smoke and meet the fear before it names you",
+        "preview": "You choose a human road with no guarantee that humans will choose you back.",
+        "aftermath": "The pendant cools. Your chosen name remains your own for another mile.",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {"world_flags.demon_chose_road": true, "run_history": "Took the Salt Road despite the danger of being blamed for what waited there"}
+      }
+    ]
+  }
+]

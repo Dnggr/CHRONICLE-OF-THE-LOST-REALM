@@ -187,6 +187,36 @@ class Archetypes {
     extraOriginTags: ['hunted'],
   );
 
+  static const orc = Archetype(
+    id: 'orc',
+    displayName: 'Orc of the Ashbound Clans',
+    tagline: 'An oath carried farther than any banner.',
+    description:
+        'You were raised among the Ashbound Clans, where a promise is spoken '
+        'once and remembered by everyone who hears it. The lowland kingdoms '
+        'mistake that discipline for savagery at their own cost.',
+    attributeBonuses: {'strength': 2, 'constitution': 1, 'wisdom': 1},
+    startingInventory: ['Ashbound Clan Token', 'Travel-worn Spear'],
+    startingGoldBonus: 2,
+    extraOriginTags: ['ashbound', 'clan_oath'],
+  );
+
+  static const demon = Archetype(
+    id: 'demon',
+    displayName: 'Demon-Bound',
+    tagline: 'A borrowed body, a chosen name, a debt you refuse to become.',
+    description:
+        'Something infernal lives in your blood or behind your eyes. You are '
+        'not a prophecy and not a weapon, whatever priests and summoners '
+        'would prefer; every day you choose what kind of person bears that '
+        'power.',
+    attributeBonuses: {'charisma': 2, 'intelligence': 1, 'constitution': -1},
+    startingInventory: ['Sealed Ember Pendant', 'Token of a Borrowed Name'],
+    startingGoldBonus: -2,
+    extraOriginTags: ['infernal', 'unnatural', 'distrusted_by_commonfolk'],
+    maxAgeOverride: 180,
+  );
+
   static const List<Archetype> all = [
     wanderer,
     civilian,
@@ -195,5 +225,7 @@ class Archetypes {
     dwarf,
     vampire,
     mercenary,
+    orc,
+    demon,
   ];
 }

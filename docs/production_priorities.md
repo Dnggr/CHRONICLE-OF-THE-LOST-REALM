@@ -7,8 +7,10 @@ mark a route complete because an NPC merely has a registry entry or one scene.
 ## Done
 
 - [x] Prologue, Event 0–8 major campaign spine, with persistent world flags.
-- [x] Seven distinct origin openings; Royal Heir now includes birth, childhood,
-  family, Ser Aldous, and Lady Marrow context before the shared road.
+- [x] Nine distinct origin openings of deliberately different lengths. Royal
+  Heir includes birth, childhood, family, Ser Aldous, and Lady Marrow; the
+  other origins carry their own family, clan, craft, hunger, military, or
+  infernal context before the shared road.
 - [x] Mira Talbot's Harvest Failure arc, including trust and estrangement.
 - [x] Old Hendrik's roadside setup and plague survival/death decision.
 - [x] Early Yeva/Petra/Tamsin post-Rebellion reading interlude.
@@ -23,6 +25,10 @@ Build these before adding more world events or combat systems.
 
 - [x] Adopt the two-scale narrative graph: explicit world-event arc openings
   plus common-event beats. See `docs/narrative_graph_model.md`.
+- [x] Reworked the origin on-ramp so all nine origins reach the first world
+  event through unique prologue routes, rather than seven labels feeding the
+  same introduction immediately. Route lengths now range from two to five
+  origin-specific scenes before the common Salt Road thread.
 - [ ] Migrate all active arc nodes from the legacy default to explicit `arcId`
   metadata as each arc is rewritten to the 10+ common-event target.
 
@@ -93,6 +99,9 @@ Build these before adding more world events or combat systems.
 - [ ] Add optional lore routes that never block urgent story progress.
 - [ ] Add origin-specific observations to every major-event coda.
 - [ ] Add letters and journal fragments that reflect the player’s prior choices.
+- [ ] Give Orc and Demon-Bound characters dedicated recurring NPC route acts
+  after Arc I; their prologue flags currently create personal history but need
+  later dialogue payoffs and relationship arcs.
 
 ## Priority 3 — systems needed for long-form routes
 

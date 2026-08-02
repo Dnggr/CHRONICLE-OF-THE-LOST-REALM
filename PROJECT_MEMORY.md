@@ -165,3 +165,20 @@ summaries, not private or verbatim chat transcripts.
 - Added `docs/narrative_graph_model.md`, defining the 10+ common-event target,
   JSON metadata, and the required context → intent → response → consequence
   rhythm for each arc.
+
+## 2026-08-03 — Nine distinct origin on-ramps and arc intent
+
+- The campaign must not give every origin the same introduction. Each origin
+  now takes a route of deliberately different length before joining the common
+  Salt Road thread and the first world event, Harvest Failure.
+- Added Orc of the Ashbound Clans and Demon-Bound as playable origins. Orc
+  content centers clan witness, mutual responsibility, and border prejudice;
+  Demon-Bound content centers chosen identity and agency rather than treating
+  infernal heritage as automatic villainy.
+- Arc I is explicitly the reading-first introduction to the realm, characters,
+  choices, and mechanics. Arc II should turn toward older lore and the
+  impending doom through consequences and discoveries. Added 18 scenes in
+  `assets/scenes/origin_prologues.json`; updated `prologue.json`,
+  `archetypes.dart`, `portraits.dart`, `scene_repository.dart`, README, and
+  narrative planning docs. Future work: give the new origins recurring NPC
+  routes that pay off their prologue flags.

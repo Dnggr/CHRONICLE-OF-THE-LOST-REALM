@@ -32,6 +32,8 @@ class Portraits {
     PortraitOption(id: 'p_beast', icon: Icons.pets, color: Color(0xFF5B4B3B)),
     PortraitOption(id: 'p_mystic', icon: Icons.nightlight_round, color: Color(0xFF3B3B5B)),
     PortraitOption(id: 'p_wanderer', icon: Icons.hiking, color: Color(0xFF5B6B4B)),
+    PortraitOption(id: 'p_orc', icon: Icons.shield, color: Color(0xFF70533C)),
+    PortraitOption(id: 'p_demon', icon: Icons.local_fire_department, color: Color(0xFF6A3A4A)),
   ];
 
   static PortraitOption byId(String id) {

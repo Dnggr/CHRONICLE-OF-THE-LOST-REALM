@@ -9,6 +9,32 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 20 — Distinct origin prologues and Arc I intent
+
+**Problem:** Seven origin labels were visually distinct but most entered the
+same roadside scene immediately. That flattened different lives into the same
+opening and made the first arc feel like a generic preamble.
+
+**Solution:**
+- Added playable Orc of the Ashbound Clans and Demon-Bound origins, with
+  starting tags, trade-off stats, inventory, and placeholder portraits.
+- Added `origin_prologues.json`, then rerouted every non-royal origin through
+  a different sequence before the shared Salt Road. These routes have
+  deliberately different lengths: family debt for Civilian, boundary memory
+  for Elf, forge duty for Dwarf, hunger restraint for Vampire, a former company
+  for Mercenary, clan witness and a border dispute for Orc, and chosen identity
+  plus a stopped summoning for Demon-Bound. Royal retains its existing longer
+  family-history route.
+- New choices use the intent → immediate reaction → consequence fields rather
+  than silently teleporting past the player’s action.
+- Defined the campaign promise in the narrative graph: Arc I introduces the
+  world, people, and mechanics through personal stakes; Arc II turns toward
+  deep lore and the approaching catastrophe.
+
+**Follow-up:** the new Orc and Demon-Bound prologue flags are persistent
+personal history, but they still need post-Arc-I NPC route acts that read them.
+
+--------------------------------------------------------------------------
 ## Session 19 — Two-scale narrative graph
 
 **Problem:** The story graph already linked scenes correctly, but it did not

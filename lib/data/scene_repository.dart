@@ -11,6 +11,7 @@ class SceneRepository {
 
   static const List<String> _sceneFiles = [
     'assets/scenes/prologue.json',
+    'assets/scenes/origin_prologues.json',
     'assets/scenes/royal_heir_route.json',
     'assets/scenes/royal_aldous_route.json',
     'assets/scenes/mira_talbot_route.json',

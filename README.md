@@ -50,8 +50,9 @@ On death:
   "show dice roll details" toggle, persisted in their own Hive box
   (`settings_box`), deliberately separate from run/world data so
   Settings > Reset World never touches your preferences.
-- `Archetype`/`Archetypes` — 7 playable origins (Wanderer, Civilian,
-  Heir of House Aldric, Elf, Dwarf, Vampire, Exiled Mercenary), each
+- `Archetype`/`Archetypes` — 9 playable origins (Wanderer, Civilian,
+  Heir of House Aldric, Elf, Dwarf, Vampire, Exiled Mercenary, Orc of the
+  Ashbound Clans, Demon-Bound), each
   with attribute bonuses, starting gear/gold, and `originTags`.
 - `Background`/`Backgrounds` — 6 life-story options (independent of
   Archetype), each with one stat bonus + gold nudge, also contributing

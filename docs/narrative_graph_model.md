@@ -8,6 +8,21 @@ World-event node (arc opening)
   → world-event resolution / next arc opening
 ```
 
+## Campaign shape
+
+The origin prologue is a separate, character-scale on-ramp. Every playable
+origin receives its own opening sequence, with a different number of scenes,
+before joining the common Salt Road thread and the first world event, **Harvest
+Failure**. It establishes the player’s personal lens, nearby culture, and the
+first consequence they carry into the shared story; it must not pretend every
+life began on the same road.
+
+**Arc I** teaches the game through lived situations: how the realm works, how
+ordinary people live, what the player can change, and why companion trust or a
+small promise matters. **Arc II** begins the descent into the older lore and
+the approaching doom. Reveal that danger through evidence, arguments, and
+costs—not a lore dump at an arc heading.
+
 ## Node types
 
 Every scene JSON object may include:

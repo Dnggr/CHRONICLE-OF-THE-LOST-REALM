@@ -8,43 +8,73 @@
         "id": "begin_wanderer",
         "label": "Remember the road that made you a Wanderer",
         "condition": "origin.wanderer == true",
+        "preview": "Begin with the miles that taught you to survive alone.",
+        "aftermath": "The first memory arrives with rain under its collar.",
         "outcomeSuccessNode": "prologue_wanderer_intro"
       },
       {
         "id": "begin_civilian",
         "label": "Remember the home you left behind",
         "condition": "origin.civilian == true",
+        "preview": "Begin with the people whose ordinary life you refuse to abandon.",
+        "aftermath": "The kitchen, the pantry, and the unsaid fear return before the road does.",
         "outcomeSuccessNode": "prologue_civilian_intro"
       },
       {
         "id": "begin_royal",
         "label": "Remember the throne you walked away from",
         "condition": "origin.royal == true",
+        "preview": "Begin with the court that called obedience peace.",
+        "aftermath": "The palace remembers you in candlelight and locked doors.",
         "outcomeSuccessNode": "prologue_royal_intro"
       },
       {
         "id": "begin_elf",
         "label": "Remember what an elf outlives",
         "condition": "origin.elf == true",
+        "preview": "Begin with the old disaster the lowlands have not recognized yet.",
+        "aftermath": "The blight-wind reaches you before the memory has a name.",
         "outcomeSuccessNode": "prologue_elf_intro"
       },
       {
         "id": "begin_dwarf",
         "label": "Remember the mountain's last lesson",
         "condition": "origin.dwarf == true",
+        "preview": "Begin with a crack that could become a collapse.",
+        "aftermath": "The mountain's cold patience settles again beneath your hands.",
         "outcomeSuccessNode": "prologue_dwarf_intro"
       },
       {
         "id": "begin_vampire",
         "label": "Remember the hunger beneath the ceremony",
         "condition": "origin.vampire == true",
+        "preview": "Begin with a hunger you choose not to obey.",
+        "aftermath": "A human heartbeat sounds too close in the dark.",
         "outcomeSuccessNode": "prologue_vampire_intro"
       },
       {
         "id": "begin_mercenary",
         "label": "Remember why your company wants you dead",
         "condition": "origin.mercenary == true",
+        "preview": "Begin with the order that made you leave the company behind.",
+        "aftermath": "The old camp bell rings in your body once more.",
         "outcomeSuccessNode": "prologue_mercenary_intro"
+      },
+      {
+        "id": "begin_orc",
+        "label": "Remember the oath that sent you from the war-camp",
+        "condition": "origin.orc == true",
+        "preview": "Begin with a clan promise that demands the truth, not conquest.",
+        "aftermath": "Ash is pressed to your brow, and the old words are answered.",
+        "outcomeSuccessNode": "prologue_orc_intro"
+      },
+      {
+        "id": "begin_demon",
+        "label": "Remember the name the summoner gave you",
+        "condition": "origin.demon == true",
+        "preview": "Begin with the name imposed on you—and the one you chose instead.",
+        "aftermath": "The chalk circle opens in memory, then breaks beneath your heel.",
+        "outcomeSuccessNode": "prologue_demon_intro"
       }
     ]
   },
@@ -150,43 +180,43 @@
     "sceneId": "prologue_wanderer_intro",
     "illustrationId": null,
     "narrative": "You learned the road does not ask who your parents were. It asks who keeps walking after the fire goes out, after the last innkeeper says no, after a friend takes the easier path without you.\n\nYou still carry a button from the coat of the person who taught you that lesson. The metal has been rubbed smooth by bad weather and worse nights. You have never decided whether keeping it is loyalty or cowardice.\n\nAt the edge of another nameless village, a yellowed field catches your eye. You know the look of a place beginning to run out of chances.",
-    "choices": [{"id":"wanderer_take_road","label":"Follow the road toward the village","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Left the road behind long enough to answer a village's trouble"}}]
+    "choices": [{"id":"wanderer_take_road","label":"Follow the road toward the village","preview":"You leave the field long enough to learn whose hunger it is.","aftermath":"The road gives you one more reason to keep walking.","outcomeSuccessNode":"origin_wanderer_fork","effects":{"run_history":"Left the road behind long enough to answer a village's trouble"}}]
   },
   {
     "sceneId": "prologue_civilian_intro",
     "illustrationId": null,
     "narrative": "Your hands remember seed grain, wet earth, and the terrible arithmetic of a pantry in late winter. You did not leave home because ordinary life was beneath you. You left because ordinary people deserve someone who comes back when trouble starts.\n\nThe messenger's boots leave small crescents of mud across your floor. They apologize for it twice. You remember doing the same thing when you were young and afraid that making a mess was worse than bringing bad news.\n\nA messenger brings word of sick fields on the next road over. You are already packing before the sentence ends.",
-    "choices": [{"id":"civilian_answer_call","label":"Go where the fields are failing","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Answered a farmer's warning about failing fields"}}]
+    "choices": [{"id":"civilian_answer_call","label":"Go where the fields are failing","preview":"You answer before fear can make the messenger ask twice.","aftermath":"Your family watches you choose the road; no one calls it easy.","outcomeSuccessNode":"origin_civilian_table","effects":{"run_history":"Answered a farmer's warning about failing fields"}}]
   },
   {
     "sceneId": "prologue_royal_intro",
     "illustrationId": null,
     "narrative": "At court, people kneel in perfect rows and call obedience peace. You watched your father receive a petition from hungry farmers without ever meeting their eyes. Later, a servant gathered the dropped wax seals as though the petition had been a spill.\n\nThat night, you take the kitchen stair instead of the grand door. A scullery girl recognizes you and says nothing. You leave a silver crown beside her bucket; she leaves it there until you are gone.\n\nYou ride out in a plain cloak with your signet hidden against your palm. If House Aldric is worth defending, you decide, it must survive the truth of its own roads.",
-    "choices": [{"id":"royal_leave_court","label":"Ride out before the court can stop you","outcomeSuccessNode":"royal_birthright","effects":{"run_history":"Left the Aldric court to see the realm's hunger firsthand"}}]
+    "choices": [{"id":"royal_leave_court","label":"Ride out before the court can stop you","preview":"You choose the unannounced road over another safe hour behind palace walls.","aftermath":"The city gate closes behind you without fanfare. For once, no one calls you back.","outcomeSuccessNode":"royal_birthright","effects":{"run_history":"Left the Aldric court to see the realm's hunger firsthand"}}]
   },
   {
     "sceneId": "prologue_elf_intro",
     "illustrationId": null,
     "narrative": "You have watched kingdoms call their disasters unprecedented, then repeat the same old mistake with newer banners. The wind from the Hollow Reaches carries a dry, wrong taste—the memory of a blight your people named long before Aldric's line.\n\nAt the boundary stone, a young human couple has tied red thread around a dead branch for luck. You do not tell them the old name for the sickness. Some knowledge is a blade; some is only weight.\n\nYou take your bow from its case. Old knowledge is only wisdom if it is used before the graveyard fills.",
-    "choices": [{"id":"elf_follow_blight","label":"Trace the blight-wind toward the lowlands","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Followed an ancient blight-wind toward the lowlands"}}]
+    "choices": [{"id":"elf_follow_blight","label":"Trace the blight-wind toward the lowlands","preview":"You follow the old sickness before it finds a new name.","aftermath":"The boundary stone recedes behind you, and the blight-wind keeps its counsel.","outcomeSuccessNode":"origin_elf_boundary","effects":{"run_history":"Followed an ancient blight-wind toward the lowlands"}}]
   },
   {
     "sceneId": "prologue_dwarf_intro",
     "illustrationId": null,
     "narrative": "The mountain taught you that a crack ignored becomes a collapse. When a Salt Road miller sends for iron braces and says the grain is spoiling before it can be ground, you hear the crack beneath his words.\n\nBefore leaving, you tap the lintel of your workshop three times. Your mother taught you the habit, then spent forty years pretending it was not a superstition. The stone is cold beneath your knuckles.\n\nYou shoulder your tools. Stone, wood, and people all fail faster when no one bothers to shore them up.",
-    "choices": [{"id":"dwarf_answer_miller","label":"Take the road with your tools","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Set out to answer a miller's call for help"}}]
+    "choices": [{"id":"dwarf_answer_miller","label":"Take the road with your tools","preview":"You pack for a repair, though the sound beneath the request is larger than a mill.","aftermath":"The workshop door closes on its old familiar weight.","outcomeSuccessNode":"origin_dwarf_forge","effects":{"run_history":"Set out to answer a miller's call for help"}}]
   },
   {
     "sceneId": "prologue_vampire_intro",
     "illustrationId": null,
     "narrative": "A hundred years ago, you watched a king call famine a regrettable necessity. Tonight the same fear beats through a roadside inn: too many people counting too few sacks of grain.\n\nA child at the next table is saving the soft middle of a roll for a sibling who is not present. You look away before anyone notices you have noticed. Some hungers make witnesses feel like thieves.\n\nHunger recognizes hunger. You pull your hood lower and leave before the first frightened heart can decide what you are.",
-    "choices": [{"id":"vampire_leave_inn","label":"Follow the scent of fear toward the farms","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Followed the first signs of famine from a roadside inn"}}]
+    "choices": [{"id":"vampire_leave_inn","label":"Follow the scent of fear toward the farms","preview":"You choose to investigate the fear instead of feeding from it.","aftermath":"Behind you, the child keeps the bread for someone else.","outcomeSuccessNode":"origin_vampire_inn","effects":{"run_history":"Followed the first signs of famine from a roadside inn"}}]
   },
   {
     "sceneId": "prologue_mercenary_intro",
     "illustrationId": null,
     "narrative": "Your old company taught you to read an ambush from a bent bird and a silent hedge. They also taught you what happens when officers count rations before names.\n\nYou still wake expecting the cook's ladle to hit the iron pot three times: once for breakfast, once for orders, once for whoever would not eat. No pot rings here. Your body hears it anyway.\n\nWhen you hear that a village granary is nearly empty, you turn toward it. Maybe you can keep one hungry crowd from becoming the kind of job your old captain would take for coin.",
-    "choices": [{"id":"mercenary_take_contract","label":"Head for the threatened granary","outcomeSuccessNode":"prologue_roadside_camp","effects":{"run_history":"Took the road to a village threatened by hunger"}}]
+    "choices": [{"id":"mercenary_take_contract","label":"Head for the threatened granary","preview":"You treat hunger like a siege before someone else treats it like a contract.","aftermath":"Your old company taught you to count exits. This time, you count people.","outcomeSuccessNode":"origin_mercenary_scout","effects":{"run_history":"Took the road to a village threatened by hunger"}}]
   },
   {
     "sceneId": "prologue_roadside_camp",

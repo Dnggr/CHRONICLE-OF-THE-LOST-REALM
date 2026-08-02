@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "chapter1_harvest_intro",
+    "arcId": "arc0_harvest_failure",
+    "arcTitle": "Arc I · The Harvest Failure",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The door groans open onto open air and late-afternoon light. Beyond it, a dirt path winds down out of the ruins toward a cluster of farms and a low stone wall - a village, smaller than the one you left behind.\n\nEven from here, something looks wrong. Fields that should be green this time of year are patched with yellow, like a fever sweating through the ground itself.",
     "choices": [

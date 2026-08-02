@@ -9,6 +9,85 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 19 — Two-scale narrative graph
+
+**Problem:** The story graph already linked scenes correctly, but it did not
+explicitly distinguish world-event arcs from the many common-event reading
+beats needed inside each arc.
+
+**Solution:**
+- Added optional `arcId`, `arcTitle`, and `nodeType` metadata to scene nodes.
+- Marked each major event opening as a world node; SceneScreen presents a
+  quiet arc title card when one is entered.
+- Added the narrative graph model and the 10+ common-event arc target so future
+  content grows as context → reaction → consequence, not a chain of skips.
+
+--------------------------------------------------------------------------
+## Session 18 — Choice continuity and immediate reactions
+
+**Problem:** Choices jumped directly to the next plot node. Players could not
+always tell what immediate action they were taking, how NPCs received it, or
+why the next scene followed, making the story feel skipped and confusing.
+
+**Solution:**
+- Extended scene choices with optional `preview`, `aftermath`, and
+  `aftermathFailure` text. The preview appears before selection; the aftermath
+  is frozen into the previous log entry after it.
+- Added a temporary neutral aftermath for legacy content so every choice now
+  has a visible bridge while scene files are migrated gradually.
+- Added the Intent → Response → Consequence authoring rule and supplied
+  authored examples for Aldous, Mira, and Yeva's active route decisions.
+
+--------------------------------------------------------------------------
+## Session 17 — Old Hendrik aftermath, Mira's farm letters, Salt Road check-in
+
+**Problem:** `docs/production_priorities.md` had three specific, unchecked
+Priority-1 items — Old Hendrik's saved/dead aftermath (no content at all
+yet), Mira Talbot's post-Event-4 farm letters and adult choice, and a
+Yeva/Petra quiet interlude after Event 2 — and the user asked to broaden
+existing routes rather than add new ones, wanting ready-to-paste output.
+
+**Solution:**
+- `event4_hollow_plague.json` — redirected the three plague-outcome scenes
+  (`event4_contained`/`event4_spreads`/`event4_mystery`) through a new
+  `event4_hendrik_aftermath` scene instead of straight to the coda. It
+  branches on `flags.hendrik_saved == true` vs `npc.old_hendrik.status ==
+  'dead'` (mutually exclusive by construction — every path through
+  `event4_quarantine` sets exactly one of the two) into four leaf scenes:
+  a full teaching scene or a rest-first alternative if he lived, two grief
+  options if he didn't. All four inherit an item (`inventory_add`) and set
+  `world_flags.hendrik_legacy_tool` as a hook for future scenes.
+- Same file — added `event4_mira_check` right after the Hendrik content: a
+  courier delivers mail gated on `npc.mira_talbot.trust >= 3` (a real
+  letter) or `npc.mira_talbot.status == 'estranged'` (a brief note), with
+  an always-available skip option. The trusted branch's letter is a real
+  adult choice — cover a farmer's debt for 25 gold, write back with only
+  encouragement, or leave it unanswered — each with distinct
+  trust/reputation consequences, not just flavor-text variation.
+- `event2_northern_war.json` — added `event2_salt_road_checkin` as an
+  additional, purely additive choice at `event2_coda` (gated on
+  `npc.yeva_solt.trust >= 2`), matching the tone of the existing Salt Road
+  culture route. Its own ending re-offers the same schism/plague fork
+  `event2_coda` already had, so it's a detour that rejoins the existing
+  path rather than a rewrite of it.
+- Engine fix: the new Hendrik scenes needed to hand over a physical item
+  (`inventory_add: "Hendrik's Worn Toolkit"` etc), but `GameController`'s
+  effects handler only understood `gold` as a generic value-delta key at
+  the time — `inventory_add` didn't exist yet in this codebase (it had
+  been added in an earlier, since-superseded version of this project, not
+  carried forward). Added it back, same pattern as `gold`.
+- Verified referential integrity across all 15 scene files after editing
+  (130 total scenes, zero dangling `outcomeSuccessNode`/`outcomeFailNode`
+  references, zero duplicate scene ids) — worth doing any time existing
+  files get restructured, not just when new ones are added.
+
+**Deliberately left undone:** the matching Yeva/Petra interlude after
+Events 4 and 5 (production_priorities.md still lists it unchecked), and
+nothing downstream yet reads `world_flags.hendrik_legacy_tool` or checks
+for the toolkit/whetstone in inventory — both noted as concrete follow-up
+in production_priorities.md rather than silently left implicit.
+
+--------------------------------------------------------------------------
 ## Session 16 — Salt Road culture and NPC dialogue expansion
 
 **Problem:** The Salt Road had event stakes but not enough ordinary culture or

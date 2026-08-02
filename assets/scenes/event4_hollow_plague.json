@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event4_cough",
+    "arcId": "arc4_hollow_plague",
+    "arcTitle": "Arc V · The Plague of the Hollow Reaches",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "At a Hollow Reaches roadside inn, Elder Pella coughs once into a handkerchief and apologizes for the noise. Her grandson keeps pouring tea as though politeness can hold the room together. Old Hendrik sits near the stove, quieter than you remember.\n\n@Hendrik: Weather gets into old beams. And old lungs. Don't look at me like that.",
     "choices": [
@@ -51,19 +54,83 @@
     "sceneId": "event4_contained",
     "illustrationId": null,
     "narrative": "The cordon holds, barely. Yssa sleeps sitting upright for the first time in weeks. If Hendrik lives, he complains that everyone has become too gentle with him; if he does not, his empty chair remains near the stove. The village learns the names of the dead before it learns to laugh again.",
-    "choices": [{"id":"plague_record_contained","label":"Leave the clinic its hard-won quiet","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"contained","reputation.commonfolk":1,"run_history":"Saw the Hollow Reaches plague contained"}}]
+    "choices": [{"id":"plague_record_contained","label":"Leave the clinic its hard-won quiet","outcomeSuccessNode":"event4_hendrik_aftermath","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"contained","reputation.commonfolk":1,"run_history":"Saw the Hollow Reaches plague contained"}}]
   },
   {
     "sceneId": "event4_spreads",
     "illustrationId": null,
     "narrative": "The cordon breaks where hunger always breaks it: at a family door. Carts leave for the Capital before the fever has finished choosing them. Bettina records each departure and then tears the page from her ledger.",
-    "choices": [{"id":"plague_record_spreads","label":"Watch the infected road turn south","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"spreads_to_capital","reputation.commonfolk":-1,"run_history":"Saw the Hollow Reaches plague spread toward the Capital"}}]
+    "choices": [{"id":"plague_record_spreads","label":"Watch the infected road turn south","outcomeSuccessNode":"event4_hendrik_aftermath","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"spreads_to_capital","reputation.commonfolk":-1,"run_history":"Saw the Hollow Reaches plague spread toward the Capital"}}]
   },
   {
     "sceneId": "event4_mystery",
     "illustrationId": null,
     "narrative": "At dawn, the fever simply stops. Nella Vey is more frightened by this than she was by the bodies.\n\n@Nella: Diseases do not forgive. They finish, or they change. This did neither.\n\nNo one has an answer worth carrying home.",
-    "choices": [{"id":"plague_record_mystery","label":"Leave before the silence changes its mind","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"mysteriously_ends","run_history":"Saw the Hollow plague end without explanation"}}]
+    "choices": [{"id":"plague_record_mystery","label":"Leave before the silence changes its mind","outcomeSuccessNode":"event4_hendrik_aftermath","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"mysteriously_ends","run_history":"Saw the Hollow plague end without explanation"}}]
+  },
+  {
+    "sceneId": "event4_hendrik_aftermath",
+    "illustrationId": null,
+    "narrative": "The clinic empties out in the slow, undramatic way rooms empty after something enormous has happened in them. Hendrik is propped up on borrowed pillows, insisting far too loudly that he intends to walk home unassisted. Yssa Coombe has already told him twice that intending is not the same as doing.\n\n@Hendrik: Don't fuss. Weather gets into old lungs. Always has. It let go of me same as it always does.\n\nHis hands, when he reaches for his tea, are steadier than his voice.",
+    "narrativeVariants": {
+      "npc.old_hendrik.status == 'dead'": "The clinic empties out in the slow, undramatic way rooms empty after something enormous has happened in them. Hendrik's chair by the stove has already been taken by someone else who needed the warmth more urgently than grief did. Someone has folded his coat and set it on the seat anyway, like the room itself couldn't quite agree to the arrangement.\n\nYssa found his tools sorted and labeled in a small chest under his cot, done sometime before the fever took the words to explain why. There's a note tucked in with them, in handwriting that gets worse toward the bottom of the page.\n\n@Hendrik's note: If you're reading this I ran out of time to say it properly, so here it is plainly: thank you for treating an old man's stories like they were still worth telling. Take the tools. Something in this world should keep working because of me."
+    },
+    "choices": [
+      {"id":"hendrik_lesson_sit","label":"Sit with Hendrik and actually learn his lesson properly, however long it takes","condition":"flags.hendrik_saved == true","outcomeSuccessNode":"event4_hendrik_lesson","effects":{"run_history":"Sat with Old Hendrik to properly learn his craft"}},
+      {"id":"hendrik_rest_instead","label":"Thank him for surviving and tell him it can wait until he's stronger","condition":"flags.hendrik_saved == true","outcomeSuccessNode":"event4_hendrik_rest_easy","effects":{"run_history":"Let Old Hendrik rest instead of pressing him to teach"}},
+      {"id":"hendrik_grief_stay","label":"Sit with what he left behind a while longer","condition":"npc.old_hendrik.status == 'dead'","outcomeSuccessNode":"event4_hendrik_grief_stay","effects":{"run_history":"Stayed beside Old Hendrik's things before leaving the clinic"}},
+      {"id":"hendrik_grief_go","label":"Take only what he clearly meant for you, and go - grief can wait for a safer road","condition":"npc.old_hendrik.status == 'dead'","outcomeSuccessNode":"event4_hendrik_grief_go","effects":{"run_history":"Left the clinic quickly, unwilling to grieve Old Hendrik in front of strangers"}}
+    ]
+  },
+  {
+    "sceneId": "event4_hendrik_lesson",
+    "illustrationId": null,
+    "narrative": "It takes most of the afternoon. Hendrik's hands shake more than they used to, so the lesson is slower than either of you expected - re-setting a blade's edge the old way, reading a whetstone's grain instead of trusting its label, the particular patience of a craft that punishes shortcuts.\n\n@Hendrik: There. Now if I go before I mean to, something of me keeps working instead of just keeps being missed. That's the trade I'd make, if anyone asked me, which nobody does.\n\nHe presses his own worn toolkit into your hands before you can argue about it.\n\n@Hendrik: Don't thank me. Use it badly a few times first. That's how it becomes yours.",
+    "choices": [{"id":"hendrik_lesson_continue","label":"Carry the lesson - and the toolkit - onward","outcomeSuccessNode":"event4_mira_check","effects":{"inventory_add":"Hendrik's Worn Toolkit","npc.old_hendrik.trust":3,"world_flags.hendrik_legacy_tool":true,"reputation.honor":1,"run_history":"Learned Old Hendrik's trade and inherited his toolkit while he still lived"}}]
+  },
+  {
+    "sceneId": "event4_hendrik_rest_easy",
+    "illustrationId": null,
+    "narrative": "@You: The lesson can wait. You can't teach anything properly this tired.\n\nHendrik looks almost disappointed, then almost relieved, then settles on pretending he wasn't going to argue anyway.\n\n@Hendrik: Suit yourself. Come back when I've got the strength to complain about your technique. I intend to have opinions about it.\n\nHe's asleep again before you're fully out the door.",
+    "choices": [{"id":"hendrik_rest_continue","label":"Let him sleep, and continue on","outcomeSuccessNode":"event4_mira_check","effects":{"npc.old_hendrik.trust":1,"run_history":"Prioritized Old Hendrik's rest over his teaching"}}]
+  },
+  {
+    "sceneId": "event4_hendrik_grief_stay",
+    "illustrationId": null,
+    "narrative": "You stay long enough for the light in the clinic window to change color. Yssa doesn't ask you to leave, and doesn't fill the silence either - she's buried enough people this season to know some visits aren't for the living patients still waiting.\n\nHendrik's coat still smells faintly of woodsmoke and whetstone oil. It's a smaller grief than the ones the whole village will carry, and somehow that makes it harder to share, not easier - a private weight nobody else in the room is positioned to help you carry.",
+    "choices": [{"id":"hendrik_grief_stay_continue","label":"Take the toolkit, and carry the quiet with you","outcomeSuccessNode":"event4_mira_check","effects":{"inventory_add":"Hendrik's Old Whetstone","world_flags.hendrik_legacy_tool":true,"reputation.honor":1,"run_history":"Sat with Old Hendrik's belongings before carrying his tools onward"}}]
+  },
+  {
+    "sceneId": "event4_hendrik_grief_go",
+    "illustrationId": null,
+    "narrative": "You take the small chest without opening it fully - there will be time later, or there won't, and either way the road doesn't stop for either answer. Yssa presses his note into your hand as you pass, since you clearly won't be staying long enough for her to insist on it properly.\n\nGrief, you've found, keeps better once you stop trying to feel the correct amount of it on schedule.",
+    "choices": [{"id":"hendrik_grief_go_continue","label":"Keep moving","outcomeSuccessNode":"event4_mira_check","effects":{"inventory_add":"Hendrik's Old Whetstone","world_flags.hendrik_legacy_tool":true,"run_history":"Left the Hollow clinic quickly, tools in hand, grief unspoken"}}]
+  },
+  {
+    "sceneId": "event4_mira_check",
+    "illustrationId": null,
+    "narrative": "A courier catches up with you on the Capital road, saddlebag heavy with the kind of correspondence that has clearly waited for someone to know where to send it.",
+    "choices": [
+      {"id":"mira_check_open_friend","label":"Open the letter with the Talbot farm seal","condition":"npc.mira_talbot.trust >= 3","outcomeSuccessNode":"event4_mira_letter_friend","effects":{"run_history":"Received a letter from Mira Talbot"}},
+      {"id":"mira_check_open_estranged","label":"Open the short, formal note from the Talbot valley","condition":"npc.mira_talbot.status == 'estranged'","outcomeSuccessNode":"event4_mira_letter_estranged","effects":{"run_history":"Received a formal note from the estranged Talbot farm"}},
+      {"id":"mira_check_skip","label":"There's nothing more worth reading right now - continue to the Capital","outcomeSuccessNode":"event4_coda","effects":{"run_history":"Continued to the Capital without reading the courier's post"}}
+    ]
+  },
+  {
+    "sceneId": "event4_mira_letter_friend",
+    "illustrationId": null,
+    "narrative": "Mira's handwriting has gotten faster since the last letter, like she's stopped worrying about how it looks.\n\n@Mira: Tovin's grown two inches and lost a tooth, in case you were tracking either. The coop held through the worst of winter. But Old Rennick's holding a debt over Farmer Dessa's head - foreclosure by spring unless someone finds coin she doesn't have, and she's too proud to ask the coop directly, so I am asking on her behalf, badly, in writing, because I couldn't say this to your face without it sounding like begging.\n\n@Mira: I'm not asking you to fix everything. I'm asking because you're the only person I know who might actually be positioned to.\n\nThe letter ends the way her letters always end now - no flourish, just her name, like she still isn't sure how much of herself to put on a page that might not be read the way it was meant.",
+    "choices": [
+      {"id":"mira_letter_send_coin","label":"Send what's needed to cover Dessa's debt (-25 Gold)","condition":"gold >= 25","outcomeSuccessNode":"event4_coda","effects":{"gold":-25,"npc.mira_talbot.trust":3,"world_flags.mira_coop_saved":true,"reputation.commonfolk":2,"run_history":"Sent gold to save a Talbot valley farmer from foreclosure"}},
+      {"id":"mira_letter_encourage","label":"Write back with encouragement, and a promise to visit before you can send coin","outcomeSuccessNode":"event4_coda","effects":{"npc.mira_talbot.trust":1,"run_history":"Wrote Mira Talbot back with encouragement but no coin"}},
+      {"id":"mira_letter_ignore","label":"There's no time to answer properly right now - keep the letter, and keep moving","outcomeSuccessNode":"event4_coda","effects":{"npc.mira_talbot.trust":-2,"reputation.commonfolk":-1,"run_history":"Left Mira Talbot's letter unanswered"}}
+    ]
+  },
+  {
+    "sceneId": "event4_mira_letter_estranged",
+    "illustrationId": null,
+    "narrative": "The note is three lines, unsigned except for a single initial. It says the valley is well. It says the coop is holding. It does not ask how you are, and does not offer to tell you how she is either.\n\nBut it found you. Someone would have had to ask, carefully, which road you'd taken, and to whom, for a note like this to arrive at all.",
+    "choices": [{"id":"mira_estranged_letter_continue","label":"Fold the note away, and continue toward the Capital","outcomeSuccessNode":"event4_coda","effects":{"world_flags.mira_estranged_letter_sent":true,"run_history":"Received a brief, unsigned note from the estranged Talbot valley"}}]
   },
   {
     "sceneId": "event4_coda",

@@ -34,10 +34,16 @@ class SceneLogEntry {
   /// one, at which point a new SceneLogEntry gets appended after it.
   String? chosenLabel;
 
+  /// The immediate emotional or physical response to [chosenLabel]. This is
+  /// kept with the answered entry so it stays visible between the choice and
+  /// the next scene in the continuous reading log.
+  String? chosenAftermath;
+
   SceneLogEntry({
     required this.sceneId,
     required this.narrative,
     this.illustrationId,
     this.chosenLabel,
+    this.chosenAftermath,
   });
 }

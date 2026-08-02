@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event2_envoy",
+    "arcId": "arc2_northern_war",
+    "arcTitle": "Arc III · The War with the Northern Reach",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The Northern Reach envoy arrives beneath a flag patched so often its original blue is almost gone. Envoy Sera Vaun counts each guard at the gate before she speaks.\n\n@Sera Vaun: I have come for words, not tribute. That distinction has become difficult for your court.\n\nA black crow watches from the milestone. It does not move when the horses pass.",
     "narrativeVariants": {
@@ -92,8 +95,27 @@
     },
     "choices": [
       {"id":"war_royal_aftercare","label":"Keep the night watch with Aldous before choosing the next road","condition":"origin.royal == true","outcomeSuccessNode":"royal_border_watch","effects":{"run_history":"Kept a private night watch with Ser Aldous after the Northern War"}},
+      {"id":"war_check_salt_road","label":"Send word down the Salt Road before deciding what comes next","condition":"npc.yeva_solt.trust >= 2","outcomeSuccessNode":"event2_salt_road_checkin","effects":{"run_history":"Checked on the Salt Road before continuing past the Northern War"}},
       {"id":"war_to_schism","label":"Travel to the empty ground of the Sun Temple","condition":"origin.royal == false","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Followed the war's aftermath to the ruined Sun Temple"}},
       {"id":"war_to_plague","label":"Follow the returning soldiers toward the Hollow Reaches","condition":"origin.royal == false","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed reports of sickness from the northern camps"}}
+    ]
+  },
+  {
+    "sceneId": "event2_salt_road_checkin",
+    "illustrationId": null,
+    "narrative": "The rider you send south returns faster than expected, with a reply written in two different hands sharing one page - Yeva's careful ledger-script above, Petra's slanted scrawl squeezed into the margin like she couldn't wait for her own line.\n\n@Yeva: The road held through the war news better than I feared. Grain prices climbed, then settled. We are managing. Nella still asks after you, which I did not encourage and could not stop.\n\n@Petra: Yeva is being modest, which is new for her. Half the carriers wanted to march north themselves when the casualty lists came through. She talked them out of it with an actual speech. I am almost impressed.\n\nBelow that, in Yeva's hand again, added smaller, like an afterthought that wasn't: @Yeva: Come back through when you can. The road remembers who it fed.",
+    "choices": [
+      {"id":"salt_checkin_reply_warm","label":"Write back with real warmth, and mean it","outcomeSuccessNode":"event2_salt_road_checkin_end","effects":{"npc.yeva_solt.trust":2,"npc.petra_voss.trust":1,"run_history":"Sent the Salt Road a warm reply after the Northern War"}},
+      {"id":"salt_checkin_reply_brief","label":"Send a brief, practical reply - there isn't time for more right now","outcomeSuccessNode":"event2_salt_road_checkin_end","effects":{"npc.yeva_solt.trust":1,"run_history":"Sent the Salt Road a brief, practical reply"}}
+    ]
+  },
+  {
+    "sceneId": "event2_salt_road_checkin_end",
+    "illustrationId": null,
+    "narrative": "You fold the letter away rather than the memory of it. Whatever comes next, the Salt Road will still be there afterward, keeping its own accounts in its own two handwritings.",
+    "choices": [
+      {"id":"salt_checkin_to_schism","label":"Travel to the empty ground of the Sun Temple","condition":"flags.sun_temple_destroyed == true","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Followed the war's aftermath to the ruined Sun Temple"}},
+      {"id":"salt_checkin_to_plague","label":"Follow the returning soldiers toward the Hollow Reaches","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed reports of sickness from the northern camps"}}
     ]
   }
 ]

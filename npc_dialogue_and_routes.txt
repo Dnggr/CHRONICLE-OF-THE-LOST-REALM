@@ -32,6 +32,26 @@ NON-NEGOTIABLE PACING RULES
    opportunity. The player should feel what they gave up, not only what gained.
 8. Never force a player to read a lore dump to proceed. Curiosity opens lore;
    urgency advances the plot; both remain valid play styles.
+9. A choice is never a teleport. Before it, state the immediate kind of action
+   the player is taking without spoiling the whole branch: speak, leave,
+   threaten, bargain, investigate, or fight. After it, show one concrete
+   reaction before the next scene begins: a face changing, a room falling
+   quiet, a hand reaching for a weapon, someone repeating the player's words,
+   or a physical consequence of the action.
+10. Every consequential choice must carry three beats: INTENT (what the player
+    understands they are attempting), RESPONSE (what happens in the immediate
+    second after), and CONSEQUENCE (what the next scene inherits). Do not make
+    the player infer all three from a scene-id jump.
+11. Dialogue must be an exchange, not a delivery system. Let the player ask,
+    refuse, misunderstand, interrupt, or answer badly. An NPC should react to
+    that exact answer with a changed tone, body language, or later memory.
+12. Every scene needs a physical anchor before abstract stakes: where people
+    sit, what their hands are doing, who is watching, what can be heard or
+    smelled, and what changes in the room when a choice is made.
+13. Legacy scene choices without authored response text use the engine's
+    neutral bridge line temporarily. Every rewritten or new choice MUST add
+    `preview` and `aftermath` fields in scene JSON; stat checks should also add
+    `aftermathFailure` when failure changes the immediate moment.
 
 10,000-PAGE PRODUCTION STRUCTURE
 --------------------------------

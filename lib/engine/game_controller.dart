@@ -283,6 +283,15 @@ class GameController extends ChangeNotifier {
           // pattern as every other numeric effect here.
           final delta = (value as num).toInt();
           activeCharacter.gold += delta;
+        } else if (key == 'inventory_add') {
+          // PROBLEM: Old Hendrik's aftermath scenes hand the player a
+          // physical keepsake (his toolkit if he lived, his whetstone if
+          // he didn't) - narratively real, but nothing applied it to the
+          // save data, so "inheriting" his tools was prose with no
+          // mechanical weight behind it.
+          // SOLUTION: appends a single item name to inventory, same
+          // list Archetype/EquipmentKit starting gear already populates.
+          activeCharacter.inventory.add(value as String);
         }
       });
 
@@ -305,6 +314,12 @@ class GameController extends ChangeNotifier {
             : (choice.outcomeFailNode ?? choice.outcomeSuccessNode);
       } else {
         nextSceneId = choice.outcomeSuccessNode;
+      }
+
+      if (sceneLog.isNotEmpty) {
+        sceneLog.last.chosenAftermath = lastCheckResult?.success == false
+            ? (choice.aftermathFailure ?? choice.aftermath ?? _defaultAftermath)
+            : (choice.aftermath ?? _defaultAftermath);
       }
 
       activeCharacter.currentSceneId = nextSceneId;
@@ -331,6 +346,10 @@ class GameController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  static const _defaultAftermath =
+      'The choice settles into the room. Someone hears it, someone reacts, '
+      'and the road carries the consequence forward.';
 
   Future<void> _handleDeath(String cause) async {
     final activeCharacter = character;

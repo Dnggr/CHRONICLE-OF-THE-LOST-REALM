@@ -21,6 +21,19 @@ mark a route complete because an NPC merely has a registry entry or one scene.
 
 Build these before adding more world events or combat systems.
 
+- [x] Adopt the two-scale narrative graph: explicit world-event arc openings
+  plus common-event beats. See `docs/narrative_graph_model.md`.
+- [ ] Migrate all active arc nodes from the legacy default to explicit `arcId`
+  metadata as each arc is rewritten to the 10+ common-event target.
+
+0. **Choice continuity migration**
+   - [x] Added engine support for choice `preview`, `aftermath`, and failed-roll
+     aftermath, displayed in the reading log.
+   - [ ] Rewrite every existing choice with a specific immediate response;
+     legacy choices use a deliberately temporary neutral bridge line.
+   - [ ] Add a scene-authoring check that rejects new consequential choices
+     without `preview` and `aftermath`.
+
 1. **Royal Heir / Ser Aldous route, Acts 1–3** — *Act 1 now playable*
    - [x] Add recurring scenes after Event 1, Event 2, Event 4, and Event 5.
    - [ ] Add 2–4 further scenes after Event 7 and a final resolution beat.
@@ -33,7 +46,12 @@ Build these before adding more world events or combat systems.
 2. **Mira Talbot route, Acts 2–3** — *Act 2 now playable*
    - [x] Add a post-Rebellion farm return, family meal, farmers' meeting, and
      an estranged-route encounter where Mira can disagree without vanishing.
-   - [ ] Add farm letters and a later adult-choice scene after Event 4.
+   - [x] Add farm letters and a later adult-choice scene after Event 4 —
+     a courier check-in gated on trust/estrangement, a full letter with a
+     real cost/relationship decision (cover a farmer's debt, write back
+     without coin, or leave it unanswered), and a shorter note for the
+     estranged branch. See `event4_hollow_plague.json`'s
+     `event4_mira_check` / `event4_mira_letter_*` scenes.
    - Branch from redemption/cover-up/report into friendship, estrangement,
      institutional revenge, and only then a slow-burn romance possibility.
    - Do not label romance before several event-spanning acts and mutual trust.
@@ -41,17 +59,30 @@ Build these before adding more world events or combat systems.
 3. **Yeva / Petra dual route**
    - [x] Add a Salt Road culture route with market, orphanage, rooftop, and
      bell-tower conversations plus meaningful relationship decisions.
-   - [ ] Add one quiet interlude and one meaningful decision after Events 2, 4,
-     and 5 each.
+   - [x] Add one quiet interlude and one meaningful decision after Event 2 —
+     see `event2_salt_road_checkin` in `event2_northern_war.json`.
+   - [ ] Add the matching interlude + decision after Events 4 and 5.
    - Make both women sometimes correct; trust with one must not automatically
      erase the other.
    - End states: guild partnership, bitter respect, betrayal, reconciliation,
      or political rivalry.
 
-4. **Old Hendrik aftermath**
-   - If saved: teaching, letters, and an earned practical legacy.
-   - If dead: grief scenes and an inherited tool/lesson that changes later
-     prose, not a resurrection or a forgotten flag.
+4. **Old Hendrik aftermath** — *Playable*
+   - [x] If saved: a real teaching scene (or a rest-first alternative) that
+     hands over his toolkit and raises trust — `event4_hendrik_lesson` /
+     `event4_hendrik_rest_easy`.
+   - [x] If dead: two grief options (stay with his things / take only what
+     he meant for you and go), both inheriting a whetstone and setting
+     `world_flags.hendrik_legacy_tool` — a hook future scenes can react to,
+     not yet consumed anywhere downstream. `event4_hendrik_grief_stay` /
+     `event4_hendrik_grief_go`.
+   - Not yet done: no later scene actually reads `hendrik_legacy_tool` or
+     `inventory.contains("Hendrik's Worn Toolkit"/"Hendrik's Old Whetstone")`
+     — the flag/item exist and are correct, but nothing downstream pays
+     them off yet. Whoever authors Event 6+ content next should look for a
+     natural moment to use them (a craft check made easier, a line of
+     recognition from another NPC who knew him) rather than let them sit
+     unused.
 
 ## Priority 2 — interludes and lore density
 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../engine/game_controller.dart';
 import '../../engine/settings_controller.dart';
 import '../../models/scene_log_entry.dart';
+import '../../models/scene_node.dart';
 import '../widgets/choice_button.dart';
 import '../widgets/narrative_text.dart';
 import '../widgets/stat_bar.dart';
@@ -116,6 +117,11 @@ class _SceneScreenState extends State<SceneScreen> {
                           _LogEntryView(
                             entry: controller.sceneLog[i],
                             isLatest: i == controller.sceneLog.length - 1,
+                            arcTitle: i == controller.sceneLog.length - 1 &&
+                                    controller.currentScene?.nodeType ==
+                                        StoryNodeType.worldEvent
+                                ? controller.currentScene?.arcTitle
+                                : null,
                             animateNarrative:
                                 i == controller.sceneLog.length - 1 &&
                                     controller.sceneLog.length > 1,
@@ -144,6 +150,7 @@ class _SceneScreenState extends State<SceneScreen> {
 class _LogEntryView extends StatelessWidget {
   final SceneLogEntry entry;
   final bool isLatest;
+  final String? arcTitle;
   final bool animateNarrative;
   final GameController controller;
   final bool showRollBanner;
@@ -152,6 +159,7 @@ class _LogEntryView extends StatelessWidget {
   const _LogEntryView({
     required this.entry,
     required this.isLatest,
+    this.arcTitle,
     required this.animateNarrative,
     required this.controller,
     required this.showRollBanner,
@@ -168,6 +176,7 @@ class _LogEntryView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (arcTitle != null) _ArcTitleCard(title: arcTitle!),
           NarrativeText(
             text: entry.narrative,
             illustrationId: entry.illustrationId,
@@ -206,14 +215,64 @@ class _LogEntryView extends StatelessWidget {
             ...controller.availableChoices.map(
               (choice) => ChoiceButton(
                 label: choice.label,
+                preview: choice.preview,
                 onTap: controller.isSelectingChoice
                     ? null
                     : () => controller.selectChoice(choice),
               ),
             ),
           ],
+          if (alreadyAnswered && entry.chosenAftermath != null)
+            Container(
+              margin: const EdgeInsets.only(left: 20, bottom: 8),
+              padding: const EdgeInsets.only(left: 12),
+              decoration: BoxDecoration(
+                border: Border(left: BorderSide(color: Colors.brown.withOpacity(0.24))),
+              ),
+              child: Text(
+                entry.chosenAftermath!,
+                style: GoogleFonts.merriweather(
+                  fontSize: 13,
+                  height: 1.5,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.brown[600],
+                ),
+              ),
+            ),
           if (alreadyAnswered)
             Divider(color: Colors.brown.withOpacity(0.15), height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+/// A quiet scale marker. It tells the reader an arc has turned without
+/// interrupting the prose with a modal or a game-like chapter screen.
+class _ArcTitleCard extends StatelessWidget {
+  final String title;
+
+  const _ArcTitleCard({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        children: [
+          Divider(color: Colors.brown.withOpacity(0.25)),
+          const SizedBox(height: 8),
+          Text(
+            title.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cinzel(
+              fontSize: 13,
+              letterSpacing: 1.3,
+              color: Colors.brown[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Divider(color: Colors.brown.withOpacity(0.25)),
         ],
       ),
     );

@@ -16,6 +16,18 @@ class SceneChoice {
   final String outcomeSuccessNode;
   final String? outcomeFailNode;
 
+  /// A short, non-spoiler promise shown beneath the choice before it is made.
+  /// It tells the reader what immediate kind of moment they are choosing
+  /// (conversation, violence, departure, bargain) without revealing a roll or
+  /// later branch.
+  final String? preview;
+
+  /// The immediate reaction inserted into the reading log after this choice.
+  /// This bridges the player's action and the next scene so choices do not
+  /// read like teleporters between plot beats.
+  final String? aftermath;
+  final String? aftermathFailure;
+
   /// Set of "world_flags" or "run_history" entries to apply when this
   /// choice is taken, regardless of success/fail. Example:
   /// { "world_flags.sun_temple_destroyed": true }
@@ -33,6 +45,9 @@ class SceneChoice {
     this.difficultyClass,
     required this.outcomeSuccessNode,
     this.outcomeFailNode,
+    this.preview,
+    this.aftermath,
+    this.aftermathFailure,
     this.effects = const {},
     this.isFatal = false,
     this.fatalCause,
@@ -47,6 +62,9 @@ class SceneChoice {
       difficultyClass: json['difficultyClass'] as int?,
       outcomeSuccessNode: json['outcomeSuccessNode'] as String,
       outcomeFailNode: json['outcomeFailNode'] as String?,
+      preview: json['preview'] as String?,
+      aftermath: json['aftermath'] as String?,
+      aftermathFailure: json['aftermathFailure'] as String?,
       effects: (json['effects'] as Map?)?.cast<String, dynamic>() ?? const {},
       isFatal: json['isFatal'] as bool? ?? false,
       fatalCause: json['fatalCause'] as String?,
@@ -56,6 +74,10 @@ class SceneChoice {
   bool get hasStatCheck => requiredAttribute != null && difficultyClass != null;
 }
 
+/// The scale of a story node. A world event begins/ends an arc; common events
+/// are the relationship, travel, conversation, and consequence beats inside it.
+enum StoryNodeType { worldEvent, commonEvent }
+
 /// A single node in the story graph. Loaded from assets/scenes/*.json.
 ///
 /// [narrativeVariants] lets one scene id show different prose depending on
@@ -64,6 +86,9 @@ class SceneChoice {
 /// checked in order; the first match wins, otherwise [narrative] is used.
 class SceneNode {
   final String sceneId;
+  final String arcId;
+  final String? arcTitle;
+  final StoryNodeType nodeType;
   final String? illustrationId;
   final String narrative;
   final Map<String, String> narrativeVariants;
@@ -71,6 +96,9 @@ class SceneNode {
 
   const SceneNode({
     required this.sceneId,
+    this.arcId = 'legacy',
+    this.arcTitle,
+    this.nodeType = StoryNodeType.commonEvent,
     this.illustrationId,
     required this.narrative,
     this.narrativeVariants = const {},
@@ -82,6 +110,11 @@ class SceneNode {
     final variantsJson = (json['narrativeVariants'] as Map?) ?? const {};
     return SceneNode(
       sceneId: json['sceneId'] as String,
+      arcId: json['arcId'] as String? ?? 'legacy',
+      arcTitle: json['arcTitle'] as String?,
+      nodeType: json['nodeType'] == 'world'
+          ? StoryNodeType.worldEvent
+          : StoryNodeType.commonEvent,
       illustrationId: json['illustrationId'] as String?,
       narrative: json['narrative'] as String,
       narrativeVariants: variantsJson.cast<String, String>(),

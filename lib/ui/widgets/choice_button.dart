@@ -6,9 +6,15 @@ import 'package:google_fonts/google_fonts.dart';
 /// without competing with the prose above it.
 class ChoiceButton extends StatefulWidget {
   final String label;
+  final String? preview;
   final VoidCallback? onTap;
 
-  const ChoiceButton({super.key, required this.label, required this.onTap});
+  const ChoiceButton({
+    super.key,
+    required this.label,
+    this.preview,
+    required this.onTap,
+  });
 
   @override
   State<ChoiceButton> createState() => _ChoiceButtonState();
@@ -61,15 +67,32 @@ class _ChoiceButtonState extends State<ChoiceButton> {
                     ),
                   ),
                   Expanded(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 140),
-                      style: GoogleFonts.merriweather(
-                        fontSize: 14,
-                        height: 1.45,
-                        color: color,
-                        fontWeight: _pressed ? FontWeight.w700 : FontWeight.w500,
-                      ),
-                      child: Text(widget.label),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 140),
+                          style: GoogleFonts.merriweather(
+                            fontSize: 14,
+                            height: 1.45,
+                            color: color,
+                            fontWeight: _pressed ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                          child: Text(widget.label),
+                        ),
+                        if (widget.preview != null) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            widget.preview!,
+                            style: GoogleFonts.merriweather(
+                              fontSize: 11,
+                              height: 1.35,
+                              color: Colors.brown[500],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],

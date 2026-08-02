@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event3_empty_ground",
+    "arcId": "arc3_sun_temple_schism",
+    "arcTitle": "Arc IV · The Sun Temple Schism",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The Sun Temple is gone so completely that the sky appears indecent above its foundations. Two mourners stand where the altar was. One wants every stone restored; the other says no god worth keeping would ask for a copy.\n\n@Bellik Thorne: You cannot rebuild what was betrayed.\n@Ash-Speaker: Then we should not pretend we can. We should learn what the ash remembers.",
     "choices": [

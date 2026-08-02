@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event8_revealed",
+    "arcId": "arc8_demon_lord",
+    "arcTitle": "Arc IX · The Demon Lord",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The thing beyond the opened door is not a king, not a god, and not a name anyone can safely keep. The Dark Legion kneels without being commanded. The Demon Lord has been revealed, and the realm understands at last that every earlier war was merely human.",
     "choices": [

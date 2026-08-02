@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event6_strange_sails",
+    "arcId": "arc6_salt_sea_invasion",
+    "arcTitle": "Arc VII · The Foreign Invasion",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The first ships appear as black scratches on the Salt Sea. The harbor office calls them merchants until the third vessel lowers no colors at all. Harbormaster Sten Quill keeps his spyglass trained on them.\n\n@Sten: They do not sail like anyone I know. That is worse than sailing like an enemy.\n\nCoastal Elder Maren Wick is already sending children inland.",
     "choices": [

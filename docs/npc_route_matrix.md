@@ -6,10 +6,10 @@ in scene JSON and later scenes react to its trust, status, or earlier promise.
 
 | NPC | Current playable beats | Route direction | Status |
 | --- | --- | --- | --- |
-| Mira Talbot | Harvest confession, later farm-network callback | redemption → friendship/estrangement → slow-burn love or institutional revenge | Act 1 playable |
-| Old Hendrik | roadside shelter, warning, plague preparation and medicine choice | mentor → paternal honesty → survival or grief | Core route playable |
-| Yeva Solt | rebellion stance, ledger-letter, market/orphanage route | transaction → trust → partnership/bitter respect | Act 1–2 playable |
-| Petra Voss | rebellion stance, rooftop family conversation | rivalry → intimacy/betrayal → reluctant alliance | Act 1–2 playable |
+| Mira Talbot | Harvest confession, farm return, farm letters + debt decision after Event 4 | redemption → friendship/estrangement → slow-burn love or institutional revenge | Act 2 playable |
+| Old Hendrik | roadside shelter, warning, plague medicine choice, saved/dead aftermath (lesson or grief, toolkit or whetstone) | mentor → paternal honesty → survival or grief | Aftermath playable |
+| Yeva Solt | rebellion stance, ledger-letter, market/orphanage route, post-Event-2 check-in | transaction → trust → partnership/bitter respect | Act 1–2 playable |
+| Petra Voss | rebellion stance, rooftop family conversation, post-Event-2 check-in | rivalry → intimacy/betrayal → reluctant alliance | Act 1–2 playable |
 | Tamsin Bell-Ringer | rumor scenes, bell-tower custom and truth promise | source → dangerous distortion → truth-versus-comfort conflict | Act 1–2 playable |
 | Ser Aldous Fenn | war warning, rescue/death, succession eulogy, Legion/capstone callback | loyalty → fracture → sacrifice or survival | Core route playable |
 | Lady Ysolde Marrow | public claim, Corenna scene, succession outcome | political rivalry → legitimacy reveal → enemy/uneasy contact | Act 1 playable |

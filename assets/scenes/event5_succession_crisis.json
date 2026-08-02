@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event5_kings_health",
+    "arcId": "arc5_succession_crisis",
+    "arcTitle": "Arc VI · The Succession Crisis",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The King receives no visitors, but the palace windows glow all night. In the outer court, Lady Ysolde Marrow waits with the patience of someone who has already chosen the ending. Regent-Marshal Halvern Cotte checks a list of contingencies twice.\n\n@Halvern: The realm needs a lawful transition. It does not need another opinion shouted from a balcony.",
     "narrativeVariants": {"flags.plague_hollow_reaches_outcome == 'spreads_to_capital'": "The King receives no visitors; plague lamps burn in the palace windows all night. In the outer court, Lady Ysolde Marrow waits with the patience of someone who has already chosen the ending. Regent-Marshal Halvern Cotte checks a list of contingencies twice.\n\n@Halvern: The realm needs a lawful transition. It does not need another opinion shouted from a balcony."},

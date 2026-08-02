@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event1_toll_trouble",
+    "arcId": "arc1_salt_road_rebellion",
+    "arcTitle": "Arc II · The Rebellion of the Salt Road",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The Salt Road is choked with wagons and raised voices. At the toll gate, a merchant pushes a fistful of stamped guild scrip across the table. The crown clerk refuses it.\n\n@Merchant: Coin is leaving the road faster than grain. This is what we have.\n@Clerk: Then this is what you owe. Standard tender, or turn around.\n\nNobody is drawing steel. Not yet.",
     "narrativeVariants": {

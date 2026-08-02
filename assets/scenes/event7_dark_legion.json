@@ -1,6 +1,9 @@
 [
   {
     "sceneId": "event7_omens",
+    "arcId": "arc7_dark_legion",
+    "arcTitle": "Arc VIII · The Dark Legion",
+    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The omens arrive without spectacle: a well that tastes of iron, sheep standing still in rain, a dawn that refuses to brighten. The Piebald Fool sits on a mile marker, feeding crumbs to no birds.\n\n@Piebald Fool: What was buried, borrowed breath. What was broken, learns to walk.\n\nResistance-Warden Iska Vell is already marking safe houses on a map.",
     "choices": [

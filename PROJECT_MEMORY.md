@@ -117,3 +117,51 @@ summaries, not private or verbatim chat transcripts.
   carrier-family history, bell codes, and recurring local idioms.
 - The route uses longer player/NPC dialogue and records relationship decisions
   about Yeva's secret support, Petra's view of loyalty, and Tamsin's truth.
+
+## 2026-08-03 — Priority 1 backlog: Hendrik aftermath, Mira letters, Salt Road check-in
+
+- The user asked to broaden existing content specifically (more dialogue and
+  routes on what already exists) rather than add new breadth, and asked for
+  ready-to-paste output. Worked directly from `docs/production_priorities.md`'s
+  unchecked Priority 1 items rather than picking new scope.
+- Added Old Hendrik's aftermath: a saved branch (a real teaching scene or a
+  rest-first alternative, either way inheriting his toolkit) and a dead
+  branch (two grief options, inheriting his whetstone). Both set
+  `world_flags.hendrik_legacy_tool` as a hook for later scenes to react to —
+  nothing downstream reads it yet; flagged as follow-up work in
+  `production_priorities.md`.
+- Added Mira Talbot's post-Event-4 farm letters: a courier check-in gated on
+  trust/estrangement, and — for the trusted branch — a real adult choice
+  (cover a farmer's debt for gold, write back with only encouragement, or
+  leave the letter unanswered), each with distinct trust/reputation
+  consequences.
+- Added one Yeva/Petra quiet interlude + decision after Event 2 (matching the
+  existing Salt Road culture route's tone), gated on Yeva trust. The same
+  treatment for Events 4 and 5 remains unchecked in production_priorities.md
+  — deliberately scoped down to one solid addition rather than three thin
+  ones in a single pass.
+- Engine gap found and fixed while wiring this in: `inventory_add` was used
+  in the new Hendrik scenes (handing over a toolkit/whetstone) but
+  `GameController`'s effects handler didn't support that key yet — only
+  `gold` had been added previously. Added `inventory_add` alongside it.
+- Ran a full referential-integrity check across all 15 scene files after
+  editing (130 scenes, no dangling references, no duplicate scene ids) since
+  this session edited existing files rather than only adding new ones.
+
+## 2026-08-03 — Choice continuity rule
+
+- The user found the story confusing because choices jumped straight into the
+  next plot node. New writing must show intent before selection, an immediate
+  visible response afterward, and a consequence inherited by the next scene.
+- Added engine/UI fields for choice previews and aftermaths. Legacy choices
+  show a neutral bridge until migrated; newly authored or rewritten choices
+  must include bespoke `preview` and `aftermath` text.
+
+## 2026-08-03 — Two-scale narrative graph
+
+- Adopted the requested world-event / common-event structure. World nodes now
+  carry optional arc metadata and present quiet title cards; common nodes remain
+  the reading-heavy conversation, lore, reaction, and relationship beats.
+- Added `docs/narrative_graph_model.md`, defining the 10+ common-event target,
+  JSON metadata, and the required context → intent → response → consequence
+  rhythm for each arc.

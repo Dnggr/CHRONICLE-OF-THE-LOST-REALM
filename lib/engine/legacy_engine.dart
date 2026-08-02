@@ -71,7 +71,7 @@ class LegacyEngine {
 
   // NOTE: the old generic startNewRun({name}) factory was removed here -
   // character creation now always goes through
-  // CharacterState.fromArchetype(name, archetype) so that archetype
+  // CharacterState.fromCreationData(...) so that archetype/background/
   // perks (stats/gear/gold/origin tags) can never accidentally be
   // skipped. See CharacterCreationScreen + GameController.beginRun().
 }

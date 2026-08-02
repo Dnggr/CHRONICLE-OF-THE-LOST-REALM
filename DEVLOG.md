@@ -9,6 +9,78 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 5 — Deeper character creator, screenplay-style dialogue
+
+**Problem 1:** Character creation was just Name + Archetype - much
+shallower than the reference game's creator (Name / Gender / Portrait /
+Background / Trait / Stat Distribution / Starting Equipment, all as
+separate layers, per the reference screenshot this session).
+
+**Solution 1:** Added three new independent data layers alongside the
+existing Archetype:
+- `Background` (`lib/data/backgrounds.dart`) — 6 life-story options
+  (Aspiring Adventurer, Runaway Noble's Ward, Orphaned by War, Merchant's
+  Apprentice, Temple Acolyte, Outlaw's Kin), each with a single stat
+  bonus + gold nudge.
+- `Trait` (`lib/data/traits.dart`) — 6 special-talent options (Magical,
+  Brawler, Silver Tongue, Iron Will, Swift, Hardy), mirroring the
+  reference's "Magical - Magic +1, INT +2" style perk, but using our
+  existing 6 core stats rather than inventing a 7th "Magic" resource the
+  rest of the engine would need to know about.
+- `EquipmentKit` (`lib/data/equipment_kits.dart`) — 5 class-flavor gear
+  loadouts (Wizard/Warrior/Rogue/Ranger/Pilgrim), ADDITIVE with
+  Archetype's own race-flavor gear rather than replacing it (a Dwarf
+  Wizard gets both the Dwarven War-Axe AND the wizard's spellbook).
+- `PortraitOption` (`lib/data/portraits.dart`) — a placeholder icon+color
+  avatar system (no illustrated art exists yet - see README's "what's
+  not implemented" list), structured so real portrait art can drop in
+  later without redesigning the selection flow.
+
+`CharacterState.fromCreationData(...)` replaced `fromArchetype(...)` as
+the one place all of this composes: Background and Trait now also
+contribute their ids to `originTags`, alongside Archetype - reusing the
+existing `origin.<tag>` condition syntax rather than inventing a
+separate one for "which background" vs "which race."
+
+Also added **Stat Distribution**: a point-buy allocator (base 8 per
+stat, 12 points to distribute, capped at 15) the player controls
+directly in `CharacterCreationScreen`, instead of every character's base
+stats being a fixed 10/10/10/10/10/10 before archetype bonuses. Final
+stats = player allocation + archetype + background + trait bonuses,
+computed in `CharacterState.fromCreationData`.
+
+**Scope cut, on purpose:** the reference screenshot shows a numbered
+1/2/3 step wizard with a swipeable card stack. This session implements
+the same DATA depth (every field from the screenshot exists and feeds
+into the character) as one continuous scrollable form instead of a full
+wizard/stepper UI. A true step wizard is a reasonable follow-up, but
+would have meant a second new navigation state machine in the same
+session as the AppScreen one from Session 3 - more surface area than the
+ask needed answered right now.
+
+**Problem 2:** Scene text had no way to render actual dialogue - every
+line, including lines of NPC speech, rendered as plain narration prose
+with no visual distinction for who's talking, unlike the screenplay
+excerpt referenced this session (character name centered/capitalized
+above their line, italics for emphasis).
+
+**Solution 2:** Added lightweight markup `NarrativeText` now parses out
+of existing `narrative`/`narrativeVariants` strings - no new JSON schema
+needed, so every scene already written keeps working unchanged:
+- A line starting with `@Name: ` renders as a screenplay-style block:
+  the name in bold, letter-spaced caps above an indented line below,
+  kept in the same Merriweather serif as the rest of the app (not a
+  literal Courier screenplay font) so it doesn't visually clash with
+  surrounding prose - the STRUCTURE was what was asked for, not literal
+  screenplay typesetting.
+- `_word or phrase_` anywhere in a line (dialogue or narration) renders
+  in italics, for the mid-sentence emphasis the reference script uses.
+- Demonstrated both in `prologue.json`: a new `prologue_ruin_encounter`
+  scene (a stray creature guarding a hidden door) was inserted between
+  the ruin visit and the old placeholder loop, using `@Stray:` / `@You:`
+  dialogue lines and one `_emphasis_` run.
+
+--------------------------------------------------------------------------
 ## Session 4 — Stat system rename, choice button contrast fix, scrolling log
 
 **Problem 1 (bug):** Choice buttons were nearly unreadable - pale

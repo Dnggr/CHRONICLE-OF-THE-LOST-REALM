@@ -9,16 +9,39 @@ import 'package:google_fonts/google_fonts.dart';
 /// If the asset is missing (e.g. you haven't added art yet), this
 /// widget shows a placeholder box instead of crashing - useful while
 /// you're still writing scenes before sourcing final art.
+///
+/// PROBLEM (this session): scene JSON had no way to write actual
+/// back-and-forth dialogue - every line rendered as plain narration
+/// prose, even a line like `"No understand. This is happy, question?"`
+/// with no indication of who's speaking. The reference screenplay
+/// excerpt shows the format the user wants: a centered/indented
+/// character name, then their line below it, with italics used for
+/// emphasis. SOLUTION: added a small text markup scene writers can use
+/// directly inside a `narrative` string in JSON:
+///   - a line starting with `@Name: ` renders as a screenplay-style
+///     dialogue block (name label above, indented line below), instead
+///     of a plain paragraph.
+///   - `_word or phrase_` (inside ANY line, narration or dialogue)
+///     renders in italics, for the kind of mid-sentence emphasis the
+///     reference script uses ("The _exact opposite_ of the stoic
+///     demeanor...").
+/// No new JSON fields were needed - this all lives inside the existing
+/// `narrative`/`narrativeVariants` strings, so every scene already
+/// written keeps working unchanged; only scenes that opt into the `@`
+/// prefix get the dialogue treatment.
 class NarrativeText extends StatelessWidget {
   final String text;
   final String? illustrationId;
+
+  static final RegExp _dialoguePattern = RegExp(r'^@([^:]+):\s*(.*)$');
+  static final RegExp _emphasisPattern = RegExp(r'_(.+?)_');
+
+  static const _proseColor = Color(0xFF2A2420);
 
   const NarrativeText({super.key, required this.text, this.illustrationId});
 
   @override
   Widget build(BuildContext context) {
-    // Reward lines like "+ Gold, 10" get their own styling, matching
-    // the green highlight in the reference screenshot.
     final lines = text.split('\n');
 
     return Column(
@@ -26,16 +49,20 @@ class NarrativeText extends StatelessWidget {
       children: [
         ...(() {
           final widgets = <Widget>[];
-          for (final line in lines) {
-            if (line.trim().startsWith('+') || line.trim().startsWith('-')) {
+          for (final rawLine in lines) {
+            final line = rawLine;
+            final trimmed = line.trim();
+            final dialogueMatch = _dialoguePattern.firstMatch(trimmed);
+
+            if (trimmed.startsWith('+') || trimmed.startsWith('-')) {
               widgets.add(
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Text(
-                    line.trim(),
+                    trimmed,
                     style: GoogleFonts.merriweather(
                       fontSize: 14,
-                      color: line.trim().startsWith('+')
+                      color: trimmed.startsWith('+')
                           ? Colors.green[700]
                           : Colors.red[700],
                       fontWeight: FontWeight.w600,
@@ -43,16 +70,25 @@ class NarrativeText extends StatelessWidget {
                   ),
                 ),
               );
-            } else if (line.trim().isEmpty) {
+            } else if (dialogueMatch != null) {
+              widgets.add(_DialogueLine(
+                speaker: dialogueMatch.group(1)!.trim(),
+                line: dialogueMatch.group(2)!.trim(),
+              ));
+            } else if (trimmed.isEmpty) {
               widgets.add(const SizedBox(height: 12));
             } else {
               widgets.add(
-                Text(
-                  line,
-                  style: GoogleFonts.merriweather(
-                    fontSize: 16,
-                    height: 1.5,
-                    color: const Color(0xFF2A2420),
+                Text.rich(
+                  TextSpan(
+                    children: _emphasisSpans(
+                      line,
+                      GoogleFonts.merriweather(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: _proseColor,
+                      ),
+                    ),
                   ),
                 ),
               );
@@ -66,6 +102,82 @@ class NarrativeText extends StatelessWidget {
           const SizedBox(height: 16),
         ],
       ],
+    );
+  }
+
+  /// Splits [source] on `_..._` runs, returning alternating normal/
+  /// italic TextSpans built from [baseStyle]. Shared by both plain
+  /// narration lines and _DialogueLine below, so emphasis markup works
+  /// identically in either.
+  static List<TextSpan> _emphasisSpans(String source, TextStyle baseStyle) {
+    final spans = <TextSpan>[];
+    var cursor = 0;
+    for (final match in _emphasisPattern.allMatches(source)) {
+      if (match.start > cursor) {
+        spans.add(TextSpan(text: source.substring(cursor, match.start), style: baseStyle));
+      }
+      spans.add(TextSpan(
+        text: match.group(1),
+        style: baseStyle.copyWith(fontStyle: FontStyle.italic),
+      ));
+      cursor = match.end;
+    }
+    if (cursor < source.length) {
+      spans.add(TextSpan(text: source.substring(cursor), style: baseStyle));
+    }
+    return spans;
+  }
+}
+
+/// Screenplay-style dialogue block: an all-caps, letter-spaced speaker
+/// name, then the line indented below it. Deliberately kept in the same
+/// Merriweather serif family as the rest of the app (rather than
+/// switching to a literal Courier/monospace screenplay font) so
+/// dialogue doesn't visually clash with the surrounding prose - the
+/// STRUCTURE (name callout + indented line) is what was requested, not
+/// literal screenplay typesetting.
+class _DialogueLine extends StatelessWidget {
+  final String speaker;
+  final String line;
+
+  const _DialogueLine({required this.speaker, required this.line});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 24),
+            child: Text(
+              speaker.toUpperCase(),
+              style: GoogleFonts.merriweather(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.6,
+                color: const Color(0xFF6B4B2A),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40, right: 12, top: 2),
+            child: Text.rich(
+              TextSpan(
+                children: NarrativeText._emphasisSpans(
+                  line,
+                  GoogleFonts.merriweather(
+                    fontSize: 15,
+                    height: 1.4,
+                    color: NarrativeText._proseColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

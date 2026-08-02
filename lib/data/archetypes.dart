@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // STORY DESIGN NOTE:
 // Each archetype's perks are applied ONCE, at character creation, inside
-// CharacterState.fromArchetype() (see character_state.dart). Origin itself
+// CharacterState.fromCreationData() (see character_state.dart). Origin itself
 // is preserved for the rest of the run via CharacterState.originTags, which
 // ConditionEvaluator reads through the "origin.<tag> == true" expression
 // pattern (see condition_evaluator.dart).

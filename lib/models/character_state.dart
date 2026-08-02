@@ -1,4 +1,7 @@
 import '../data/archetypes.dart';
+import '../data/backgrounds.dart';
+import '../data/equipment_kits.dart';
+import '../data/traits.dart';
 
 /// The active playthrough's character. This is wiped/reset on death -
 /// permanent legacy data lives in WorldHistory instead.
@@ -6,16 +9,20 @@ import '../data/archetypes.dart';
 /// CHANGE LOG (see /DEVLOG.md for the full story):
 /// - Added [originTags] so the story can react to which Archetype the
 ///   player picked at creation (royal, elf, vampire, etc), not just to
-///   raw attribute numbers. PROBLEM this solves: attribute bonuses alone
-///   (e.g. Royal Heir having +2 Presence) are indistinguishable from any
-///   other build that happens to roll high Presence - there was no way
-///   for scene JSON to say "only if you ARE a vampire" vs "only if your
-///   Cunning is high enough to convincingly fake being unsettling."
-///   SOLUTION: originTags is a permanent, un-earnable label set once at
-///   creation and read via ConditionEvaluator's "origin.<tag> == true"
-///   pattern (see condition_evaluator.dart).
+///   raw attribute numbers. SOLUTION: originTags is a permanent,
+///   un-earnable label set once at creation and read via
+///   ConditionEvaluator's "origin.<tag> == true" pattern.
+/// - Added [gender], [portraitId], [backgroundId], [traitId] this
+///   session, to match the reference game's deeper character creator
+///   (Name/Gender/Portrait/Background/Trait/Stat Distribution/Starting
+///   Equipment, all as separate layers - see fromCreationData below).
+///   Background and Trait also contribute their ids to [originTags],
+///   the same way Archetype does, so scene JSON can react to them too
+///   without any new condition syntax.
 class CharacterState {
   String name;
+  String gender;
+  String portraitId;
   int age;
   int maxAge;
 
@@ -28,10 +35,10 @@ class CharacterState {
   List<String> inventory;
   List<String> statusEffects;
 
-  /// Set once at character creation from the chosen Archetype (its id,
-  /// plus any extraOriginTags - e.g. picking Royal Heir gives
-  /// ["royal_heir", "royal", "recognized_by_guards"]). Never mutated
-  /// during play - this is "what you were born as," not a flag you earn.
+  /// Set once at character creation from Archetype + Background + Trait
+  /// (each contributes its own id, plus any extraOriginTags). Never
+  /// mutated during play - this is "what you were born as / became
+  /// before the story started," not a flag you earn.
   List<String> originTags;
 
   /// Log of major choices taken this run, used both for the Journal
@@ -42,6 +49,8 @@ class CharacterState {
 
   CharacterState({
     required this.name,
+    this.gender = 'Unspecified',
+    this.portraitId = 'p_wanderer',
     this.age = 18,
     this.maxAge = 65,
     Map<String, int>? attributes,
@@ -67,33 +76,63 @@ class CharacterState {
         originTags = originTags ?? [],
         runHistory = runHistory ?? [];
 
-  /// Builds a brand-new character from a player-chosen name + Archetype.
-  /// This is the ONLY place archetype perks get applied - attribute
-  /// bonuses, starting gear/gold, and origin tags all flow from here so
-  /// there's a single source of truth instead of scattering "if royal
-  /// then +gold" logic across the UI and the engine.
-  factory CharacterState.fromArchetype({
+  /// Builds a brand-new character from every layer of the creation
+  /// screen: name/gender/portrait, Archetype (race/origin), Background
+  /// (life story), Trait (special talent), a player-allocated base stat
+  /// spread (from Stat Distribution), and an EquipmentKit (class-style
+  /// starting gear). This is the ONLY place any of those perks get
+  /// applied - one source of truth instead of scattering "+gold if
+  /// royal" logic across the UI and the engine.
+  ///
+  /// [baseAttributes] should already reflect the player's point-buy
+  /// allocation (see CharacterCreationScreen's stat distribution step) -
+  /// archetype/background/trait bonuses are added ON TOP of it here,
+  /// not used to replace it.
+  factory CharacterState.fromCreationData({
     required String name,
+    required String gender,
+    required String portraitId,
     required Archetype archetype,
+    required Background background,
+    required Trait trait,
+    required EquipmentKit equipmentKit,
+    required Map<String, int> baseAttributes,
   }) {
-    final baseAttributes = {
-      'strength': 10,
-      'dexterity': 10,
-      'intelligence': 10,
-      'wisdom': 10,
-      'charisma': 10,
-      'constitution': 10,
-    };
-    archetype.attributeBonuses.forEach((key, bonus) {
-      baseAttributes[key] = (baseAttributes[key] ?? 10) + bonus;
-    });
+    final finalAttributes = Map<String, int>.from(baseAttributes);
+
+    void applyBonus(String key, int bonus) {
+      finalAttributes[key] = (finalAttributes[key] ?? 10) + bonus;
+    }
+
+    archetype.attributeBonuses.forEach(applyBonus);
+    applyBonus(background.attributeKey, background.attributeBonus);
+    trait.attributeBonuses.forEach(applyBonus);
+
+    final gold = 10 +
+        archetype.startingGoldBonus +
+        background.goldBonus +
+        equipmentKit.goldBonus;
+
+    final inventory = <String>[
+      ...archetype.startingInventory,
+      ...equipmentKit.items,
+    ];
+
+    final originTags = <String>[
+      archetype.id,
+      ...archetype.extraOriginTags,
+      background.id,
+      trait.id,
+    ];
 
     return CharacterState(
       name: name,
-      attributes: baseAttributes,
-      gold: 10 + archetype.startingGoldBonus,
-      inventory: List<String>.from(archetype.startingInventory),
-      originTags: [archetype.id, ...archetype.extraOriginTags],
+      gender: gender,
+      portraitId: portraitId,
+      attributes: finalAttributes,
+      gold: gold,
+      inventory: inventory,
+      originTags: originTags,
       maxAge: archetype.maxAgeOverride ?? 65,
     );
   }
@@ -102,6 +141,8 @@ class CharacterState {
 
   Map<String, dynamic> toJson() => {
         'name': name,
+        'gender': gender,
+        'portraitId': portraitId,
         'age': age,
         'maxAge': maxAge,
         'attributes': attributes,
@@ -118,6 +159,11 @@ class CharacterState {
   factory CharacterState.fromJson(Map<String, dynamic> json) {
     return CharacterState(
       name: json['name'] as String,
+      // COMPATIBILITY NOTE: gender/portraitId were added after the first
+      // save format shipped, same situation as originTags before them -
+      // default rather than throw on an older save.
+      gender: json['gender'] as String? ?? 'Unspecified',
+      portraitId: json['portraitId'] as String? ?? 'p_wanderer',
       age: json['age'] as int,
       maxAge: json['maxAge'] as int,
       attributes: (json['attributes'] as Map).cast<String, int>(),
@@ -126,10 +172,6 @@ class CharacterState {
       gold: json['gold'] as int,
       inventory: (json['inventory'] as List).cast<String>(),
       statusEffects: (json['statusEffects'] as List).cast<String>(),
-      // OPTIMIZATION/COMPATIBILITY NOTE: originTags was added after the
-      // first save format shipped. Default to [] instead of throwing if
-      // an old save (written before this field existed) doesn't have it,
-      // so existing saves on your phone don't break when you update.
       originTags: (json['originTags'] as List?)?.cast<String>() ?? [],
       runHistory: (json['runHistory'] as List).cast<String>(),
       currentSceneId: json['currentSceneId'] as String,

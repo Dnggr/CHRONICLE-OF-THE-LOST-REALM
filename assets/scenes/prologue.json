@@ -97,7 +97,19 @@
     "choices": [
       {
         "id": "search_ruin",
-        "label": "Search the ruin (this is a placeholder - build Chapter 1 from here)",
+        "label": "Step closer to whatever's moving in the rubble",
+        "outcomeSuccessNode": "prologue_ruin_encounter"
+      }
+    ]
+  },
+  {
+    "sceneId": "prologue_ruin_encounter",
+    "illustrationId": null,
+    "narrative": "Something moves between the fallen stones - not rubble, not wind. A gaunt shape uncurls itself and watches you with two mismatched eyes, one gold, one clouded white.\n\n@Stray: You are not one of the temple's. Why do you come here?\n\nIts voice is dry, like pages turning.\n\n@You: I heard there was something to find in these ruins.\n\n@Stray: Everyone hears that. _Almost none of them mean it._\n\nThe creature studies you a moment longer, then steps aside from a half-buried door you hadn't noticed.",
+    "choices": [
+      {
+        "id": "enter_door",
+        "label": "Step through the door (this is a placeholder - build Chapter 1 from here)",
         "outcomeSuccessNode": "prologue_start"
       }
     ]

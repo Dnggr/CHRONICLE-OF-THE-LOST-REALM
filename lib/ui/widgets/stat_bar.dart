@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../data/portraits.dart';
 import '../../models/character_state.dart';
 
 /// Recreates the top bar from the reference screenshot: portrait + name
@@ -8,6 +9,13 @@ import '../../models/character_state.dart';
 ///
 /// STR/DEX/INT/WIS/CHA/CON matches Life in Adventure's D&D-style 6-stat
 /// system (see DEVLOG.md Session 4) - not a custom stat set.
+///
+/// PROBLEM: the avatar used to always show a plain letter regardless of
+/// character - once CharacterCreationScreen added a real Portrait
+/// picker (Session 5), the top bar needed to actually reflect it, or
+/// the picker would feel decorative. SOLUTION: look up
+/// character.portraitId in the Portraits registry and render its
+/// icon/color instead of a letter.
 class StatBar extends StatelessWidget {
   final CharacterState character;
 
@@ -16,6 +24,7 @@ class StatBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final attrs = character.attributes;
+    final portrait = Portraits.byId(character.portraitId);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -27,17 +36,8 @@ class StatBar extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: Colors.black26,
-            child: Text(
-              character.name.isNotEmpty
-                  ? character.name[0].toUpperCase()
-                  : '?',
-              style: GoogleFonts.cinzel(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            backgroundColor: portrait.color,
+            child: Icon(portrait.icon, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(

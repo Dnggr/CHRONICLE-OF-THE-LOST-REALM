@@ -53,6 +53,15 @@ On death:
 - `Archetype`/`Archetypes` — 7 playable origins (Wanderer, Civilian,
   Heir of House Aldric, Elf, Dwarf, Vampire, Exiled Mercenary), each
   with attribute bonuses, starting gear/gold, and `originTags`.
+- `Background`/`Backgrounds` — 6 life-story options (independent of
+  Archetype), each with one stat bonus + gold nudge, also contributing
+  an origin tag.
+- `Trait`/`Traits` — 6 special-talent options (Magical, Brawler, Silver
+  Tongue, Iron Will, Swift, Hardy), each with stat bonuses.
+- `EquipmentKit`/`EquipmentKits` — 5 class-flavor starting-gear kits
+  (Wizard/Warrior/Rogue/Ranger/Pilgrim), additive with Archetype's gear.
+- `PortraitOption`/`Portraits` — placeholder icon+color avatars (no
+  illustrated portrait art yet).
 - `ConditionEvaluator` — scene JSON condition language:
   `flags.<key> == true/false/'string'`, `origin.<tag> == true/false`,
   `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `inventory.contains('x')`.
@@ -75,7 +84,11 @@ On death:
 - `SettingsScreen` — dark mode toggle, text-size slider, roll-banner
   toggle, and a guarded "Reset World" action (confirmation dialog,
   deletes the current run + entire Chronicle, no undo).
-- `CharacterCreationScreen` — name field + scrollable archetype cards.
+- `CharacterCreationScreen` — Name, Gender, Portrait (with prev/next
+  cycling), Background, Trait, Origin (Archetype cards), Stat
+  Distribution (12-point buy over a base of 8 per stat), and Starting
+  Equipment — one scrollable form, all feeding into
+  `CharacterState.fromCreationData`.
 - `SceneScreen` — the reading view. **Infinite-scroll transcript**: each
   choice appends the next block of story below the current one instead
   of replacing the screen (see `SceneLogEntry`/`GameController.sceneLog`);
@@ -90,14 +103,28 @@ On death:
   aggregate detail).
 
 **Content**
-- `assets/scenes/prologue.json` — 5 connected scenes: a Presence stat
-  check, a world-flag-gated variant (`sun_temple_destroyed`), and two
+- `assets/scenes/prologue.json` — 6 connected scenes: a Charisma stat
+  check, a world-flag-gated variant (`sun_temple_destroyed`), two
   origin-gated examples (Royal Heir / Vampire get unique choices at the
-  village fork).
+  village fork), and a dialogue scene (`prologue_ruin_encounter`)
+  demonstrating the `@Speaker: line` / `_emphasis_` markup below.
+
+**Writing dialogue in scene JSON**
+- `@Name: their line` inside a `narrative` string renders as a
+  screenplay-style block (name in caps above, line indented below)
+  instead of plain narration. See `NarrativeText` in
+  `lib/ui/widgets/narrative_text.dart`.
+- `_word or phrase_` anywhere in a line (narration OR dialogue) renders
+  in italics.
+- No JSON schema change needed for either — both are parsed out of the
+  existing `narrative`/`narrativeVariants` strings, so older scenes work
+  unchanged.
 
 ## What's NOT implemented yet
 
 - No illustrations bundled (graceful placeholder shown instead).
+- No illustrated portrait art — Portrait selection uses placeholder
+  icon+color avatars (see `lib/data/portraits.dart`).
 - Inventory screen and Achievements screen are still unbuilt
   (placeholders in the bottom nav).
 - No audio.

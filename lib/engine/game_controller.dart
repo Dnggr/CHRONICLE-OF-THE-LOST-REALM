@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/archetypes.dart';
+import '../data/backgrounds.dart';
+import '../data/equipment_kits.dart';
 import '../data/scene_repository.dart';
+import '../data/traits.dart';
 import '../models/character_state.dart';
 import '../models/scene_log_entry.dart';
 import '../models/scene_node.dart';
@@ -172,15 +175,32 @@ class GameController extends ChangeNotifier {
 
   /// Starts a brand-new run for a freshly created character. Used both
   /// for the very first character in a fresh install AND after a death,
-  /// once the player has picked a name + Archetype.
+  /// once the player has gone through every step of CharacterCreationScreen
+  /// (name, gender, portrait, archetype, background, trait, stat
+  /// distribution, starting equipment).
   Future<void> beginRun({
     required String name,
+    required String gender,
+    required String portraitId,
     required Archetype archetype,
+    required Background background,
+    required Trait trait,
+    required EquipmentKit equipmentKit,
+    required Map<String, int> baseAttributes,
   }) async {
     isDead = false;
     deathCause = null;
     lastCheckResult = null;
-    character = CharacterState.fromArchetype(name: name, archetype: archetype);
+    character = CharacterState.fromCreationData(
+      name: name,
+      gender: gender,
+      portraitId: portraitId,
+      archetype: archetype,
+      background: background,
+      trait: trait,
+      equipmentKit: equipmentKit,
+      baseAttributes: baseAttributes,
+    );
     _loadCurrentScene();
     sceneLog = []; // fresh scroll for a fresh life
     _appendCurrentSceneToLog();

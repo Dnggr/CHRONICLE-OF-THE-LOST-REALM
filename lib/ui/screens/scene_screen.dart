@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../engine/game_controller.dart';
 import '../../engine/settings_controller.dart';
+import '../../models/scene_log_entry.dart';
 import '../widgets/choice_button.dart';
 import '../widgets/narrative_text.dart';
 import '../widgets/stat_bar.dart';
@@ -10,8 +12,50 @@ import 'death_screen.dart';
 import 'journal_screen.dart';
 import 'settings_screen.dart';
 
-class SceneScreen extends StatelessWidget {
+/// PROBLEM: this used to show exactly one scene at a time - picking a
+/// choice replaced the whole reading area with the next scene, like
+/// flipping a page rather than reading a continuous book. The user
+/// wanted infinite scrolling: each choice appends the next block of
+/// story below the current one, so earlier choices/text stay visible
+/// (and re-readable) as you scroll up, like a visual-novel log.
+///
+/// SOLUTION: converted to a StatefulWidget so it can own a
+/// ScrollController and auto-scroll to the bottom whenever
+/// GameController.sceneLog grows - the actual list of what to render
+/// now comes from `controller.sceneLog` (see game_controller.dart)
+/// instead of a single `currentScene`.
+class SceneScreen extends StatefulWidget {
   const SceneScreen({super.key});
+
+  @override
+  State<SceneScreen> createState() => _SceneScreenState();
+}
+
+class _SceneScreenState extends State<SceneScreen> {
+  final _scrollController = ScrollController();
+  int _lastRenderedLogLength = 0;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  /// Scrolls to the bottom AFTER the new entry has actually been laid
+  /// out (addPostFrameCallback), since maxScrollExtent isn't correct
+  /// until the frame with the new content has built.
+  void _scrollToBottomIfGrew(int newLength) {
+    if (newLength <= _lastRenderedLogLength) return;
+    _lastRenderedLogLength = newLength;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +65,17 @@ class SceneScreen extends StatelessWidget {
           return const DeathScreen();
         }
 
-        final scene = controller.currentScene;
-        if (scene == null) {
+        if (controller.currentScene == null || controller.sceneLog.isEmpty) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // PROBLEM: SettingsScreen added a "show dice roll banner" toggle,
-        // but nothing actually read it yet - a settings screen with no
-        // effect on gameplay is just decoration. SOLUTION: read
-        // SettingsController here and gate _CheckResultBanner on it.
+        // Trigger the auto-scroll check as part of build - cheap
+        // (just an int compare) and guarantees it fires exactly once
+        // per genuine log growth, regardless of what caused the rebuild.
+        _scrollToBottomIfGrew(controller.sceneLog.length);
+
         final showRollBanner =
             context.watch<SettingsController>().settings.showRollBanner;
 
@@ -41,32 +85,25 @@ class SceneScreen extends StatelessWidget {
             child: Column(
               children: [
                 // Safe to force-unwrap: reaching this line means isDead
-                // was false AND currentScene was non-null above, and
-                // GameController only ever has a non-null currentScene
-                // while character is also non-null (see _loadCurrentScene).
+                // was false and sceneLog/currentScene were non-empty
+                // above, and GameController only ever has those non-null
+                // while character is also non-null.
                 StatBar(character: controller.character!),
                 Container(height: 3, color: Colors.amber[800]),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        NarrativeText(
-                          text: controller.currentNarrative,
-                          illustrationId: scene.illustrationId,
-                        ),
-                        if (showRollBanner && controller.lastCheckResult != null)
-                          _CheckResultBanner(
-                            result: controller.lastCheckResult!,
+                        for (var i = 0; i < controller.sceneLog.length; i++)
+                          _LogEntryView(
+                            entry: controller.sceneLog[i],
+                            isLatest: i == controller.sceneLog.length - 1,
+                            controller: controller,
+                            showRollBanner: showRollBanner,
                           ),
-                        const SizedBox(height: 16),
-                        ...controller.availableChoices.map(
-                          (choice) => ChoiceButton(
-                            label: choice.label,
-                            onTap: () => controller.selectChoice(choice),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -77,6 +114,76 @@ class SceneScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Renders one block of the scroll: its narrative + illustration, then
+/// EITHER a small "you chose..." recap line (already-answered entries)
+/// OR the live, tappable choice buttons (only ever true for the last
+/// entry in the log).
+class _LogEntryView extends StatelessWidget {
+  final SceneLogEntry entry;
+  final bool isLatest;
+  final GameController controller;
+  final bool showRollBanner;
+
+  const _LogEntryView({
+    required this.entry,
+    required this.isLatest,
+    required this.controller,
+    required this.showRollBanner,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final alreadyAnswered = entry.chosenLabel != null;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NarrativeText(text: entry.narrative, illustrationId: entry.illustrationId),
+          if (alreadyAnswered)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  Icon(Icons.subdirectory_arrow_right,
+                      size: 14, color: Colors.brown[400]),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      entry.chosenLabel!,
+                      style: GoogleFonts.merriweather(
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.brown[500],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            // This is the active/latest entry - show the roll result (if
+            // any, and if the setting allows it) for the check that led
+            // HERE, then the live choice buttons.
+            if (showRollBanner && controller.lastCheckResult != null)
+              _CheckResultBanner(result: controller.lastCheckResult!),
+            const SizedBox(height: 8),
+            ...controller.availableChoices.map(
+              (choice) => ChoiceButton(
+                label: choice.label,
+                onTap: () => controller.selectChoice(choice),
+              ),
+            ),
+          ],
+          if (alreadyAnswered)
+            Divider(color: Colors.brown.withOpacity(0.15), height: 24),
+        ],
+      ),
     );
   }
 }
@@ -109,12 +216,11 @@ class _CheckResultBanner extends StatelessWidget {
   }
 }
 
-/// PROBLEM: before Settings/History/MainMenu existed, there was no way
-/// back to the main menu once you started playing - the app only ever
-/// moved forward (scene -> scene -> death). SOLUTION: added a Home icon
-/// here. This is non-destructive - selectChoice() already saves after
-/// every choice via SaveManager.saveRun(), so leaving mid-scene and
-/// returning via "Continue" on the main menu resumes exactly here.
+/// Non-destructive: every choice already autosaves via
+/// SaveManager.saveRun(), so leaving mid-scroll and returning via
+/// "Continue" resumes exactly where sceneLog left off (see
+/// GameController.resumeGame - it only rebuilds the log from scratch if
+/// it's empty, which it won't be after a same-session round trip).
 class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

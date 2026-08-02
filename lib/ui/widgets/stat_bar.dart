@@ -5,6 +5,9 @@ import '../../models/character_state.dart';
 
 /// Recreates the top bar from the reference screenshot: portrait + name
 /// on the left, a grid of small stat readouts on the right.
+///
+/// STR/DEX/INT/WIS/CHA/CON matches Life in Adventure's D&D-style 6-stat
+/// system (see DEVLOG.md Session 4) - not a custom stat set.
 class StatBar extends StatelessWidget {
   final CharacterState character;
 
@@ -53,11 +56,12 @@ class StatBar extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 4,
                   children: [
-                    _StatChip(label: 'MGT', value: attrs['might'] ?? 0),
-                    _StatChip(label: 'CUN', value: attrs['cunning'] ?? 0),
-                    _StatChip(label: 'LORE', value: attrs['lore'] ?? 0),
-                    _StatChip(label: 'PRE', value: attrs['presence'] ?? 0),
-                    _StatChip(label: 'END', value: attrs['endurance'] ?? 0),
+                    _StatChip(label: 'STR', value: attrs['strength'] ?? 0),
+                    _StatChip(label: 'DEX', value: attrs['dexterity'] ?? 0),
+                    _StatChip(label: 'INT', value: attrs['intelligence'] ?? 0),
+                    _StatChip(label: 'WIS', value: attrs['wisdom'] ?? 0),
+                    _StatChip(label: 'CHA', value: attrs['charisma'] ?? 0),
+                    _StatChip(label: 'CON', value: attrs['constitution'] ?? 0),
                   ],
                 ),
                 const SizedBox(height: 4),

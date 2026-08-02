@@ -9,6 +9,72 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 4 — Stat system rename, choice button contrast fix, scrolling log
+
+**Problem 1 (bug):** Choice buttons were nearly unreadable - pale
+yellow text (`Colors.amber[100]`) on a light parchment background, with
+no explicit `Text` color override, so it just inherited the button's
+`foregroundColor`.
+
+**Solution 1:** `ChoiceButton` now sets an explicit dark warm-brown text
+color (`0xFF3A2E22`, matching `NarrativeText`'s prose color) on both the
+label and is no longer dependent on `foregroundColor` alone for
+readability. Also added a faint amber fill so the button reads as a
+distinct tappable shape even before noticing the border.
+
+**Problem 2:** The 5 custom stats (Might/Cunning/Lore/Presence/
+Endurance) didn't match the reference game. Confirmed the reference
+(Life in Adventure) uses a D&D-style 6-stat system: Strength, Dexterity,
+Intelligence, Wisdom, Charisma, Constitution.
+
+**Solution 2:** Renamed the stat system throughout: `CharacterState`'s
+default attribute map, `Archetype.attributeBonuses` keys (with a
+redistribution - might→strength, cunning→dexterity, lore→intelligence,
+presence→charisma, endurance→constitution, plus a couple of new Wisdom
+bonuses on Wanderer/Elf since Wisdom wasn't part of the old 5),
+`StatBar`'s chip labels (STR/DEX/INT/WIS/CHA/CON), and the
+`requiredAttribute` values in `prologue.json` (both stat checks moved
+from presence/cunning to `charisma`, since both were social/persuasion
+checks and charisma is the correct stat for that under the new system).
+`ConditionEvaluator`'s `attributes.<key>` syntax needed no change - it's
+generic over whatever keys exist.
+
+**Compatibility note:** a save file written before this session would
+have the OLD attribute keys stored (`might`, `cunning`, etc). Attribute
+lookups use `?? 0` fallbacks, so an old save won't crash, but every stat
+would silently read as 0 until a new character is created. No migration
+code was written for this - given this is still an early dev build with
+no real save data at stake, the simple fix is Settings > Reset World.
+
+**Problem 3:** The user wants the reading experience to be one
+continuous, infinitely-scrolling feed - pick a choice, and the next
+block of story appends below the current one (like a visual-novel log),
+rather than replacing the screen per scene.
+
+**Solution 3:** Added `SceneLogEntry` (`lib/models/scene_log_entry.dart`)
+and `GameController.sceneLog` (`List<SceneLogEntry>`), replacing the old
+single-scene view. Each entry freezes one scene's *resolved* narrative
+text (`narrativeVariants` already picked, baked in at the moment the
+scene was entered - deliberately NOT re-evaluated later, so a scene you
+already read doesn't reword itself if a later choice flips a flag it
+depended on) plus, once answered, which choice the player picked from
+it. `SceneScreen` is now a `StatefulWidget` that owns a
+`ScrollController` and auto-scrolls to the bottom whenever
+`sceneLog.length` grows. Only the LAST entry (the one still awaiting a
+choice) renders live buttons; every earlier entry renders a small
+"↳ chosen option" recap line instead, so the whole scroll reads like a
+transcript.
+
+**Scope cut, on purpose:** `sceneLog` is in-memory only, not persisted.
+Closing the app and hitting Continue later rebuilds the log starting
+from just your current scene, not the full multi-scene history from
+before. Persisting the full scroll (so it survives app restarts) is a
+reasonable next step, but doing it in the same session as the stat
+rename and the contrast fix would have meant touching the save format
+under three changes at once - more risk than the ask justified right
+now.
+
+--------------------------------------------------------------------------
 ## Session 3 — Main Menu, Settings, History
 
 **Problem:** The app had no home base. It routed straight from "loaded"

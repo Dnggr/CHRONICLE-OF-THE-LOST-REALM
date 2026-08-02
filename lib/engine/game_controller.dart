@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../data/archetypes.dart';
 import '../data/scene_repository.dart';
 import '../models/character_state.dart';
+import '../models/scene_log_entry.dart';
 import '../models/scene_node.dart';
 import '../models/world_history.dart';
 import 'condition_evaluator.dart';
@@ -10,30 +11,15 @@ import 'dice_roller.dart';
 import 'legacy_engine.dart';
 import 'save_manager.dart';
 
-/// The top-level screen the app is showing. Added this session alongside
-/// MainMenuScreen/SettingsScreen/HistoryScreen.
-///
-/// PROBLEM: before this, routing was a single boolean
-/// (`needsCharacterCreation`) with exactly two destinations
-/// (CharacterCreationScreen or SceneScreen) - fine for two screens, but
-/// adding a proper main menu meant "no character yet" could no longer
-/// mean just one thing (it now also covers "sitting at the main menu
-/// with a character in progress, deciding whether to hit Continue").
-/// SOLUTION: an explicit enum with one entry per top-level destination.
-/// History and Settings are NOT in this enum on purpose - they're
-/// pushed via Navigator.push as "excursions" you back out of, rather
-/// than swapped-in root screens, because you always return to exactly
-/// where you were (menu or mid-game) when you close them.
+/// The top-level screen the app is showing. Added alongside
+/// MainMenuScreen/SettingsScreen/HistoryScreen (see DEVLOG.md Session 3).
 enum AppScreen { mainMenu, characterCreation, playing }
 
 /// The single source of truth the UI listens to. Owns the active
-/// CharacterState, the permanent WorldHistory, and the scene graph.
-///
-/// CHANGE LOG (see /DEVLOG.md for the full narrative of each session):
-/// - [character] used to be `late` and auto-filled with a generic
-///   "Wanderer" the instant the app opened. Now nullable - null means
-///   "no run in progress," full stop, regardless of which screen is
-///   showing.
+/// CharacterState, the permanent WorldHistory, the scene graph, AND (as
+/// of Session 4) the scrolling reading log - see SceneLogEntry's doc
+/// comment in models/scene_log_entry.dart for why the log exists and
+/// what it deliberately does NOT persist across app restarts.
 class GameController extends ChangeNotifier {
   final SceneRepository sceneRepository;
   final DiceRoller diceRoller;
@@ -42,13 +28,20 @@ class GameController extends ChangeNotifier {
   late WorldHistory world;
   SceneNode? currentScene;
 
+  /// The scrolling transcript for the CURRENT play session. The last
+  /// entry (chosenLabel == null) is always the one whose sceneId matches
+  /// [currentScene] and whose choices are shown as live buttons - see
+  /// `availableChoices` below. Every earlier entry is a frozen,
+  /// already-answered part of the scroll.
+  List<SceneLogEntry> sceneLog = [];
+
   AppScreen screen = AppScreen.mainMenu;
 
   /// True once init() has finished loading scenes + save data.
   bool isLoaded = false;
 
   /// Set right after a stat check so the UI can show "Roll: 14 + 2 = 16
-  /// vs DC 12 - Success!" before the player taps to continue.
+  /// vs DC 12 - Success!" attached to the newest log entry.
   StatCheckResult? lastCheckResult;
 
   bool isDead = false;
@@ -70,11 +63,15 @@ class GameController extends ChangeNotifier {
     if (savedRun != null) {
       character = savedRun;
       _loadCurrentScene();
+      // NOTE: sceneLog is intentionally left empty here, not populated -
+      // it gets its first (and only, until a choice is made) entry
+      // lazily in resumeGame(), the moment the player actually enters
+      // SceneScreen. Populating it here would mean rebuilding it again
+      // in resumeGame() anyway once `screen` flips to playing.
     }
-    // NOTE: even with a saved run present, we deliberately start at
-    // AppScreen.mainMenu (the enum's default) rather than jumping
-    // straight into SceneScreen - the player should always land on the
-    // main menu first and choose Continue, same as most games.
+    // Even with a saved run present, we deliberately start at
+    // AppScreen.mainMenu rather than jumping straight into SceneScreen -
+    // the player should always land on the main menu first.
     isLoaded = true;
     notifyListeners();
   }
@@ -96,9 +93,13 @@ class GameController extends ChangeNotifier {
     return ConditionEvaluator(character: activeCharacter, world: world);
   }
 
-  /// Returns the narrative text to display for the current scene,
-  /// substituting in a flag- or origin-gated variant if one matches.
-  String get currentNarrative {
+  /// Resolves narrativeVariants against the CURRENT character/world
+  /// state and returns the text to show. Only called at the moment a
+  /// scene is entered (see _appendCurrentSceneToLog) - the result is
+  /// then baked into a SceneLogEntry and never re-evaluated, so a scene
+  /// you already read doesn't silently reword itself if a later choice
+  /// changes a flag it depended on.
+  String get _resolvedCurrentNarrative {
     final scene = currentScene;
     if (scene == null) return '';
     for (final entry in scene.narrativeVariants.entries) {
@@ -112,6 +113,7 @@ class GameController extends ChangeNotifier {
   /// Choices filtered down to only the ones whose condition currently
   /// evaluates true (this is where origin-gated choices, like a Royal
   /// Heir being recognized by guards, get hidden from everyone else).
+  /// Always describes [currentScene] - i.e. the LATEST sceneLog entry.
   List<SceneChoice> get availableChoices {
     final scene = currentScene;
     if (scene == null) return const [];
@@ -120,12 +122,24 @@ class GameController extends ChangeNotifier {
         .toList();
   }
 
+  /// Appends [currentScene] to the scroll as a fresh, not-yet-answered
+  /// entry. Must be called AFTER `character` and `currentScene` are both
+  /// set to their new values (relies on `_resolvedCurrentNarrative`).
+  void _appendCurrentSceneToLog() {
+    final scene = currentScene;
+    if (scene == null) return;
+    sceneLog.add(SceneLogEntry(
+      sceneId: scene.sceneId,
+      narrative: _resolvedCurrentNarrative,
+      illustrationId: scene.illustrationId,
+    ));
+  }
+
   // ---- Top-level navigation ----
   //
-  // These four methods are the ONLY way `screen` should change. Keeping
-  // every transition here (instead of screens setting `screen` directly)
-  // means every entry/exit point for gameplay is in one place - useful
-  // the next time a bug report says "how did the player end up here."
+  // These are the ONLY methods that should change `screen`. Keeping
+  // every transition here means every entry/exit point for gameplay is
+  // in one place.
 
   void goToMainMenu() {
     screen = AppScreen.mainMenu;
@@ -137,11 +151,21 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Called from MainMenuScreen's "Continue" button. No-ops if there's
-  /// nothing to resume (button should be hidden in that case anyway -
-  /// this is a defensive backstop, not the primary guard).
+  /// Called from MainMenuScreen's "Continue" button, or from
+  /// SceneScreen's Home->back round trip.
+  ///
+  /// PROBLEM: after switching to the scrolling log (Session 4), simply
+  /// flipping `screen` back to playing wasn't enough - if sceneLog was
+  /// still empty (fresh app launch, saved run just loaded in init()),
+  /// SceneScreen would have nothing to render. SOLUTION: lazily seed the
+  /// log with the current scene ONLY if it's empty - this also means
+  /// going Home mid-run and hitting Continue again keeps your scroll
+  /// history intact (sceneLog is untouched, just not empty).
   void resumeGame() {
     if (character == null) return;
+    if (sceneLog.isEmpty) {
+      _appendCurrentSceneToLog();
+    }
     screen = AppScreen.playing;
     notifyListeners();
   }
@@ -158,6 +182,8 @@ class GameController extends ChangeNotifier {
     lastCheckResult = null;
     character = CharacterState.fromArchetype(name: name, archetype: archetype);
     _loadCurrentScene();
+    sceneLog = []; // fresh scroll for a fresh life
+    _appendCurrentSceneToLog();
     await SaveManager.saveRun(character!);
     screen = AppScreen.playing;
     notifyListeners();
@@ -167,6 +193,14 @@ class GameController extends ChangeNotifier {
     final activeCharacter = character;
     if (activeCharacter == null) return; // defensive - UI shouldn't allow this
     lastCheckResult = null;
+
+    // Freeze the entry the player just acted on with the label they
+    // picked, BEFORE we know whether this leads to a stat check, a
+    // fatal outcome, or a normal transition - the log should record
+    // what was chosen regardless of what happens next.
+    if (sceneLog.isNotEmpty) {
+      sceneLog.last.chosenLabel = choice.label;
+    }
 
     // Apply immediate effects (world flags, run history entries) first.
     choice.effects.forEach((key, value) {
@@ -212,6 +246,11 @@ class GameController extends ChangeNotifier {
       return;
     }
 
+    // Only append the next block to the scroll once we know the
+    // character survived the transition - a fatal outcome hands off to
+    // DeathScreen instead (see _handleDeath), which replaces the whole
+    // screen rather than appending to it.
+    _appendCurrentSceneToLog();
     notifyListeners();
   }
 
@@ -227,17 +266,13 @@ class GameController extends ChangeNotifier {
     );
     character = null;
     currentScene = null;
+    sceneLog = [];
     notifyListeners();
   }
 
   /// Called from DeathScreen once the player has read the death recap.
-  ///
-  /// PROBLEM: this used to send the player straight back into
-  /// CharacterCreationScreen. Once a real main menu existed, that felt
-  /// wrong - after a death, the player should be able to check History
-  /// (see their fallen hero's final Chronicle entry) or Settings before
-  /// deciding to start again. SOLUTION: route to the main menu instead;
-  /// "New Game" from there goes to character creation same as always.
+  /// Routes to the main menu rather than straight into character
+  /// creation, so History/Settings are reachable before starting again.
   void acknowledgeDeath() {
     isDead = false;
     deathCause = null;
@@ -254,6 +289,7 @@ class GameController extends ChangeNotifier {
     await SaveManager.clearWorld();
     character = null;
     currentScene = null;
+    sceneLog = [];
     world = WorldHistory();
     isDead = false;
     deathCause = null;

@@ -56,6 +56,9 @@ On death:
 - `ConditionEvaluator` — scene JSON condition language:
   `flags.<key> == true/false/'string'`, `origin.<tag> == true/false`,
   `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `inventory.contains('x')`.
+  Attribute keys are `strength`, `dexterity`, `intelligence`, `wisdom`,
+  `charisma`, `constitution` — matching Life in Adventure's D&D-style
+  6-stat system (STR/DEX/INT/WIS/CHA/CON), not a custom stat set.
 - `DiceRoller` — 1d20 + attribute modifier vs DC.
 - `SaveManager` — three Hive boxes: `run_box` (wiped on death),
   `world_box` (permanent legacy, only clearable via Settings > Reset
@@ -73,8 +76,14 @@ On death:
   toggle, and a guarded "Reset World" action (confirmation dialog,
   deletes the current run + entire Chronicle, no undo).
 - `CharacterCreationScreen` — name field + scrollable archetype cards.
-- `SceneScreen` — the reading/choice view; bottom nav now has Home,
-  Journal, and Settings shortcuts.
+- `SceneScreen` — the reading view. **Infinite-scroll transcript**: each
+  choice appends the next block of story below the current one instead
+  of replacing the screen (see `SceneLogEntry`/`GameController.sceneLog`);
+  auto-scrolls to the newest content. Only the latest, not-yet-answered
+  block shows live choice buttons — earlier blocks show a small
+  "↳ chosen option" recap line. Bottom nav has Home, Journal, Settings.
+  Note: the scroll is in-memory for the current session only — see
+  DEVLOG.md Session 4 for why it isn't persisted across app restarts yet.
 - `DeathScreen` — recap, then routes back to the main menu.
 - `JournalScreen` — this life's choice log + a quick chronicle glance
   (in-run access; HistoryScreen is the main-menu equivalent with more

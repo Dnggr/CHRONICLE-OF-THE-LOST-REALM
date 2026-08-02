@@ -19,7 +19,7 @@ class CharacterState {
   int age;
   int maxAge;
 
-  /// might, cunning, lore, presence, endurance
+  /// strength, dexterity, intelligence, wisdom, charisma, constitution
   Map<String, int> attributes;
 
   int healthCurrent;
@@ -55,11 +55,12 @@ class CharacterState {
     this.currentSceneId = 'prologue_start',
   })  : attributes = attributes ??
             {
-              'might': 10,
-              'cunning': 10,
-              'lore': 10,
-              'presence': 10,
-              'endurance': 10,
+              'strength': 10,
+              'dexterity': 10,
+              'intelligence': 10,
+              'wisdom': 10,
+              'charisma': 10,
+              'constitution': 10,
             },
         inventory = inventory ?? [],
         statusEffects = statusEffects ?? [],
@@ -76,11 +77,12 @@ class CharacterState {
     required Archetype archetype,
   }) {
     final baseAttributes = {
-      'might': 10,
-      'cunning': 10,
-      'lore': 10,
-      'presence': 10,
-      'endurance': 10,
+      'strength': 10,
+      'dexterity': 10,
+      'intelligence': 10,
+      'wisdom': 10,
+      'charisma': 10,
+      'constitution': 10,
     };
     archetype.attributeBonuses.forEach((key, bonus) {
       baseAttributes[key] = (baseAttributes[key] ?? 10) + bonus;

@@ -26,8 +26,8 @@
     "choices": [
       {
         "id": "help_caravan_presence",
-        "label": "Talk the frightened merchants into calm and organize the lift (Presence check)",
-        "requiredAttribute": "presence",
+        "label": "Talk the frightened merchants into calm and organize the lift (Charisma check)",
+        "requiredAttribute": "charisma",
         "difficultyClass": 12,
         "outcomeSuccessNode": "prologue_altar_blessing",
         "outcomeFailNode": "prologue_altar_curse",
@@ -46,9 +46,9 @@
       },
       {
         "id": "help_caravan_vampire",
-        "label": "Meet the caravan master's eyes and quietly compel him to calm (Cunning check)",
+        "label": "Meet the caravan master's eyes and quietly compel him to calm (Charisma check)",
         "condition": "origin.vampire == true",
-        "requiredAttribute": "cunning",
+        "requiredAttribute": "charisma",
         "difficultyClass": 10,
         "outcomeSuccessNode": "prologue_altar_blessing",
         "outcomeFailNode": "prologue_altar_curse",

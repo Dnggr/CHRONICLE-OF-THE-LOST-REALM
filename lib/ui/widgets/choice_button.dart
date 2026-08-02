@@ -14,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// distinct tappable shape even before you notice the border.
 class ChoiceButton extends StatelessWidget {
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   static const _textColor = Color(0xFF3A2E22);
 
@@ -27,6 +27,8 @@ class ChoiceButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton(
+          // Disabled during the controller's save/transition lock. This
+          // makes the double-tap protection visible as well as safe.
           onPressed: onTap,
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),

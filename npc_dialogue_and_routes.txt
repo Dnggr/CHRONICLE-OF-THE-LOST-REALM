@@ -1,0 +1,180 @@
+================================================================================
+CHRONICLE OF THE LOST REALM — NPC DIALOGUE, FEELINGS & ROUTES
+NOVEL-PACING AUTHORING FILE
+================================================================================
+
+PURPOSE
+-------
+This is the prose companion to story_systems_bible_EXPANDED.txt. The Bible
+defines systems, flags, and event outcomes. This file defines how named people
+feel, speak, conceal things, and change across long-form play.
+
+The target is novel pacing: context before crisis; a person before a quest;
+aftermath after consequence. A scene must not exist solely to deliver a choice.
+It should leave the player with an image, an unanswered question, or a changed
+feeling toward someone.
+
+NON-NEGOTIABLE PACING RULES
+---------------------------
+1. Introduce a place before asking the player to save it. Use weather, work,
+   smell, local custom, overheard talk, and one small ordinary problem.
+2. Introduce an NPC in at least two beats: first an observable action, then a
+   conversation. Do not open with their secret, biography, or quest request.
+3. Between major event stages, write 2–4 breathing scenes: travel, a campfire,
+   a letter, a meal, a rumor, an argument, or a quiet aftermath.
+4. Every important NPC needs one mundane want and one private wound. The
+   mundane want makes them believable; the wound creates story pressure.
+5. Violence is an escalation, never filler. Gore must change the survivor,
+   relationship, reputation, or world state. Do not use it only for shock.
+6. Love, revenge, redemption, suspense, and drama are slow-burn patterns.
+   No route may resolve on a first meeting or one perfect dialogue choice.
+7. A choice should cost time, trust, safety, money, information, or a future
+   opportunity. The player should feel what they gave up, not only what gained.
+8. Never force a player to read a lore dump to proceed. Curiosity opens lore;
+   urgency advances the plot; both remain valid play styles.
+
+10,000-PAGE PRODUCTION STRUCTURE
+--------------------------------
+Do not try to write 10,000 pages as one linear script. Build a reusable novel
+engine across many lives:
+
+  1 life = 8–15 event arcs + personal routes + travel/aftermath scenes
+  1 event arc = 12–25 scenes, including 2–4 quiet relationship scenes
+  1 Signature NPC = 6–12 encounters spread over several events
+  1 long route = 3 acts, each with a reversal and a cost
+  1 replay = different origin, faction standing, NPC survival, legacy state,
+             and event outcome; never merely different labels on one scene
+
+The page goal is reached through combinable scenes and revisitable people, not
+through one bloated mandatory path. Keep a route matrix as content grows:
+  origin x event outcome x relationship state x legacy state.
+
+CURRENT PLAYABLE SEQUENCE
+-------------------------
+Origin opening -> Old Hendrik roadside scene -> caravan/ruin -> Harvest
+Failure -> Mira Talbot -> Salt Road Rebellion -> Event 2 warning.
+
+Old Hendrik is intentionally introduced before Mira. He gives the player a
+human reason to care about the Talbot farm before the game asks for help. His
+warning also frames Harvest Failure as a social crisis, not merely a flag.
+
+NPC DOSSIERS — FIRST PLAYABLE ARC
+---------------------------------
+
+OLD HENDRIK | Mentor | Civilian-linked
+First impression: feeds a too-small fire beside a failing cart; jokes before
+asking for anything.
+Public want: reach his niece's farm and pass on useful work before his body
+will not let him do it.
+Private wound: knows he is dying; treats every practical lesson as if it may
+be the last one he has time to give.
+Voice: patient, metaphorical in practical objects; repeats old stories with
+small changes.
+Feeling progression:
+  stranger -> amused caution -> quiet regard -> paternal honesty -> grief or
+  pride, depending on the player's choices.
+Route hooks: Mentor, Redemption, Sacrifice. He should never become romance.
+Dialogue seed:
+  @Hendrik: Most luck is one of two things: a nail, or the hand willing to
+  use it. People just prefer the word luck because it asks less of them.
+Author rule: Hendrik's advice must be useful but incomplete. He is not the
+writer's mouthpiece and can be wrong about what Mira needs.
+
+MIRA TALBOT | Ally | Civilian-linked
+First impression: swearing at a fence post instead of admitting fear.
+Public want: keep the Talbot farm alive through winter.
+Private wound: shame over stolen grain and terror of being seen as the kind of
+person hunger can make.
+Voice: short sentences; dry jokes only when scared enough to need one.
+Feeling progression:
+  guarded -> testing -> relief/defiance -> trust or estrangement -> a later
+  adult friendship, resentment, or debt that cannot be cleanly repaid.
+Route hooks: Redemption, Love (slow-burn only after multiple later arcs),
+  Isolation, Revenge against institutions that failed the valley.
+Dialogue seed:
+  @Mira: I did not steal because I thought I was clever. I stole because the
+  sack was there and my little brother was counting crusts.
+Author rule: do not make Mira grateful on demand. A gift can relieve her; it
+does not automatically erase humiliation, suspicion, or disagreement.
+
+BAILIFF CORIN REYES | Enemy / possible redemption figure
+First impression: clean cuffs in a muddy village; knows every statute and
+notices every missing sack.
+Public want: preserve order before fear turns into a mob.
+Private wound: grew up poor and believes ruthless enforcement is the only way
+to prevent people like his younger self from being crushed by chaos.
+Voice: quotes a statute, then pauses as though listening for an objection he
+does not want to hear.
+Feeling progression:
+  formal contempt -> professional respect -> moral irritation -> fracture ->
+  hardening or redemption through visible mercy, never one speech.
+Route hooks: Redemption, Justice/Revenge, Diplomacy.
+Dialogue seed:
+  @Reyes: The law is not kind. It is what remains when kindness has already
+  chosen favorites.
+Author rule: give Reyes at least one scene where he helps someone without
+credit. The player must discover that contradiction before deciding what he is.
+
+GUILDMISTRESS YEVA SOLT | Merchant / ally of convenience
+First impression: fixes a torn ledger page before she looks at the speaker.
+Public want: protect and expand her guild's place on the Salt Road.
+Private wound: fears every kindness will be treated as weakness or debt.
+Voice: starts bargains with "And what is in it for you?"; warmth appears as
+precision, not sentiment.
+Feeling progression:
+  appraisal -> transaction -> chosen confidence -> loyalty tested by Petra ->
+  partnership or bitter respect.
+Route hooks: Love only after partnership and vulnerability; Power, Diplomacy,
+  Revenge against the crown's levy system.
+Dialogue seed:
+  @Yeva: Charity is a word wealthy people use when they want applause for
+  paying a debt late.
+Author rule: Yeva's orphanage secret earns no instant halo. Let the player see
+the cost of her choices before learning the tenderness behind them.
+
+PETRA VOSS | Rival
+First impression: makes herself sound less important than she is, then leaves
+the room with everyone repeating her idea.
+Public want: replace Yeva and prove she can protect the guild better.
+Private wound: suspects she is only valued when she is useful, so she turns
+every relationship into a contest before it can reject her.
+Voice: self-deprecation sharpened into a weapon.
+Feeling progression:
+  charm -> competition -> ideological conflict -> intimacy or betrayal ->
+  grudging alliance, victory, or death by the event rules.
+Route hooks: Rivalry, Love, Power, Revenge.
+Dialogue seed:
+  @Petra: Oh, I would never say Yeva is afraid. I only notice she mistakes
+  waiting for wisdom whenever someone else must pay the price.
+Author rule: Petra must sometimes be right. A rival who is only cruel is not a
+rival; they are a delayed enemy.
+
+TAMSIN THE BELL-RINGER | Wildcard
+First impression: knows the news before the people in it know they made it.
+Public want: be needed as the person who knows.
+Private wound: cannot bear being forgettable; mixes truth and invention until
+even she loses track of which is which.
+Voice: "You did not hear this from me," followed by something too specific.
+Feeling progression:
+  amusing rumor -> useful source -> dangerous distortion -> a choice about
+  whether truth matters more than the comfort it gives.
+Route hooks: Suspense, Revenge, Corruption.
+Dialogue seed:
+  @Tamsin: You did not hear this from me, which is fortunate, because I have
+  already told three people and all of them promised they cannot read.
+Author rule: every Tamsin rumor requires one verifiable fact and one uncertain
+claim. Do not reveal which is which immediately.
+
+SCENE-BY-SCENE WRITING CHECKLIST
+--------------------------------
+Before adding scene JSON, answer:
+- Whose point of view is emotionally centered here?
+- What does the player notice before anyone explains it?
+- What does each present NPC want in this exact minute?
+- What feeling should remain after the choice?
+- What later scene can call back to one image, line, or promise here?
+- Which route is being slowly nourished, threatened, or complicated?
+
+Use `npc.<id>.trust`, `npc.<id>.status`, reputation tracks, and world flags
+only after the prose makes the change emotionally legible. Mechanics record
+the consequence; prose earns it.

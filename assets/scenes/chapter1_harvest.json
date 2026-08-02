@@ -11,6 +11,14 @@
         "effects": {
           "world_flags.harvest_failure": "warning_signs"
         }
+      },
+      {
+        "id": "ask_elder_about_blight",
+        "label": "Ask the elder at the well what happened to these fields",
+        "outcomeSuccessNode": "chapter1_harvest_blight_lore",
+        "effects": {
+          "run_history": "Learned the valley's story of the blight-wind"
+        }
       }
     ]
   },
@@ -110,6 +118,7 @@
       {
         "id": "give_gold_to_village",
         "label": "Give what gold you can spare to the village stores (-15 Gold)",
+        "condition": "gold >= 15",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
           "gold": -15,
@@ -125,6 +134,89 @@
         "effects": {
           "reputation.commonfolk": -2,
           "run_history": "Did not help the village during the Harvest Failure"
+        }
+      },
+      {
+        "id": "harvest_wanderer_route",
+        "label": "Map a safer road for families seeking food elsewhere",
+        "condition": "origin.wanderer == true",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "run_history": "Marked a safe hunger-road for village families"
+        }
+      },
+      {
+        "id": "harvest_civilian_route",
+        "label": "Organize the households into a fair shared ration",
+        "condition": "origin.civilian == true",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 3,
+          "reputation.honor": 1,
+          "run_history": "Organized the village's rationing during the Harvest Failure"
+        }
+      },
+      {
+        "id": "harvest_royal_route",
+        "label": "Use House Aldric's seal to requisition emergency grain",
+        "condition": "origin.royal == true",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.crown": 2,
+          "reputation.commonfolk": 1,
+          "run_history": "Requisitioned crown grain for the starving village"
+        }
+      },
+      {
+        "id": "harvest_elf_route",
+        "label": "Read the blight in the soil and teach the farmers a warding rite (Wisdom check)",
+        "condition": "origin.elf == true",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "run_history": "Attempted an old ward against the valley blight"
+        }
+      },
+      {
+        "id": "harvest_dwarf_route",
+        "label": "Repair the granary's cracked mill and stop more grain spoiling (Strength check)",
+        "condition": "origin.dwarf == true",
+        "requiredAttribute": "strength",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "run_history": "Repaired the village mill during the Harvest Failure"
+        }
+      },
+      {
+        "id": "harvest_vampire_route",
+        "label": "Compel the hoarder to open his private stores (Charisma check)",
+        "condition": "origin.vampire == true",
+        "requiredAttribute": "charisma",
+        "difficultyClass": 10,
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "reputation.infamy": 1,
+          "run_history": "Used unnatural charm to force open a grain hoard"
+        }
+      },
+      {
+        "id": "harvest_mercenary_route",
+        "label": "Guard the granary through the night against desperate raiders",
+        "condition": "origin.mercenary == true",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "reputation.infamy": 1,
+          "run_history": "Guarded the village granary through a hungry night"
         }
       }
     ]
@@ -155,6 +247,7 @@
       {
         "id": "personally_intervene",
         "label": "Give her what she needs, no strings attached (-20 Gold)",
+        "condition": "gold >= 20",
         "outcomeSuccessNode": "chapter1_harvest_end",
         "effects": {
           "gold": -20,
@@ -188,8 +281,26 @@
     "choices": [
       {
         "id": "continue_the_chronicle",
-        "label": "Continue onward (this is a placeholder - build Chapter 2 from here)",
-        "outcomeSuccessNode": "prologue_start"
+        "label": "Take the Salt Road toward the next trouble",
+        "outcomeSuccessNode": "event1_toll_trouble",
+        "effects": {
+          "world_flags.harvest_failure": "resolved_or_endured"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_blight_lore",
+    "illustrationId": null,
+    "narrative": "The elder at the well turns a dry grain head between two fingers. @Elder: Every generation or two, the blight-wind finds this valley. The old Sun wards used to turn it aside. Then people forgot what a ward was worth.\n\nShe spits into the dust and points you toward the farms. @Elder: Go on, then. Mira Talbot knows which doors are about to close.",
+    "narrativeVariants": {
+      "flags.sun_temple_destroyed == true": "The elder at the well turns a dry grain head between two fingers. @Elder: Every generation or two, the blight-wind tries this valley. The Sun wards used to turn it aside—before whoever let the temple burn.\n\nShe spits into the dust and points you toward the farms. @Elder: Go on, then. Mira Talbot knows which doors are about to close."
+    },
+    "choices": [
+      {
+        "id": "leave_elder_for_mira",
+        "label": "Find Mira Talbot",
+        "outcomeSuccessNode": "chapter1_harvest_meet_mira"
       }
     ]
   }

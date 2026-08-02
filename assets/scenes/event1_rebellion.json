@@ -1,0 +1,108 @@
+[
+  {
+    "sceneId": "event1_toll_trouble",
+    "illustrationId": null,
+    "narrative": "The Salt Road is choked with wagons and raised voices. At the toll gate, a merchant pushes a fistful of stamped guild scrip across the table. The crown clerk refuses it.\n\n@Merchant: Coin is leaving the road faster than grain. This is what we have.\n@Clerk: Then this is what you owe. Standard tender, or turn around.\n\nNobody is drawing steel. Not yet.",
+    "narrativeVariants": {
+      "origin.civilian == true": "The Salt Road is choked with wagons and raised voices. At the toll gate, a merchant pushes a fistful of stamped guild scrip across the table. You recognize Guildmistress Yeva Solt's mark. The crown clerk refuses it.\n\n@Merchant: Coin is leaving the road faster than grain. This is what we have.\n@Clerk: Then this is what you owe. Standard tender, or turn around.\n\nNobody is drawing steel. Not yet."
+    },
+    "choices": [
+      {"id":"toll_wanderer","label":"Point out the back road that avoids a day of hungry waiting","condition":"origin.wanderer == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.commonfolk":1,"run_history":"Helped stranded travelers around the Salt Road toll"}},
+      {"id":"toll_civilian","label":"Name the guild mark and ask why its workers were pushed into scrip","condition":"origin.civilian == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.commonfolk":1,"run_history":"Recognized Yeva Solt's guild scrip at the Salt Road toll"}},
+      {"id":"toll_royal","label":"Order the clerk to explain the levy in House Aldric's name","condition":"origin.royal == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.crown":1,"run_history":"Demanded an account of the Salt Road levy in House Aldric's name"}},
+      {"id":"toll_elf","label":"Recall the last kingdom whose roads were priced beyond its people","condition":"origin.elf == true","outcomeSuccessNode":"event1_closed_doors","effects":{"run_history":"Warned the toll crowd about an old kingdom's failed levies"}},
+      {"id":"toll_dwarf","label":"Inspect the toll weights and expose the clerk's false measure","condition":"origin.dwarf == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.commonfolk":1,"reputation.crown":-1,"run_history":"Exposed a false measure at the Salt Road toll"}},
+      {"id":"toll_vampire","label":"Make the clerk feel, for one breath, how afraid the crowd is","condition":"origin.vampire == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.infamy":1,"run_history":"Used an unsettling presence at the Salt Road toll"}},
+      {"id":"toll_mercenary","label":"Read the crowd like a camp before a mutiny and separate the angriest men","condition":"origin.mercenary == true","outcomeSuccessNode":"event1_closed_doors","effects":{"reputation.commonfolk":1,"run_history":"Defused the Salt Road toll crowd before blades came out"}},
+      {"id":"toll_observe","label":"Watch who profits from the argument","outcomeSuccessNode":"event1_closed_doors","effects":{"run_history":"Witnessed the first Salt Road toll dispute"}}
+    ]
+  },
+  {
+    "sceneId": "event1_closed_doors",
+    "illustrationId": null,
+    "narrative": "By dusk, a guild office is shuttered and a notice has been nailed across its door: UNFAIR CROWN LEVIES BLEED THE ROAD. A bell-ringer named Tamsin leans under the awning, pretending not to wait for anyone.\n\n@Tamsin: I hear the guilds are planning a petition. I also hear they bought enough arrows for a war. One of those is probably true.",
+    "choices": [
+      {"id":"rebellion_lore","label":"Ask Auditor Cassin Hollis what changed in the levy","outcomeSuccessNode":"event1_levy_lore","effects":{"run_history":"Learned how the Salt Road levy burdens small guilds"}},
+      {"id":"rebellion_continue","label":"Follow the road and see who is brave enough to move at night","outcomeSuccessNode":"event1_courier"}
+    ]
+  },
+  {
+    "sceneId": "event1_levy_lore",
+    "illustrationId": null,
+    "narrative": "Auditor Cassin Hollis does not look up from his ledger. @Cassin: The large guilds pay once at the capital and pass the cost downward. Small carriers pay at every gate. The crown calls it efficiency. The road calls it starvation.\n\nHe closes the ledger. @Cassin: Knowing the arithmetic will not make the next choice cleaner.",
+    "choices": [{"id":"leave_cassin","label":"Go back to the road","outcomeSuccessNode":"event1_courier"}]
+  },
+  {
+    "sceneId": "event1_courier",
+    "illustrationId": null,
+    "narrative": "Near midnight, a young guild courier slips from an alley with a packet under one arm. A crown patrol turns the corner at the far end of the street. The courier sees you first.",
+    "choices": [
+      {"id":"help_courier","label":"Create a distraction and help the courier escape","outcomeSuccessNode":"event1_unrest","effects":{"world_flags.player_rebellion_lean":"guild","npc.dessa_kirren.trust":1,"reputation.commonfolk":1,"run_history":"Helped a guild courier evade the crown patrol"}},
+      {"id":"report_courier","label":"Point the courier out to the patrol for the reward","outcomeSuccessNode":"event1_unrest","effects":{"world_flags.player_rebellion_lean":"crown","world_flags.rebellion_courier_reported":true,"reputation.crown":1,"reputation.commonfolk":-2,"run_history":"Reported a guild courier to the crown patrol"}},
+      {"id":"ignore_courier","label":"Step aside. Their fight has not become yours yet","outcomeSuccessNode":"event1_unrest","effects":{"world_flags.player_rebellion_lean":"none","run_history":"Stayed out of the courier's escape"}}
+    ]
+  },
+  {
+    "sceneId": "event1_unrest",
+    "illustrationId": null,
+    "narrative": "Three days later, the petition has become a crowd outside the levy house. Guildmistress Yeva Solt demands a hearing. Bailiff Corin Reyes answers with a statute book and a line of guards. Petra Voss watches Yeva from the edge of the square, calculating.\n\nThere is still time for words to matter.",
+    "choices": [
+      {"id":"broker_unrest","label":"Broker a meeting between Yeva and the tax officer (Charisma check)","requiredAttribute":"charisma","difficultyClass":13,"outcomeSuccessNode":"event1_brokered","outcomeFailNode":"event1_organized","effects":{"run_history":"Attempted to broker the Salt Road dispute before it became a rebellion"}},
+      {"id":"let_unrest_grow","label":"Stand back as the guilds organize","outcomeSuccessNode":"event1_organized","effects":{"world_flags.rebellion_salt_road":"organized","run_history":"Let the Salt Road unrest become organized"}}
+    ]
+  },
+  {
+    "sceneId": "event1_brokered",
+    "illustrationId": null,
+    "narrative": "For one long hour, neither side leaves the room. When the doors open, the levy is suspended for the winter and a review is promised in spring. It is not justice. It is enough to stop the square from burning tonight.",
+    "choices": [{"id":"record_early_concessions","label":"See the road absorb the compromise","outcomeSuccessNode":"event1_coda","effects":{"world_flags.rebellion_salt_road":"resolved","world_flags.rebellion_salt_road_outcome":"concessions_won","reputation.crown":2,"reputation.commonfolk":2,"run_history":"Won Salt Road concessions before an uprising"}}]
+  },
+  {
+    "sceneId": "event1_organized",
+    "illustrationId": null,
+    "narrative": "Petitions become rosters. Roster-books become barricades. Yeva Solt wants a lawful strike that can force reform; Petra Voss says the crown only understands losses it can count. They ask you to choose in front of the workers.",
+    "choices": [
+      {"id":"back_yeva","label":"Back Yeva's disciplined, lawful resistance","outcomeSuccessNode":"event1_uprising","effects":{"npc.yeva_solt.trust":3,"npc.petra_voss.trust":-3,"world_flags.rebellion_backed":"yeva","reputation.honor":1,"run_history":"Publicly backed Yeva Solt's lawful resistance"}},
+      {"id":"back_petra","label":"Back Petra's demand for a decisive break with the crown","outcomeSuccessNode":"event1_uprising","effects":{"npc.petra_voss.trust":3,"npc.yeva_solt.trust":-3,"world_flags.rebellion_backed":"petra","reputation.commonfolk":1,"reputation.crown":-1,"run_history":"Publicly backed Petra Voss against the crown"}}
+    ]
+  },
+  {
+    "sceneId": "event1_uprising",
+    "illustrationId": null,
+    "narrative": "At dawn, someone rings the Salt Road bell until the rope snaps. Barricades close the gate. Captain-Reeve Osgar Vell gives the crowd one order to disperse. No one moves. Corin Reyes looks from his guards to the families behind the barricade, and for the first time cannot find a statute that makes the moment smaller.",
+    "choices": [
+      {"id":"join_uprising","label":"Join the barricade and force the crown from the gate","outcomeSuccessNode":"event1_regime_change","effects":{"run_history":"Joined the Salt Road uprising"}},
+      {"id":"suppress_uprising","label":"Help Captain Vell break the barricade","outcomeSuccessNode":"event1_crushed","effects":{"run_history":"Helped suppress the Salt Road uprising"}},
+      {"id":"last_broker","label":"Make one final attempt to stop the violence (Wisdom check)","requiredAttribute":"wisdom","difficultyClass":15,"outcomeSuccessNode":"event1_last_compromise","outcomeFailNode":"event1_crushed","effects":{"run_history":"Made a final attempt to stop the Salt Road violence"}}
+    ]
+  },
+  {
+    "sceneId": "event1_regime_change",
+    "illustrationId": null,
+    "narrative": "The guards yield the gate before the crowd yields itself. By nightfall, the crown banner has been lowered and a guild-council banner hangs in its place. It is a victory with frightened faces beneath it.",
+    "choices": [{"id":"record_regime_change","label":"Leave the new council to its first difficult night","outcomeSuccessNode":"event1_coda","effects":{"world_flags.rebellion_salt_road":"resolved","world_flags.rebellion_salt_road_outcome":"regime_change","reputation.commonfolk":3,"reputation.crown":-3,"run_history":"Saw the Salt Road guild council replace crown authority"}}]
+  },
+  {
+    "sceneId": "event1_last_compromise",
+    "illustrationId": null,
+    "narrative": "Your words do not make anyone happy. They make enough people afraid of the next minute to put weapons down. The crown accepts a written concession under witness; the guilds accept that the gate will remain standing.",
+    "choices": [{"id":"record_late_concessions","label":"Put the agreement into the Chronicle","outcomeSuccessNode":"event1_coda","effects":{"world_flags.rebellion_salt_road":"resolved","world_flags.rebellion_salt_road_outcome":"concessions_won","reputation.crown":1,"reputation.commonfolk":2,"run_history":"Brokered last-minute Salt Road concessions"}}]
+  },
+  {
+    "sceneId": "event1_crushed",
+    "illustrationId": null,
+    "narrative": "The barricade breaks. The survivors are dragged from the gate one by one. Corin Reyes turns his shield toward a family caught in the charge; whether he lives to regret the day is a question the road will carry for years. The courier you reported is among the condemned.",
+    "narrativeVariants": {"flags.rebellion_courier_reported == true":"The barricade breaks. The survivors are dragged from the gate one by one. Corin Reyes turns his shield toward a family caught in the charge; whether he lives to regret the day is a question the road will carry for years. The courier you reported is among the condemned, and recognizes you before the guard pulls them away."},
+    "choices": [{"id":"record_crushed","label":"Leave the broken gate behind","outcomeSuccessNode":"event1_coda","effects":{"world_flags.rebellion_salt_road":"resolved","world_flags.rebellion_salt_road_outcome":"crushed","reputation.crown":2,"reputation.commonfolk":-3,"reputation.infamy":2,"run_history":"Witnessed the Salt Road rebellion crushed"}}]
+  },
+  {
+    "sceneId": "event1_coda",
+    "illustrationId": null,
+    "narrative": "A crown messenger rides hard toward the Capital with the Salt Road's news. Behind you, the toll gate wears a new scar. Ahead, the Northern Reach will hear how distracted—or weakened—House Aldric has become.",
+    "narrativeVariants": {
+      "flags.rebellion_salt_road_outcome == 'concessions_won'": "A crown messenger rides hard toward the Capital with a signed Salt Road concession. Behind you, workers rebuild the toll gate without tearing down its banner. Ahead, the Northern Reach will hear that House Aldric was forced to bargain.",
+      "flags.rebellion_salt_road_outcome == 'regime_change'": "A crown messenger rides hard toward the Capital as a new guild-council banner rises over the toll gate. Ahead, the Northern Reach will hear that House Aldric lost a road without losing a war."
+    },
+    "choices": []
+  }
+]

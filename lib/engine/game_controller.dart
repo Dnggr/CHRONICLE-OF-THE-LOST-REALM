@@ -50,6 +50,11 @@ class GameController extends ChangeNotifier {
   bool isDead = false;
   String? deathCause;
 
+  /// True from the first tap until the choice has been saved and the next
+  /// scene is ready. It prevents two fast taps from applying the same
+  /// effects twice or navigating two branches at once.
+  bool isSelectingChoice = false;
+
   GameController({
     required this.sceneRepository,
     DiceRoller? diceRoller,
@@ -211,97 +216,120 @@ class GameController extends ChangeNotifier {
 
   Future<void> selectChoice(SceneChoice choice) async {
     final activeCharacter = character;
-    if (activeCharacter == null) return; // defensive - UI shouldn't allow this
-    lastCheckResult = null;
+    if (activeCharacter == null || isSelectingChoice) return;
+    // SceneScreen only passes visible choices, but this is the engine
+    // boundary: callers must not be able to invoke a hidden/stale choice
+    // directly after state has changed.
+    if (!availableChoices.contains(choice)) return;
 
-    // Freeze the entry the player just acted on with the label they
-    // picked, BEFORE we know whether this leads to a stat check, a
-    // fatal outcome, or a normal transition - the log should record
-    // what was chosen regardless of what happens next.
-    if (sceneLog.isNotEmpty) {
-      sceneLog.last.chosenLabel = choice.label;
-    }
-
-    // Apply immediate effects (world flags, run history entries) first.
-    // PROBLEM: SceneChoice.effects previously only understood
-    // "world_flags.<key>" and "run_history" - the Story & Systems
-    // Bible's Honor System needed a way for a single choice to also
-    // move a reputation track or a specific NPC's trust. SOLUTION:
-    // three more key prefixes, all still going through this one
-    // effects-application block so there's still exactly one place
-    // choice consequences get applied, not several.
-    choice.effects.forEach((key, value) {
-      if (key.startsWith('world_flags.')) {
-        final flagKey = key.substring('world_flags.'.length);
-        LegacyEngine.applyFlagEffect(world, flagKey, value);
-      } else if (key == 'run_history') {
-        activeCharacter.runHistory.add(value as String);
-      } else if (key.startsWith('reputation.')) {
-        // value is a DELTA (e.g. -2, +5), not an absolute value - so
-        // repeated choices accumulate naturally instead of overwriting.
-        final track = key.substring('reputation.'.length);
-        final delta = (value as num).toInt();
-        activeCharacter.reputation[track] =
-            (activeCharacter.reputation[track] ?? 0) + delta;
-      } else if (key.startsWith('npc.') && key.endsWith('.trust')) {
-        final npcId = key.substring(4, key.length - '.trust'.length);
-        final delta = (value as num).toInt();
-        activeCharacter.npcTrust[npcId] =
-            (activeCharacter.npcTrust[npcId] ?? 0) + delta;
-      } else if (key.startsWith('npc.') && key.endsWith('.status')) {
-        final npcId = key.substring(4, key.length - '.status'.length);
-        activeCharacter.npcStatus[npcId] = value as String;
-      } else if (key == 'gold') {
-        // PROBLEM: several Harvest Failure choices promise a gold cost
-        // in their label ("-15 Gold") but nothing applied it - effects
-        // only understood world_flags/run_history/reputation/npc keys.
-        // SOLUTION: a plain numeric delta on character.gold, same
-        // pattern as every other numeric effect here.
-        final delta = (value as num).toInt();
-        activeCharacter.gold += delta;
-      }
-    });
-
-    if (choice.isFatal) {
-      await _handleDeath(choice.fatalCause ?? 'Unknown cause');
+    // A JSON author can forget a `gold >= N` condition. Keep the story
+    // data friendly, but enforce the economy here as a final safeguard so
+    // an unaffordable negative delta can never create negative gold.
+    final goldDelta = choice.effects['gold'];
+    if (goldDelta is num && activeCharacter.gold + goldDelta.toInt() < 0) {
       return;
     }
-
-    String nextSceneId;
-    if (choice.hasStatCheck) {
-      final modifier =
-          activeCharacter.attributes[choice.requiredAttribute!] ?? 0;
-      final result = diceRoller.check(
-        modifier: modifier,
-        difficultyClass: choice.difficultyClass!,
-      );
-      lastCheckResult = result;
-      nextSceneId = result.success
-          ? choice.outcomeSuccessNode
-          : (choice.outcomeFailNode ?? choice.outcomeSuccessNode);
-    } else {
-      nextSceneId = choice.outcomeSuccessNode;
-    }
-
-    activeCharacter.currentSceneId = nextSceneId;
-    _loadCurrentScene();
-    await SaveManager.saveRun(activeCharacter);
-
-    if (activeCharacter.isDead) {
-      await _handleDeath(
-        activeCharacter.age >= activeCharacter.maxAge
-            ? 'Old age'
-            : 'Wounds sustained',
-      );
-      return;
-    }
-
-    // Only append the next block to the scroll once we know the
-    // character survived the transition - a fatal outcome hands off to
-    // DeathScreen instead (see _handleDeath), which replaces the whole
-    // screen rather than appending to it.
-    _appendCurrentSceneToLog();
+    // PROBLEM: ChoiceButton remained tappable while async save/scene work
+    // was underway. A rapid double tap could apply gold/reputation effects
+    // twice or race two scene transitions. SOLUTION: one controller-owned
+    // interaction lock protects every choice, independent of UI timing.
+    isSelectingChoice = true;
     notifyListeners();
+    try {
+      lastCheckResult = null;
+
+      // Freeze the entry the player just acted on with the label they
+      // picked, BEFORE we know whether this leads to a stat check, a
+      // fatal outcome, or a normal transition - the log should record
+      // what was chosen regardless of what happens next.
+      if (sceneLog.isNotEmpty) {
+        sceneLog.last.chosenLabel = choice.label;
+      }
+
+      // Apply immediate effects (world flags, run history entries) first.
+      // PROBLEM: SceneChoice.effects previously only understood
+      // "world_flags.<key>" and "run_history" - the Story & Systems
+      // Bible's Honor System needed a way for a single choice to also
+      // move a reputation track or a specific NPC's trust. SOLUTION:
+      // three more key prefixes, all still going through this one
+      // effects-application block so there's still exactly one place
+      // choice consequences get applied, not several.
+      choice.effects.forEach((key, value) {
+        if (key.startsWith('world_flags.')) {
+          final flagKey = key.substring('world_flags.'.length);
+          LegacyEngine.applyFlagEffect(world, flagKey, value);
+        } else if (key == 'run_history') {
+          activeCharacter.runHistory.add(value as String);
+        } else if (key.startsWith('reputation.')) {
+          // value is a DELTA (e.g. -2, +5), not an absolute value - so
+          // repeated choices accumulate naturally instead of overwriting.
+          final track = key.substring('reputation.'.length);
+          final delta = (value as num).toInt();
+          activeCharacter.reputation[track] =
+              (activeCharacter.reputation[track] ?? 0) + delta;
+        } else if (key.startsWith('npc.') && key.endsWith('.trust')) {
+          final npcId = key.substring(4, key.length - '.trust'.length);
+          final delta = (value as num).toInt();
+          activeCharacter.npcTrust[npcId] =
+              (activeCharacter.npcTrust[npcId] ?? 0) + delta;
+        } else if (key.startsWith('npc.') && key.endsWith('.status')) {
+          final npcId = key.substring(4, key.length - '.status'.length);
+          activeCharacter.npcStatus[npcId] = value as String;
+        } else if (key == 'gold') {
+          // PROBLEM: several Harvest Failure choices promise a gold cost
+          // in their label ("-15 Gold") but nothing applied it - effects
+          // only understood world_flags/run_history/reputation/npc keys.
+          // SOLUTION: a plain numeric delta on character.gold, same
+          // pattern as every other numeric effect here.
+          final delta = (value as num).toInt();
+          activeCharacter.gold += delta;
+        }
+      });
+
+      if (choice.isFatal) {
+        await _handleDeath(choice.fatalCause ?? 'Unknown cause');
+        return;
+      }
+
+      String nextSceneId;
+      if (choice.hasStatCheck) {
+        final modifier =
+            activeCharacter.attributes[choice.requiredAttribute!] ?? 0;
+        final result = diceRoller.check(
+          modifier: modifier,
+          difficultyClass: choice.difficultyClass!,
+        );
+        lastCheckResult = result;
+        nextSceneId = result.success
+            ? choice.outcomeSuccessNode
+            : (choice.outcomeFailNode ?? choice.outcomeSuccessNode);
+      } else {
+        nextSceneId = choice.outcomeSuccessNode;
+      }
+
+      activeCharacter.currentSceneId = nextSceneId;
+      _loadCurrentScene();
+      await SaveManager.saveRun(activeCharacter);
+
+      if (activeCharacter.isDead) {
+        await _handleDeath(
+          activeCharacter.age >= activeCharacter.maxAge
+              ? 'Old age'
+              : 'Wounds sustained',
+        );
+        return;
+      }
+
+      // Only append the next block to the scroll once we know the
+      // character survived the transition - a fatal outcome hands off to
+      // DeathScreen instead (see _handleDeath), which replaces the whole
+      // screen rather than appending to it.
+      _appendCurrentSceneToLog();
+      notifyListeners();
+    } finally {
+      isSelectingChoice = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _handleDeath(String cause) async {

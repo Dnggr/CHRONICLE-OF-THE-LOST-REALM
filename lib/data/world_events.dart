@@ -20,12 +20,11 @@
 /// that could typo out of sync with each other across dozens of files.
 ///
 /// SCOPE NOTE: like npcs.dart, this gives every catalog event a real,
-/// referenceable identity, but only ONE event (Harvest Failure) has
-/// actual scene content behind it so far - see
-/// assets/scenes/chapter1_harvest.json. The rest are ready to write
-/// scenes against whenever you get to them; the catalog entry tells you
-/// exactly which world_flags key and stage strings to use so the scene
-/// JSON stays consistent with this file.
+/// referenceable identity. Events 0 and 1 now have playable scene graphs
+/// (`chapter1_harvest.json` and `event1_rebellion.json`); all later events
+/// remain data-ready. Keeping their flag keys here prevents a later scene
+/// from drifting into an incompatible spelling (the Salt Road scenes use
+/// `rebellion_salt_road` and `rebellion_salt_road_outcome` exactly).
 /// ============================================================================
 
 class WorldEvent {

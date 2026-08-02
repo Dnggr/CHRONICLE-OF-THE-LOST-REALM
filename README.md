@@ -64,7 +64,8 @@ On death:
   illustrated portrait art yet).
 - `ConditionEvaluator` — scene JSON condition language:
   `flags.<key> == true/false/'string'`, `origin.<tag> == true/false`,
-  `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `inventory.contains('x')`,
+  `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `gold >= N`,
+  `inventory.contains('x')`,
   `reputation.<track> >= N` (honor/infamy/crown/commonfolk; negative
   values allowed), `npc.<id>.trust >= N`, `npc.<id>.status == 'x'`.
   Attribute keys are `strength`, `dexterity`, `intelligence`, `wisdom`,
@@ -80,16 +81,16 @@ On death:
   reputation-extreme canon phrase for genuinely notable deaths.
 - `Npc`/`Npcs` (`lib/data/npcs.dart`) — all 42 Signature NPCs from the
   Story & Systems Bible (6 roles × 7 origins), as structured,
-  referenceable data. Only Mira Talbot has a written scene arc so far
-  (see Chapter 1 below) — the rest exist as data, ready to write scenes
-  against.
+  referenceable data. Mira Talbot, Old Hendrik, Yeva Solt, Petra Voss,
+  and Bailiff Corin Reyes now have first playable appearances; the
+  remaining roster is ready for authored scenes.
 - `WorldEvent`/`WorldEvents` (`lib/data/world_events.dart`) — all 13
   catalog world events (War, Rebellion, Dragon, Schism, Plague,
   Succession Crisis, Foreign Invasion, + 6 minor events), each with its
   `world_flags` key, ordered stages, and outcomes. Data only — stage
   transitions happen via hand-written `SceneChoice.effects`, same as
-  `sun_temple_destroyed` always has. Only Harvest Failure has scenes
-  written (Chapter 1).
+  `sun_temple_destroyed` always has. Harvest Failure and the Salt Road
+  Rebellion have playable scene content.
 
 **Honor/Reputation System**
 - Four independent tracks on `CharacterState.reputation`: `honor`,
@@ -132,12 +133,10 @@ On death:
   detail).
 
 **Content**
-- `assets/scenes/prologue.json` — 6 connected scenes: a Charisma stat
-  check, a world-flag-gated variant (`sun_temple_destroyed`), two
-  origin-gated examples (Royal Heir / Vampire get unique choices at the
-  village fork), and a dialogue scene (`prologue_ruin_encounter`)
-  demonstrating the `@Speaker: line` / `_emphasis_` markup below. Its
-  final choice now leads into Chapter 1 instead of looping back.
+- `assets/scenes/prologue.json` — seven origin-specific openings plus a
+  slower roadside conversation with Old Hendrik before the caravan/ruin
+  route. It establishes why each origin takes the road and gives the
+  Talbot farm human context before Event 0 asks for intervention.
 - `assets/scenes/chapter1_harvest.json` — **Chapter 1: the Harvest
   Failure.** 8 scenes implementing Mira Talbot's full Signature NPC arc
   (a Redemption-flavored subplot with three real Honor System
@@ -147,6 +146,13 @@ On death:
   `npc.mira_talbot.trust >= 3`-gated bonus scene that only appears if
   you built the relationship earlier. This is a playable version of the
   Story & Systems Bible's own section 6 worked example.
+- `assets/scenes/event1_rebellion.json` — Event 1: the Salt Road
+  Rebellion, including pre-arc warnings, levy lore, courier choice,
+  Yeva/Petra conflict, uprising, and persistent outcomes.
+- `npc_dialogue_and_routes.txt` — novel-pacing, NPC voice/feelings, and
+  relationship-route reference for future scene authors.
+- `PROJECT_MEMORY.md` — concise design-decision record. `AGENTS.md`
+  requires it to be updated after project-relevant conversations.
 
 **Writing dialogue in scene JSON**
 - `@Name: their line` inside a `narrative` string renders as a
@@ -167,8 +173,8 @@ On death:
 - Inventory screen and Achievements screen are still unbuilt
   (placeholders in the bottom nav).
 - No audio.
-- Only Chapters "Prologue" and "1: The Harvest Failure" have written
-  scenes — 41 of the 42 Signature NPCs and 12 of the 13 World Events
+- Only the Prologue, Event 0 (Harvest Failure), and Event 1 (Salt Road
+  Rebellion) have written scenes — most Signature NPCs and later World Events
   exist as structured data (`lib/data/npcs.dart`, `lib/data/world_events.dart`)
   but have no scene content behind them yet. New chapters need a new
   `assets/scenes/*.json` file added to `SceneRepository._sceneFiles`.

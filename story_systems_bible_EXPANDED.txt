@@ -21,11 +21,11 @@ original stages expanded with explicit branch options, concrete NPC-death
 conditions, new NPCs the event itself produces, and a lead-out (POST-ARC)
 that bridges into the next event on the spine, in order, from the
 already-built Harvest Failure through the Demon Lord capstone. What comes
-after the very last event a given playthrough reaches is deliberately
-left undecided — see 3.14 — consistent with the Legacy Engine's own
-premise that the NEXT playthrough is the real answer to "what happens
-after," not a fixed epilogue. Everything else in the document is
-unchanged from the prior edition.
+after the very last event is handled by the formal Living Legend / Retired
+Hero system (3.14): a surviving hero leaves the playable run but can
+persist as a findable person in later runs. The NEXT playthrough is still
+the real answer to "what happens after," not a fixed epilogue. Everything
+else in the document is unchanged from the prior edition.
 
 SCOPE NOTE on "500 unique NPCs" — read this before you judge the NPC
 section light on named characters:
@@ -652,7 +652,30 @@ in practice deviate from it. This is that order:
   EVENT 6  — Foreign Invasion from Across the Salt Sea (late game)
   EVENT 7  — The Dark Legion                 (cascade, late game)
   EVENT 8  — The Demon Lord                  (capstone, endgame)
-  POST-FINALE — deliberately undecided (3.14)
+  POST-FINALE — Living Legends / Retired Heroes (3.14)
+
+IMPLEMENTATION RECORD — 2026-08-02 (PROLOGUE + ENGINE SAFETY PASS):
+The playable prologue now starts with seven separate origin openings in
+`assets/scenes/prologue.json`, rather than treating the king's ceremony
+as everybody's past. Wanderer, Civilian, Royal Heir, Elf, Dwarf,
+Vampire, and Mercenary each receive a distinct reason to take the road;
+every opening then converges through the existing caravan/ruin route
+into Event 0. Problem solved: origin is now a lived narrative identity
+from the first choice, not merely a stat/gear selection with a few later
+variants.
+
+The same pass fixed three prototype integrity bugs. `gold >= N` is now a
+supported scene condition and the two Harvest payments are gated by it;
+the controller also rejects any unaffordable gold delta as a final safety
+net, preventing negative-gold purchases. The choice controller now locks while
+an async choice is being saved, preventing rapid double taps from applying
+effects twice or racing into different scenes. Event 1 now writes the
+canonical catalog keys `rebellion_salt_road` and
+`rebellion_salt_road_outcome`, so Event 2 and later content can reliably
+read its result. The obsolete generated `MyApp` test was replaced with a
+real condition-engine test. Files: `condition_evaluator.dart`,
+`game_controller.dart`, `choice_button.dart`, `scene_screen.dart`,
+`chapter1_harvest.json`, `event1_rebellion.json`, and `test/widget_test.dart`.
 
 Why this order, specifically:
 - Harvest Failure first because it's already built, small-scale, and
@@ -740,11 +763,56 @@ it's specified once here instead of re-explained nine times:
   explicitly setting up the conditions (per 3.2's cascade logic) for the
   NEXT event on the spine.
 
+3.3.A NOVEL PACING RULE (added 2026-08-02)
+--------------------------------------------------------------------------
+The game is written as a long-form fantasy novel, not a chain of urgent
+quest prompts. Before a major choice, establish place, ordinary life,
+and at least one person the player can feel about. Before an NPC asks
+for help, show them doing something mundane, then let the player talk
+with them. After a major choice, give the player aftermath: travel,
+silence, rumor, a letter, a meal, grief, or a changed relationship.
+
+Each world event should target 12-25 scenes, including 2-4 quiet
+relationship/travel scenes, rather than rushing directly from trigger
+to resolution. Love, revenge, redemption, suspense, drama, and gore
+must be slow-burn consequences of accumulated choices; violence is not
+filler and must change a survivor, relationship, or world state.
+
+The detailed writing reference is `npc_dialogue_and_routes.txt`. It
+defines current NPC voice/feeling sheets, route pacing, dialogue seeds,
+and the production model for the long-term 10,000-page ambition.
+
+IMPLEMENTED OPENING CHANGE: all seven origin openings now converge on
+Old Hendrik's roadside shelter scene before the caravan/ruin route.
+Hendrik introduces the Talbot farm as a human concern, not a quest
+marker, and can receive the player's first trust/promise. This creates
+context before Mira's Harvest Failure arc begins.
+
+--------------------------------------------------------------------------
 3.4 EVENT 0 — THE HARVEST FAILURE (spine anchor, already built)
 --------------------------------------------------------------------------
 Already implemented as Chapter 1 (Mira Talbot's arc) — this entry only
 adds the connective tissue the spine needs, not a rewrite of the working
 chapter.
+
+IMPLEMENTATION STATUS — 2026-08-02 (SHIPPED IN THE PROTOTYPE):
+Sequence now live: prologue ruin door -> `chapter1_harvest_intro` ->
+optional elder-at-the-well lore route -> Mira Talbot relationship choice
+-> granary intervention -> Mira follow-up (when trust permits) ->
+Harvest coda -> `event1_toll_trouble`.
+
+Files changed: `assets/scenes/chapter1_harvest.json` and
+`lib/data/scene_repository.dart`. The Harvest scene graph now contains
+the previously specified Sun-ward/blight-wind lore route, including its
+Sun Temple legacy variant. It also contains one origin-gated intervention
+for every shipped origin: Wanderer (safe hunger-road), Civilian (ration
+plan), Royal Heir (emergency crown grain), Elf (old ward), Dwarf (mill
+repair), Vampire (hoarder compulsion), and Mercenary (granary watch).
+These use existing origin conditions, stat checks, reputation effects,
+and run-history records; no special-case UI or controller logic was
+added. Problem solved: every origin can now express its identity during
+the first world event, and the chapter no longer loops back to the
+prologue after its ending.
 
 PRE-ARC: already covered by the prologue's final scenes (the ruin
 encounter leading into the door onto the village).
@@ -785,6 +853,27 @@ setup.
 --------------------------------------------------------------------------
 3.5 EVENT 1 — THE REBELLION OF THE SALT ROAD
 --------------------------------------------------------------------------
+IMPLEMENTATION STATUS — 2026-08-02 (SHIPPED IN THE PROTOTYPE):
+Sequence now live: Harvest coda -> Toll Trouble -> Closed Doors ->
+optional Auditor Cassin levy-lore route -> courier choice -> Unrest ->
+early compromise OR Organized -> Yeva/Petra choice -> Uprising ->
+crushed / concessions_won / regime_change coda. The coda deliberately
+ends at the Event 2 warning; Event 2 itself is not yet authored.
+
+Files added/changed: `assets/scenes/event1_rebellion.json`,
+`assets/scenes/chapter1_harvest.json`, and
+`lib/data/scene_repository.dart`. Event 1 gives all seven origins a
+different Salt Road entry action, records the courier choice in
+`player_rebellion_lean`, applies four-track reputation and Yeva/Petra
+trust changes, and persists the canonical `rebellion_salt_road_outcome`
+for later events.
+Problem solved: the first political world event is now a playable,
+branching consequence of Event 0 rather than bible-only design text.
+The implemented prototype does NOT yet implement the section's named
+NPC death rules, merchant inventory changes, or Event 2 content; those
+remain the next authoring/engine tasks and must not be represented as
+already shipped.
+
 PRE-ARC:
 - Scene A ("Toll Trouble"): a Salt Road merchant refuses standard
   tender, insisting on guild scrip instead — the player's first
@@ -1808,7 +1897,8 @@ routine mid-game event).
   resolution: this stage IS the playthrough's ending — there is no
     "outcome flag" the way earlier events have one, because whatever
     happens here becomes the DeceasedHero record (if the player dies)
-    or the closing Chronicle entry (if they survive), full stop.
+    or the RetiredHero + retirement Chronicle entry (if they survive),
+    full stop; see 3.14.
 Player intervention: the realm's last-resort event — deliberately rare
 and hard to reach by design, so it stays meaningful.
 NPC impact/Legacy tie-in: whichever Signature NPCs survived every prior
@@ -1882,69 +1972,133 @@ template:
   "who do you help when you can't help everyone" beats (section 4.3).
   Already the spine's Event 0 — see 3.4.
 --------------------------------------------------------------------------
-3.14 POST-FINALE — AFTER THE LAST WORLD EVENT (DELIBERATELY UNDECIDED)
+3.14 POST-FINALE — LIVING LEGENDS / RETIRED HEROES
 --------------------------------------------------------------------------
-Per the project's own scoping instinct (see the SCOPE NOTE in section 0
-and the "first-pass, meant to be argued with" caveats throughout section
-8): nothing below is committed content. This is a brainstorm of future
-directions, kept honestly labeled as such, for whichever event actually
-ends up being "the last one" in a given playthrough — most commonly
-Event 6 (Foreign Invasion) or Event 7 (Dark Legion, if it doesn't
-cascade further), with Event 8 (Demon Lord) as the rare capstone case.
+THIS IS COMMITTED SYSTEM DESIGN, not an optional epilogue idea.
 
-WHY THIS STAYS UNDECIDED ON PURPOSE:
-The Legacy Engine's entire premise is that each playthrough's ending
-feeds the NEXT playthrough's starting world state (DeceasedHero,
-majorCanonEvents, monarchInPower, etc.) — locking in a single
-"what happens after the finale" narrative would work against that
-premise rather than for it. A fixed epilogue says "the story is over."
-This game's structure says "the story becomes the next player's
-starting conditions." The honest move is to let the NEXT playthrough's
-PROLOGUE be the real answer to "what happens after," shaped by whatever
-majorCanonEvents the previous run actually produced — not to write a
-static epilogue chapter that every run funnels toward regardless of how
-it actually played out.
+PURPOSE:
+A player who survives the final reachable world event may retire their
+hero. Retirement ends that hero's playable run exactly as death does,
+but does not turn them into a DeceasedHero. Instead, the Legacy Engine
+stores a RetiredHero record in permanent WorldHistory. A later character
+can find, speak with, help, oppose, recruit, disappoint, or be judged by
+that former protagonist as a real NPC. This makes a successful run part
+of the next story without letting a player control the same hero forever.
 
-CONCRETE, NON-COMMITTED IDEAS WORTH REVISITING LATER (in no particular
-priority order):
-- A "Regency of Ashes" opening variant: if the previous run ended in
-  realm_falls/Demon-Lord territory, the next playthrough's prologue
-  could open generations later, in a realm still visibly shaped by that
-  collapse — ruined architecture, a changed political map, a new
-  origin's homeland now under different control — rather than a clean
-  reset. Purely conceptual; would need real worldbuilding work before
-  it's more than a placeholder name.
-- A NEW playable origin tied to "survivors of the Legion" specifically
-  (distinct from the Ironjaw Coalition candidate already flagged as
-  most-likely-next in section 8.3) — someone born into a post-
-  occupation world rather than a pre-occupation one. Not scoped, not
-  named, explicitly a "someday" idea.
-- An epilogue-only NPC role: someone who exists specifically to
-  interview the player-as-legend after a capstone-tier ending, closer
-  to a Chronicle/History-screen framing device than a scene with
-  choices — mentioned here only because it's a cheap, low-risk way to
-  give a capstone ending SOME closure without committing to a full new
-  chapter's worth of content.
-- Possible new cascade branches OUT of a repelled/bargained_with Dark
-  Legion resolution (i.e., what the realm looks like a full generation
-  after SURVIVING the cascade, not just after falling to it) — the
-  "good ending, but what then" question is arguably just as unwritten
-  as the bad one, and deserves equal future attention rather than
-  assuming only failure states need follow-up content.
-- Whether the Demon Lord, having stayed deliberately un-named and
-  un-personified per 8.4.A, should ever get a true final confrontation
-  scene with unique prose, or whether its power specifically comes from
-  never fully resolving on-screen — an open design question, not a
-  decision, flagged here so it isn't accidentally decided by default
-  the first time someone drafts confrontation-stage scene JSON.
+CORE RULES (non-negotiable):
+1. Death and retirement are different canon states. A dead hero uses
+   recordDeath() and becomes a DeceasedHero. A survivor who chooses
+   "Retire and enter the Chronicle" becomes a RetiredHero. Never create
+   both records for the same run.
+2. Retirement is available only after the run's final reachable event
+   has resolved. It cannot undo a fatal choice, NPC death, or event
+   outcome.
+3. Retirement preserves the past; it does not preserve player control.
+   In a new run, the new character is the only playable hero and only
+   that character's choices decide the live story.
+4. A RetiredHero is a person, not a second protagonist or a permanent
+   party member. They can offer a scene-specific boon, information,
+   shelter, political access, or limited intervention, but never solve a
+   major event off-screen or replace the current hero in a decisive choice.
+5. WorldHistory is canonical once written. A new hero cannot rewrite the
+   retired hero's choices, but can continue their work, repair harm they
+   caused, reject their advice, or make a different future from it.
 
-WHAT NOT TO DO HERE: don't let "vast and undecided" become an excuse to
-never write a real ending for the common cases (repelled, bargained
-_with, most Event 6 resolutions) — those need actual, finished POST-ARC
-content same as every other event above, and mostly already have it
-(3.10, 3.11). This section is specifically about the rare, capstone-tier
-"the realm truly fell" case, and about what comes after survival at
-that scale — not a hall pass to leave ordinary endings unwritten.
+END-OF-RUN FLOW:
+  final event resolves
+      -> hero dies: DeceasedHero + death Chronicle entry
+      -> hero survives: short closing scene showing consequences
+             -> "Retire and enter the Chronicle": RetiredHero +
+                retirement Chronicle entry; clear the run
+             -> no "keep playing this hero" option in v1
+
+The closing scene assigns an earned retirement role and location, e.g.
+"Warden of the Hollow Reaches," "Councillor to the Crown," "Roadside
+Healer," "Exile by Choice," or "Unquiet Veteran." This is an encounter
+hook, not a promise that every survivor is powerful or celebrated. An
+infamous survivor may retire in hiding; an honorable one may be poor,
+wounded, or hard to reach.
+
+RETIRED HERO DATA MODEL:
+Add `List<RetiredHero> retiredHeroes` to WorldHistory alongside
+`deceasedHeroes`. A RetiredHero is a permanent serialized snapshot.
+Minimum fields:
+
+  heroId                 stable id; never reused
+  name, title            identity shown in scenes and History
+  retiredYear, age       chronological placement
+  alignment              derived from final reputation, as on death
+  retirementRole         the earned posture named above
+  location               plausible encounter location
+  availability           available | hidden | imprisoned | missing |
+                         estranged | dead_after_retirement
+  majorCanonEvents       completed events and final outcomes
+  relicsLeft             named items retained, hidden, donated, or passed on
+  finalReputation        honor, infamy, crown, commonfolk snapshot
+  relationshipSeeds      durable prior-run faction/NPC ties only
+  legacyStance           mercy | pragmatism | ambition | vengeance;
+                         a writing guide, not an AI simulation
+  unresolvedThreads      explicit hooks a later hero may pursue
+  encounterHistory       per-new-run flags preventing repeated rewards
+
+Do not serialize the whole CharacterState as a live actor. The curated
+snapshot keeps saves stable and prevents invisible off-screen progress.
+
+ENCOUNTERS IN A NEW RUN:
+At character creation, select at most ONE featured legacy hero: normally
+the most recent eligible RetiredHero. Older heroes remain rumours,
+History entries, or rare event hooks. The featured hero gets one
+guaranteed introductory encounter after the prologue if reachable; later
+meetings are gated by the current run's choices and availability. Do not
+turn the opening into a parade of former player characters.
+
+Each encounter uses this structure:
+  legacy prerequisite -> discovery/rumour -> conversation -> current
+  hero choice -> bounded legacy consequence -> updated run/world flag.
+
+Bounded consequences include:
+- Help them: gain a clue, one-scene ally, safe route, or a relic they
+  voluntarily entrust; pay a cost or accept their faction tie.
+- Oppose them: expose their past, deny their request, protect people
+  harmed by their policy, or compete for a current objective.
+- Continue their work: unlock an unresolved thread, whose resolution
+  belongs to the current hero and may differ from what the legend wanted.
+- Refuse them: they remain history; no forced punishment, but a later
+  opportunity may close.
+
+AGENCY AND PROGRESSION CLARIFICATION:
+A retired hero does NOT continue progressing with old inventory, stats,
+quests, or a decision tree while the new character is played. Their
+snapshot is frozen at retirement. If they appear in an event, their
+authored response is selected from `legacyStance`, `finalReputation`,
+`majorCanonEvents`, and the CURRENT hero's choice. For example, an
+honorable former commander offers soldiers only if asked and the new hero
+has not betrayed their faction; an infamous exile withholds a relic unless
+the new hero accepts a morally costly bargain. The current player always
+chooses whether to seek, accept, resist, or walk away from that influence.
+
+CHANGE OVER TIME AND FINAL FATE:
+Retired heroes change only on-screen through an explicit later-run scene.
+A result may set availability to missing, imprisoned, or
+dead_after_retirement, move them, consume a relic, or resolve a thread.
+Write the current hero who caused that change into a Chronicle addendum.
+Never roll unseen events that kill or radically transform them between
+runs. If one dies in a later run, preserve their RetiredHero record and
+mark its final fate; do not duplicate them in `deceasedHeroes`.
+
+IMPLEMENTATION BOUNDARY:
+This requires an engine extension. Add `recordRetirement(...)` beside
+`LegacyEngine.recordDeath()` to create the snapshot, write the retirement
+Chronicle entry, save WorldHistory, and clear the run. Extend History to
+separate "Fallen Heroes" and "Living Legends." Scene conditions should
+read compact fields only, e.g.
+`legacy.retired.<heroId>.availability == 'available'` and
+`world_flags.retired_hero.<heroId>.<key>`. Every encounter must state its
+one-time reward and state change.
+
+This preserves the legacy loop: death makes a remembered absence;
+survival makes a living consequence. Neither allows a new character to
+rewrite the past, and both let the current player decide what it means now.
 --------------------------------------------------------------------------
 4. THE HONOR / REPUTATION SYSTEM
 --------------------------------------------------------------------------

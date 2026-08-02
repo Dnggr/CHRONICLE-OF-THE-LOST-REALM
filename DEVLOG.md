@@ -9,6 +9,42 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 7 — Novel pacing, origin openings, and integrity fixes
+
+**Problem:** The playable story rushed from a generic heroic ceremony into
+the Harvest Failure. Most origins shared the same introduction, important
+NPCs appeared only when they needed something from the player, and the
+prototype had several integrity gaps (negative-gold purchases, possible
+double-tapped choices, inconsistent Event 1 flags, and a broken generated
+test).
+
+**Solution:**
+- Replaced the generic prologue opening with seven origin-specific scenes
+  (Wanderer, Civilian, Royal Heir, Elf, Dwarf, Vampire, Mercenary).
+- Added Old Hendrik's roadside shelter, conversation, warning, and
+  promise before the caravan/ruin route. The player now encounters a
+  person and learns why the Talbot farm matters before meeting Mira.
+- Added `npc_dialogue_and_routes.txt`, defining novel pacing, dialogue,
+  feelings, slow-burn Love/Revenge/Redemption/Suspense routes, and a
+  scalable production model for the long-form story goal.
+- Added `PROJECT_MEMORY.md` and `AGENTS.md`. Future project-relevant
+  conversations must add a concise dated decision record; this is project
+  memory, not a private transcript.
+- Added `gold >= N` scene conditions and a controller-level affordability
+  safety check. Paid choices cannot make the player rich by going negative.
+- Added a controller interaction lock and disabled choice buttons during
+  async save/transition work, preventing a fast double tap from applying
+  one choice twice or racing two branches.
+- Corrected Salt Road event flags to the catalog names
+  `rebellion_salt_road` and `rebellion_salt_road_outcome`.
+- Replaced the generated test that referenced non-existent `MyApp` with
+  a real condition-engine test; `flutter test` now passes.
+
+**Verification:** all three scene JSON files parse, all scene targets
+resolve, `flutter test` passes, and `flutter analyze lib` reports no
+errors (only existing informational lint/deprecation notices).
+
+--------------------------------------------------------------------------
 ## Session 6 — Honor System, Signature NPCs, World Events, Chapter 1
 
 This session implements the engine/data foundation for the Story &

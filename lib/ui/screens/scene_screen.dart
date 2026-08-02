@@ -144,7 +144,8 @@ class _LogEntryView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          NarrativeText(text: entry.narrative, illustrationId: entry.illustrationId),
+          NarrativeText(
+              text: entry.narrative, illustrationId: entry.illustrationId),
           if (alreadyAnswered)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -176,7 +177,9 @@ class _LogEntryView extends StatelessWidget {
             ...controller.availableChoices.map(
               (choice) => ChoiceButton(
                 label: choice.label,
-                onTap: () => controller.selectChoice(choice),
+                onTap: controller.isSelectingChoice
+                    ? null
+                    : () => controller.selectChoice(choice),
               ),
             ),
           ],
@@ -200,7 +203,9 @@ class _CheckResultBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: success ? Colors.green.withOpacity(0.12) : Colors.red.withOpacity(0.12),
+        color: success
+            ? Colors.green.withOpacity(0.12)
+            : Colors.red.withOpacity(0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

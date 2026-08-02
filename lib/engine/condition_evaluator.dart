@@ -8,6 +8,7 @@ import '../models/world_history.dart';
 ///   flags.<key> == false
 ///   flags.<key> == 'someString'
 ///   inventory.contains('itemName')
+///   gold >= 15                         (also <=, >, <, ==)
 ///   attributes.<key> >= 12            (also <=, >, <, ==)
 ///   origin.<tag> == true              (also == false) - checks the archetype/
 ///                                      background/trait the player chose at
@@ -61,6 +62,20 @@ class ConditionEvaluator {
     if (invContains != null) {
       final item = invContains.group(1)!;
       return character.inventory.contains(item);
+    }
+
+    // PROBLEM: a choice could promise "-15 Gold" yet still be offered to
+    // a hero with less than 15 gold; applying the effect then created a
+    // negative balance and let the player buy help they could not afford.
+    // SOLUTION: expose the current gold balance to scene conditions, so
+    // authored paid choices can be hidden unless the hero can pay them.
+    final goldCompare = RegExp(
+      r"^gold\s*(>=|<=|>|<|==)\s*(-?\d+)$",
+    ).firstMatch(expr);
+    if (goldCompare != null) {
+      final op = goldCompare.group(1)!;
+      final value = int.parse(goldCompare.group(2)!);
+      return _compareInt(character.gold, op, value);
     }
 
     // PROBLEM: after adding Archetypes (Royal Heir, Vampire, Elf, etc),

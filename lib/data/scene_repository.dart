@@ -12,6 +12,12 @@ class SceneRepository {
   static const List<String> _sceneFiles = [
     'assets/scenes/prologue.json',
     'assets/scenes/chapter1_harvest.json',
+    // PROBLEM: Chapter 1 previously ended by returning to prologue_start,
+    // making the Harvest Failure a loop instead of a world event with a
+    // consequence. SOLUTION: Event 1 lives in its own scene graph and is
+    // loaded beside the existing chapters, so Chapter 1 can lead into the
+    // Salt Road rebellion without hard-coding narrative flow in the UI.
+    'assets/scenes/event1_rebellion.json',
   ];
 
   Future<void> loadAll() async {

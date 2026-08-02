@@ -8,9 +8,9 @@ in scene JSON and later scenes react to its trust, status, or earlier promise.
 | --- | --- | --- | --- |
 | Mira Talbot | Harvest confession, later farm-network callback | redemption → friendship/estrangement → slow-burn love or institutional revenge | Act 1 playable |
 | Old Hendrik | roadside shelter, warning, plague preparation and medicine choice | mentor → paternal honesty → survival or grief | Core route playable |
-| Yeva Solt | rebellion stance, post-rebellion ledger-letter | transaction → trust → partnership/bitter respect | Act 1 playable |
-| Petra Voss | rebellion stance, private post-rebellion question | rivalry → intimacy/betrayal → reluctant alliance | Act 1 playable |
-| Tamsin Bell-Ringer | rumor scenes, Northern-war warning | source → dangerous distortion → truth-versus-comfort conflict | Act 1 playable |
+| Yeva Solt | rebellion stance, ledger-letter, market/orphanage route | transaction → trust → partnership/bitter respect | Act 1–2 playable |
+| Petra Voss | rebellion stance, rooftop family conversation | rivalry → intimacy/betrayal → reluctant alliance | Act 1–2 playable |
+| Tamsin Bell-Ringer | rumor scenes, bell-tower custom and truth promise | source → dangerous distortion → truth-versus-comfort conflict | Act 1–2 playable |
 | Ser Aldous Fenn | war warning, rescue/death, succession eulogy, Legion/capstone callback | loyalty → fracture → sacrifice or survival | Core route playable |
 | Lady Ysolde Marrow | public claim, Corenna scene, succession outcome | political rivalry → legitimacy reveal → enemy/uneasy contact | Act 1 playable |
 | Ithrenel Dusk / Sorne | Temple lore and capstone relic callback | old knowledge → guarded trust → payoff | Partial playable |

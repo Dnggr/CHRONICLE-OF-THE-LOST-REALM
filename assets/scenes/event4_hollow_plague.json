@@ -70,6 +70,9 @@
     "illustrationId": null,
     "narrative": "A royal carriage passes the Hollow road under black curtains. The King is ill, the driver says, and the Capital has begun to count heirs aloud. The plague has reached farther than any cart, even where no fever followed.",
     "narrativeVariants": {"flags.plague_hollow_reaches_outcome == 'contained'": "A royal carriage passes the Hollow road under black curtains. The King has grown frail, the driver says, and the Capital has begun to count heirs aloud. Even a contained plague leaves fear to travel on its own."},
-    "choices": [{"id":"plague_to_succession","label":"Travel to the Capital as the court gathers","outcomeSuccessNode":"event5_kings_health","effects":{"run_history":"Travelled to the Capital as the succession crisis began"}}]
+    "choices": [
+      {"id":"plague_royal_homecoming","label":"Return to the Capital before the court seals its doors","condition":"origin.royal == true","outcomeSuccessNode":"royal_elowen_night","effects":{"run_history":"Returned to the Capital for a private audience with Elowen"}},
+      {"id":"plague_to_succession","label":"Travel to the Capital as the court gathers","condition":"origin.royal == false","outcomeSuccessNode":"event5_kings_health","effects":{"run_history":"Travelled to the Capital as the succession crisis began"}}
+    ]
   }
 ]

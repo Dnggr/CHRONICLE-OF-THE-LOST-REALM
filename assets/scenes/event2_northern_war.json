@@ -91,8 +91,9 @@
       "flags.sun_temple_destroyed == true": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Beyond them, the ground where the Sun Temple stood remains empty. Grief has begun to gather there into something with a voice."
     },
     "choices": [
-      {"id":"war_to_schism","label":"Travel to the empty ground of the Sun Temple","condition":"flags.sun_temple_destroyed == true","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Followed the war's aftermath to the ruined Sun Temple"}},
-      {"id":"war_to_plague","label":"Follow the returning soldiers toward the Hollow Reaches","condition":"flags.sun_temple_destroyed == false","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed reports of sickness from the northern camps"}}
+      {"id":"war_royal_aftercare","label":"Keep the night watch with Aldous before choosing the next road","condition":"origin.royal == true","outcomeSuccessNode":"royal_border_watch","effects":{"run_history":"Kept a private night watch with Ser Aldous after the Northern War"}},
+      {"id":"war_to_schism","label":"Travel to the empty ground of the Sun Temple","condition":"origin.royal == false","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Followed the war's aftermath to the ruined Sun Temple"}},
+      {"id":"war_to_plague","label":"Follow the returning soldiers toward the Hollow Reaches","condition":"origin.royal == false","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed reports of sickness from the northern camps"}}
     ]
   }
 ]

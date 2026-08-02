@@ -1,0 +1,50 @@
+[
+  {
+    "sceneId": "salt_road_yeva_market",
+    "illustrationId": null,
+    "narrative": "Salt Road market wakes from the center outward. First the bakers lift their shutters, then the fishwives shout at gulls, then everyone who owes money begins walking as though they have nowhere urgent to be.\n\nBefore trade starts, each stallholder breaks a thumb-sized corner from their first loaf and leaves it on the shared stone by the gate. The custom is called road-bread. No one agrees where it began. Some say it is for travelers. Some say it is for the dead. Yeva says it is for neither.\n\n@Yeva: It is for memory. A road that forgets hunger becomes very expensive to walk.\n\nShe is not dressed as a guildmistress today. Her sleeves are rolled, her hair pinned badly, and she is trying to mend a child's satchel with a needle clearly made for accounts rather than leather.\n\n@You: You could pay someone to do that.\n@Yeva: I could. Then the child would learn every problem is solved by finding a poorer person to hold it.\n\nThe satchel has the name Nella sewn inside. Yeva notices you notice, and her expression closes by one careful degree.",
+    "choices": [
+      {"id":"yeva_help_satchel","label":"Take the satchel and show Yeva the stitch she is missing","outcomeSuccessNode":"salt_road_yeva_debt","effects":{"npc.yeva_solt.trust":2,"run_history":"Helped Yeva Solt mend a child's satchel at the Salt Road market"}},
+      {"id":"yeva_ask_orphans","label":"Ask why a guildmistress knows the child's name","outcomeSuccessNode":"salt_road_yeva_debt","effects":{"npc.yeva_solt.trust":1,"run_history":"Asked Yeva Solt about the children she quietly supports"}}
+    ]
+  },
+  {
+    "sceneId": "salt_road_yeva_debt",
+    "illustrationId": null,
+    "narrative": "Yeva carries the repaired satchel to a narrow house behind the dye works. Inside, six children are reciting sums around one long table. The oldest girl, Nella, takes the satchel without surprise.\n\n@Nella: Did you win at bargaining?\n@Yeva: I lost terribly. I had to provide a meal and admit someone else was right.\n\nThe children laugh because they have heard this before. Yeva looks almost embarrassed by their ease with her.\n\nOutside, she gives you the truth in the narrow space between two buildings where no guild clerk can overhear.\n\n@Yeva: Their parents died on the road two winters ago. The guild paid the burial fees and called the rest 'unrecoverable loss.' I disliked the phrasing.\n@You: So you kept them.\n@Yeva: No. People are not ledgers. I pay for the house. They keep themselves. That distinction matters.\n\nShe looks toward the door.\n\n@Yeva: On the Salt Road we say, _a debt unpaid grows teeth_. Most people mean coin. I mean everything else.",
+    "choices": [
+      {"id":"yeva_keep_secret","label":"Promise the children will not become a political story","outcomeSuccessNode":"salt_road_departure","effects":{"npc.yeva_solt.trust":3,"world_flags.yeva_orphanage_secret":true,"reputation.honor":1,"run_history":"Protected Yeva Solt's quiet support of road-orphans"}},
+      {"id":"yeva_make_public","label":"Tell Yeva the guild should publicly fund the house","outcomeSuccessNode":"salt_road_departure","effects":{"npc.yeva_solt.trust":-1,"world_flags.yeva_orphanage_public":true,"reputation.commonfolk":1,"run_history":"Urged Yeva Solt to make the guild support for road-orphans public"}}
+    ]
+  },
+  {
+    "sceneId": "salt_road_petra_roof",
+    "illustrationId": null,
+    "narrative": "You find Petra on the roof of the old customs house, sitting with her boots over the edge and a stolen pear in one hand. Below, the market is still dark. Above, the first crows are arguing with the chimneys.\n\n@Petra: You are late.\n@You: You did not say where to meet you.\n@Petra: Exactly. It was an intelligence test. You passed by finding a roof. That is at least interesting.\n\nShe cuts the pear in half and offers you the larger piece before catching herself. For one heartbeat, she looks annoyed at her own kindness.\n\n@Petra: My father used to say the Road has two rules. Never trust a dry well, and never trust a person who calls themselves indispensable. He was right about wells.\n\nShe watches a line of carriers begin to form below.\n\n@Petra: Yeva thinks loyalty is a debt you repay. I think it is a wager. You put your heart on the table and wait to see who counts the cards. Which of us sounds worse?",
+    "choices": [
+      {"id":"petra_choose_wager","label":"Tell Petra a wager is honest if both people know the stakes","outcomeSuccessNode":"salt_road_petra_truth","effects":{"npc.petra_voss.trust":2,"world_flags.petra_route_tone":"honest_rivalry","run_history":"Answered Petra Voss without pretending trust is easy"}},
+      {"id":"petra_choose_debt","label":"Tell Petra loyalty begins when someone stops keeping score","outcomeSuccessNode":"salt_road_petra_truth","effects":{"npc.petra_voss.trust":1,"world_flags.petra_route_tone":"challenged","run_history":"Challenged Petra Voss's view of loyalty"}}
+    ]
+  },
+  {
+    "sceneId": "salt_road_petra_truth",
+    "illustrationId": null,
+    "narrative": "Petra bites the pear and considers your answer as if it has offered terms.\n\n@Petra: That is irritatingly reasonable. I was hoping you would say something grand so I could make fun of it.\n\nFor a while, she tells you about her mother sewing tally marks into coat linings because collectors could seize a ledger but not a hem. She tells you her father left for the capital once and returned with a better coat and no stories. She does not say he returned alone. She does not need to.\n\n@Petra: People say I want Yeva's chair. Maybe I do. But mostly I want to sit somewhere no one can tell me I am useful only when I win.\n\nThe sun reaches the street. Petra stands.\n\n@Petra: There. You have had the honest version. Do not get used to it.",
+    "choices": [{"id":"petra_departure","label":"Leave Petra the roof and take the northern road","outcomeSuccessNode":"salt_road_departure","effects":{"npc.petra_voss.trust":2,"run_history":"Heard Petra Voss speak honestly about her family and ambition"}}]
+  },
+  {
+    "sceneId": "salt_road_bell_custom",
+    "illustrationId": null,
+    "narrative": "Tamsin climbs the bell tower with a lantern in one hand and no fear of falling in the other. Halfway up, she explains the road's oldest bell custom.\n\n@Tamsin: One bell for a wedding. Two for a fire. Three for a body on the road. Four means nobody knows what happened, which is the bell people listen to hardest.\n\nAt the top, she shows you the snapped rope from the uprising. Someone has tied it back together with strips of blue cloth. Each strip bears a name, a date, or a tiny request written in charcoal.\n\n@Tamsin: That one says, 'Bring Mara home.' Mara has been dead six years. That is the trouble with a road. It teaches people absence has an address.\n\nShe taps the bell once with her knuckle. The sound is small, almost private.\n\n@Tamsin: You did not hear this from me, but your northern war is coming. I thought you should know what four bells sounds like before you hear it for real.",
+    "choices": [
+      {"id":"tamsin_truth","label":"Ask Tamsin to tell the truth even when it costs her a good story","outcomeSuccessNode":"salt_road_departure","effects":{"npc.tamsin_bell_ringer.trust":2,"world_flags.tamsin_truth_promise":true,"run_history":"Asked Tamsin the Bell-Ringer to value truth over a good story"}},
+      {"id":"tamsin_rumor","label":"Ask Tamsin who is buying the funeral cloth","outcomeSuccessNode":"salt_road_departure","effects":{"npc.tamsin_bell_ringer.trust":1,"world_flags.war_rumor_heard":true,"run_history":"Pressed Tamsin for the source of her war rumor"}}
+    ]
+  },
+  {
+    "sceneId": "salt_road_departure",
+    "illustrationId": null,
+    "narrative": "By dawn, the road is itself again: wheels, curses, bread, bargains, and people carrying more than they can name. You leave with a new idiom lodged in your mind: _a road remembers the weight, not the wagon_.\n\nIt is what the carriers say when a powerful person passes through and believes they have changed everything. The road keeps the ruts. The people keep the cost.\n\nAhead, the Northern Reach waits beneath a different sky.",
+    "choices": [{"id":"salt_road_to_north","label":"Take the road north","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Left the Salt Road carrying its people, customs, and hard lessons"}}]
+  }
+]

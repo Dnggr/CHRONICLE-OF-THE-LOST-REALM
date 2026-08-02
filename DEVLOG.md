@@ -9,6 +9,81 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 16 — Salt Road culture and NPC dialogue expansion
+
+**Problem:** The Salt Road had event stakes but not enough ordinary culture or
+extended conversation to feel like a place its people inhabit between crises.
+
+**Solution:**
+- Added a culture route with road-bread, carrier idioms, bell codes, family
+  history, and the market's daily rituals.
+- Expanded Yeva, Petra, and Tamsin into longer player-facing scenes with
+  dialogue, private wounds, and relationship-changing choices.
+- Connected the existing post-Rebellion letters into this route before Event 2.
+
+--------------------------------------------------------------------------
+## Session 15 — Mira Talbot route, Act 2 and campaign audit
+
+**Audit:** scene JSON parses; every choice target resolves; every referenced
+NPC id exists in the registry. The only no-choice nodes are deliberate ending
+states, so no transition was changed during the top-to-bottom review.
+
+**Solution:**
+- Added Mira's post-Rebellion route: a return to Talbot farm, time with her
+  brother Tovin, a kitchen conversation, a farmers' meeting, and a departure
+  shaped by trust.
+- Added an estranged branch that permits apology or defensiveness but does not
+  grant instant forgiveness.
+- The farmers' meeting includes a visible confrontation and tracks whether the
+  player secured written terms or drove the crown out by force.
+
+--------------------------------------------------------------------------
+## Session 14 — Ser Aldous route, Act 1
+
+**Problem:** Aldous appeared at major plot checkpoints, but the player had not
+shared enough ordinary time, private disagreement, or visible risk with him to
+make the later war/succession outcomes personal.
+
+**Solution:**
+- Added Royal Heir-only scenes after Events 1, 2, 4, and 5: a Salt Road tavern,
+  confrontation and aftermath, a battlefield watch, Elowen's private counsel,
+  and a Capital vigil.
+- Added detailed physical action and player dialogue to the tavern attack, with
+  townsfolk reacting on-screen and mercy/intimidation consequences preserved.
+- Updated the production checklist to mark Aldous Act 1 as playable while
+  retaining later-event resolution beats as remaining work.
+
+--------------------------------------------------------------------------
+## Session 13 — Royal Heir personal prologue
+
+**Problem:** Royal Heir had a political premise but entered the shared road
+after one scene, before the player could feel the childhood, family, and court
+history that make its later relationships matter.
+
+**Solution:**
+- Added a reading-first Royal Heir route: birth context, the mother's hidden
+  notebook, childhood dialogue with Ser Aldous Fenn, a family dinner with Lady
+  Ysolde Marrow, and the departure from court.
+- The remembered Aldous/Ysolde responses now write their existing trust values,
+  allowing this personal history to carry into later event scenes.
+- Added `docs/production_priorities.md`, the requested prioritized production
+  list of complete content, route work, systems, and device-playtesting tasks.
+
+--------------------------------------------------------------------------
+## Session 12 — Literary origin passes and quieter choices
+
+**Problem:** The origin openings had different premises but too little lived-in
+detail, while the choice controls were visually heavy and did not provide clear
+press feedback.
+
+**Solution:**
+- Deepened all seven origin openings with a distinct personal memory, sensory
+  image, and private tension before the shared road story begins.
+- Replaced the oval, icon-led choice button with compact text-first rows that
+  animate on press and keep the prose visually dominant.
+- Added an unobtrusive text notice at actual major-event transition scenes.
+
+--------------------------------------------------------------------------
 ## Session 11 — Reading-first NPC route foundation
 
 **Problem:** Named NPCs existed in data and major-event scenes, but most did

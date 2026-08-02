@@ -62,6 +62,34 @@ summaries, not private or verbatim chat transcripts.
 - Added the first post-rebellion reading interlude and `docs/npc_route_matrix.md`
   to distinguish currently playable NPC beats from the NPC-route backlog.
 
+## 2026-08-02 — Literary depth and minimal interaction direction
+
+- The user wants original, literary dark-fantasy prose with richer lore,
+  distinct origin voices, and emotional character interiority; do not imitate
+  living or copyrighted authors directly.
+- The interface should be minimalist and responsive: prose-led choice rows with
+  motion feedback, not oversized ornamental buttons, plus quiet non-blocking
+  notice text when a major world event is close.
+
+## 2026-08-02 — Royal Heir first deep-route pass
+
+- Chose Royal Heir as the next origin to deepen because it naturally connects
+  Ser Aldous Fenn, Lady Ysolde Marrow, family history, court lore, and the
+  Succession Crisis.
+- Added a birth/childhood/family route before the shared road, with remembered
+  choices that affect Aldous and Marrow trust.
+- Added `docs/production_priorities.md` as the detailed, prioritized record of
+  completed work and next production tasks, per the user's request.
+
+## 2026-08-02 — Ser Aldous reading-heavy route, Act 1
+
+- Added Royal Heir-exclusive Aldous scenes after Events 1, 2, 4, and 5. They
+  cover shared time with townsfolk, a close tavern attack, aftermath, war
+  watch, Elowen's counsel, and a final Capital vigil.
+- The tavern scene makes the player's physical actions, spoken dialogue, and
+  the surrounding townsfolk's responses explicit; mercy and intimidation carry
+  separate trust/reputation consequences.
+
 ## 2026-08-02 — Complete major-event spine
 
 - Interpreted the request to implement all events as completing the remaining
@@ -71,3 +99,21 @@ summaries, not private or verbatim chat transcripts.
   surviving run or route a fallen realm to the capstone.
 - Updated the author timeline and README to show Events 0–8 as the complete
   major spine. Minor catalog events remain future optional content.
+
+## 2026-08-03 — Mira Talbot route, Act 2
+
+- Audited the campaign from the prologue through the endings: scene JSON,
+  targets, NPC ids, and route gates are valid; only deliberate final-ending
+  scenes have no choices.
+- Added an Event 1 follow-up route for high-trust and estranged Mira states:
+  returning to Talbot farm, family context with Tovin, a farmers' cooperative
+  conflict, and an unresolved estrangement path. The route records friendship,
+  defiance, or estrangement for later prose.
+
+## 2026-08-03 — Salt Road culture and dialogue route
+
+- Added a reading-heavy Salt Road route for Yeva Solt, Petra Voss, and Tamsin
+  after the Rebellion: market road-bread, a guild-supported orphan house,
+  carrier-family history, bell codes, and recurring local idioms.
+- The route uses longer player/NPC dialogue and records relationship decisions
+  about Yeva's secret support, Petra's view of loyalty, and Tamsin's truth.

@@ -71,6 +71,9 @@
     "illustrationId": null,
     "narrative": "The realm has a new balance of power, not peace. On the western horizon, ships from across the Salt Sea are reported where no trading fleet should be.",
     "narrativeVariants": {"flags.succession_crisis_outcome == 'civil_war'": "The realm has a new balance of power, not peace. Its army is divided, its gates are closed, and ships from across the Salt Sea are reported where no trading fleet should be."},
-    "choices": [{"id":"succession_to_invasion","label":"Travel west toward the strange sails","outcomeSuccessNode":"event6_strange_sails","effects":{"run_history":"Travelled west as strange ships gathered beyond the Salt Sea"}}]
+    "choices": [
+      {"id":"succession_royal_vigil","label":"Keep vigil with Aldous before the realm calls you away","condition":"origin.royal == true","outcomeSuccessNode":"royal_last_vigil","effects":{"run_history":"Kept a final Capital vigil with Ser Aldous"}},
+      {"id":"succession_to_invasion","label":"Travel west toward the strange sails","condition":"origin.royal == false","outcomeSuccessNode":"event6_strange_sails","effects":{"run_history":"Travelled west as strange ships gathered beyond the Salt Sea"}}
+    ]
   }
 ]

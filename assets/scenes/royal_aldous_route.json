@@ -1,0 +1,48 @@
+[
+  {
+    "sceneId": "royal_salt_road_tavern",
+    "illustrationId": null,
+    "narrative": "You leave the signet under your collar and go alone to the smallest tavern on the Salt Road. Its door sticks before it opens. Inside, you sit at the bar where the varnish has been rubbed pale by a hundred tired elbows.\n\nA cooper argues gently with the innkeeper about the price of onions. A woman in a miller's apron counts three coppers twice before buying one bowl of stew. Two cart boys are sharing a mug of weak beer and pretending it is adulthood.\n\nNo one bows. No one knows what you are. For a few quiet minutes, you are simply someone watching the townsfolk try to make tomorrow possible.\n\nSer Aldous takes the stool beside you in a rain-dark cloak. He orders tea, which is how you know he is worried.\n\n@Aldous: You should not be here without a guard.\n@You: I am here without a guard. That seems difficult for you to ignore.\n@Aldous: It is my best quality and my worst one.\n\nA man at the far table hears the word guard. His hand slides under his coat.",
+    "choices": [
+      {"id":"royal_tavern_talk","label":"Keep talking to Aldous and trust the room to stay quiet","outcomeSuccessNode":"royal_tavern_attack","effects":{"npc.ser_aldous_fenn.trust":1,"run_history":"Shared an unguarded Salt Road tavern with Ser Aldous Fenn"}},
+      {"id":"royal_tavern_leave","label":"Leave before the stranger decides what he knows","outcomeSuccessNode":"royal_tavern_after","effects":{"run_history":"Left the Salt Road tavern before trouble began"}}
+    ]
+  },
+  {
+    "sceneId": "royal_tavern_attack",
+    "illustrationId": null,
+    "narrative": "The stranger stands too quickly. His chair scrapes the floor. Steel clears his sleeve with the ugly, hurried sound of a bad decision.\n\n@Stranger: Aldric's pup. My brother died guarding a tax wagon while your family ate off silver.\n\nThe cooper ducks beneath the table. The miller's wife pulls the cart boys behind her. Aldous rises, but you are closer.\n\nYou push away from the bar, unsheathe your sword, and catch the stranger's first cut on the flat of your blade. The impact jars your arm to the shoulder. He lunges again. You turn inside the swing, drive your hilt into his wrist, and strike him hard across the chest with the guard of your sword. He stumbles into the table, breathless, the knife clattering away.\n\n@You: I am not going to let you hurt them.\n\nHis eyes are wet with rage, not courage. Aldous watches you, waiting to see what kind of ruler you become when no court is looking.",
+    "choices": [
+      {"id":"royal_tavern_mercy","label":"Lower your sword and ask the man his brother's name","outcomeSuccessNode":"royal_tavern_after","effects":{"npc.ser_aldous_fenn.trust":2,"reputation.honor":2,"world_flags.royal_tavern_mercy":true,"run_history":"Showed mercy to a Salt Road attacker and heard his brother's name"}},
+      {"id":"royal_tavern_threat","label":"Hold the blade to his throat and order him to remember your face","outcomeSuccessNode":"royal_tavern_after","effects":{"npc.ser_aldous_fenn.trust":-1,"reputation.infamy":1,"world_flags.royal_tavern_threat":true,"run_history":"Threatened a Salt Road attacker in front of the townsfolk"}}
+    ]
+  },
+  {
+    "sceneId": "royal_tavern_after",
+    "illustrationId": null,
+    "narrative": "Afterward, the tavern does not become silent. That would be easier. The cooper puts his chair upright. The miller's wife returns the cart boys to their stew. Someone begins arguing about onions again, softer this time.\n\nAldous places a clean cloth over the bruise rising on your knuckles.\n\n@Aldous: Your father would have called that disorder.\n@You: And you?\n@Aldous: I think it was grief with a knife in its hand. Those are not the same thing.\n\nHe does not excuse the attack. He does not ask you to excuse the realm that made it possible. He only sits beside you until the tea goes cold.",
+    "choices": [{"id":"royal_tavern_north","label":"Ride north with Aldous at first light","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Left the Salt Road with Aldous's hard-earned counsel"}}]
+  },
+  {
+    "sceneId": "royal_border_watch",
+    "illustrationId": null,
+    "narrative": "The battlefield has been cleared badly. There are still bootprints in the mud, broken arrows under the grass, and a kettle boiling over a fire no one remembers to tend. You and Aldous take the night watch because neither of you has found a reason to sleep.\n\nIf he survived, his bandaged hand rests beside yours on the ruined wall. If he did not, you keep watch beside the space where he should have been, and the silence is the answer to every question you did not ask in time.\n\n@Aldous: I believed loyalty meant holding the line.\n@You: And now?\n@Aldous: Now I think it means knowing when the line is killing the people behind it.\n\nFar north, someone begins singing in a language you do not know. The tune carries over the dark fields like a promise neither army has earned.",
+    "narrativeVariants": {"npc.ser_aldous_fenn.status == 'dead'": "The battlefield has been cleared badly. There are still bootprints in the mud, broken arrows under the grass, and a kettle boiling over a fire no one remembers to tend. You take the night watch beside the space where Aldous should have been.\n\nYou remember a man in a tavern calling you Aldric's pup. You remember Aldous saying grief was not the same thing as disorder. The silence is the answer to every question you did not ask in time.\n\nFar north, someone begins singing in a language you do not know. The tune carries over the dark fields like a promise neither army has earned."},
+    "choices": [
+      {"id":"royal_border_to_schism","label":"Carry the watch's lesson to the ruined Sun Temple","condition":"flags.sun_temple_destroyed == true","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Carried Aldous's border lesson toward the ruined Sun Temple"}},
+      {"id":"royal_border_to_plague","label":"Follow the sick soldiers toward the Hollow Reaches","condition":"flags.sun_temple_destroyed == false","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed the wounded road toward the Hollow Reaches"}}
+    ]
+  },
+  {
+    "sceneId": "royal_elowen_night",
+    "illustrationId": null,
+    "narrative": "The Capital smells of lamp oil, wet wool, and boiled vinegar. The palace has closed half its doors against the plague, but Elowen receives you in a room without servants. She is mending a torn glove with black thread.\n\n@Elowen: Your mother hated that I taught you politics. She thought it would make you hard.\n@You: Did it?\n@Elowen: No. Hard people do not ask that question.\n\nShe tells you the King is failing. She tells you Ysolde has been counting votes in rooms where grief has not yet been invited. Then she sets the needle down.\n\n@Elowen: You have seen hunger. You have seen war. When the crown asks you to choose between mercy and order, remember that people will call either word a virtue after they have made it hurt someone else.",
+    "choices": [{"id":"royal_elowen_continue","label":"Ask Elowen to stand with you when the court gathers","outcomeSuccessNode":"event5_kings_health","effects":{"npc.dowager_regent_elowen.trust":2,"run_history":"Asked Dowager Regent Elowen for honest counsel before the succession"}}]
+  },
+  {
+    "sceneId": "royal_last_vigil",
+    "illustrationId": null,
+    "narrative": "The palace chapel has no crowd tonight. The old King is buried, the new order is named, and the candles have burned low enough to show every crack in the stone. Aldous stands beside the memorial basin in full uniform, though no one asked him to.\n\n@Aldous: When you were small, you asked whether a crown made a person important.\n@You: What did you say?\n@Aldous: I said it made them responsible. I have spent years hoping those were the same thing.\n\nHe looks at you without ceremony.\n\n@Aldous: Whatever comes from the west, do not become a symbol so polished that no one can touch you. Let people tell you when you are wrong. Let them survive telling you.\n\nOutside, the sea wind worries the chapel doors. You both hear it. Neither of you says what it sounds like.",
+    "choices": [{"id":"royal_vigil_west","label":"Carry Aldous's warning toward the western coast","outcomeSuccessNode":"event6_strange_sails","effects":{"npc.ser_aldous_fenn.trust":2,"run_history":"Carried Ser Aldous Fenn's final Capital warning westward"}}]
+  }
+]

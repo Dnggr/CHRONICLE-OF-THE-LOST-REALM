@@ -11,6 +11,9 @@ class SceneRepository {
 
   static const List<String> _sceneFiles = [
     'assets/scenes/prologue.json',
+    'assets/scenes/royal_heir_route.json',
+    'assets/scenes/royal_aldous_route.json',
+    'assets/scenes/mira_talbot_route.json',
     'assets/scenes/chapter1_harvest.json',
     // PROBLEM: Chapter 1 previously ended by returning to prologue_start,
     // making the Harvest Failure a loop instead of a world event with a
@@ -19,6 +22,7 @@ class SceneRepository {
     // Salt Road rebellion without hard-coding narrative flow in the UI.
     'assets/scenes/event1_rebellion.json',
     'assets/scenes/route_interludes.json',
+    'assets/scenes/salt_road_culture_route.json',
     // The authored early-campaign spine. Event 3's file is loaded for
     // validation, but its only entry choice is gated by sun_temple_destroyed.
     'assets/scenes/event2_northern_war.json',

@@ -14,18 +14,18 @@
     "sceneId": "interlude_yeva_letter",
     "illustrationId": null,
     "narrative": "Yeva's letter lists grain, wages, roofs, and the names of workers who will need winter advances. Only at the bottom, after the arithmetic, does she write one line without a number beside it.\n\n@Yeva: I do not know whether I did right by them. I know what it cost. There is a difference, and I am tired of pretending there is not.\n\nThe ink has smudged once, then been blotted carefully dry. Her vulnerability arrives disguised as bookkeeping, because that is the language she trusts.",
-    "choices": [{"id":"interlude_yeva_continue","label":"Fold the letter and ride north at dawn","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Carried Yeva Solt's careful honesty toward the Northern Reach"}}]
+    "choices": [{"id":"interlude_yeva_continue","label":"Meet Yeva at the market before riding north","outcomeSuccessNode":"salt_road_yeva_market","effects":{"run_history":"Carried Yeva Solt's careful honesty toward the Northern Reach"}}]
   },
   {
     "sceneId": "interlude_petra_letter",
     "illustrationId": null,
     "narrative": "Petra's note contains no signature, but the last line gives her away.\n\n@Petra: I have spent so long making certain no one could leave me first that I may have become very good at leaving. Do not mistake this for an apology. I have standards.\n\nOutside, the broken bell finally rings once. It is not a beautiful sound. It is a sound made by someone refusing to let silence win.",
-    "choices": [{"id":"interlude_petra_continue","label":"Keep Petra's question without answering it aloud","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Carried Petra Voss's lonely question toward the Northern Reach"}}]
+    "choices": [{"id":"interlude_petra_continue","label":"Find Petra before the market wakes","outcomeSuccessNode":"salt_road_petra_roof","effects":{"run_history":"Carried Petra Voss's lonely question toward the Northern Reach"}}]
   },
   {
     "sceneId": "interlude_tamsin_rumor",
     "illustrationId": null,
     "narrative": "Tamsin says she has heard nothing. Then she pours you a drink and tells you everything.\n\n@Tamsin: You did not hear this from me, which is fortunate, because I only heard it from a man who swore he was dead when it happened. Northern officers are buying funeral cloth. That means they expect a war, or they expect to make one.\n\nFor once, she does not smile after delivering the punch line.",
-    "choices": [{"id":"interlude_tamsin_continue","label":"Thank Tamsin and take the northern road","outcomeSuccessNode":"event2_envoy","effects":{"world_flags.war_rumor_heard":true,"run_history":"Carried Tamsin's warning toward the Northern Reach"}}]
+    "choices": [{"id":"interlude_tamsin_continue","label":"Walk with Tamsin to the bell tower","outcomeSuccessNode":"salt_road_bell_custom","effects":{"world_flags.war_rumor_heard":true,"run_history":"Carried Tamsin's warning toward the Northern Reach"}}]
   }
 ]

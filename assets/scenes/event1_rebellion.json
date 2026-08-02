@@ -104,7 +104,10 @@
       "flags.rebellion_salt_road_outcome == 'regime_change'": "A crown messenger rides hard toward the Capital as a new guild-council banner rises over the toll gate. Ahead, the Northern Reach will hear that House Aldric lost a road without losing a war."
     },
     "choices": [
-      {"id":"rebellion_to_northern_war","label":"Take one last evening on the Salt Road before heading north","outcomeSuccessNode":"interlude_salt_road_letters","effects":{"run_history":"Stayed one last evening on the Salt Road before travelling north"}}
+      {"id":"rebellion_to_royal_route","label":"Spend the last Salt Road evening among the townsfolk","condition":"origin.royal == true","outcomeSuccessNode":"royal_salt_road_tavern","effects":{"run_history":"Stayed among Salt Road townsfolk before travelling north"}},
+      {"id":"rebellion_visit_mira","label":"Take the quieter road back to Talbot farm","condition":"npc.mira_talbot.trust >= 3","outcomeSuccessNode":"mira_return_home","effects":{"run_history":"Returned to Talbot farm after the Salt Road rebellion"}},
+      {"id":"rebellion_face_mira","label":"Take the road past Talbot farm, even knowing Mira may see you","condition":"npc.mira_talbot.status == 'estranged'","outcomeSuccessNode":"mira_estranged_road","effects":{"run_history":"Faced the road past the estranged Talbot farm"}},
+      {"id":"rebellion_to_northern_war","label":"Take one last evening on the Salt Road before heading north","condition":"origin.royal == false","outcomeSuccessNode":"interlude_salt_road_letters","effects":{"run_history":"Stayed one last evening on the Salt Road before travelling north"}}
     ]
   }
 ]

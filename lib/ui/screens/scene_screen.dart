@@ -161,6 +161,7 @@ class _LogEntryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final alreadyAnswered = entry.chosenLabel != null;
+    final eventNotice = _WorldEventNotice.forScene(entry.sceneId);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -200,6 +201,7 @@ class _LogEntryView extends StatelessWidget {
             // HERE, then the live choice buttons.
             if (showRollBanner && controller.lastCheckResult != null)
               _CheckResultBanner(result: controller.lastCheckResult!),
+            if (eventNotice != null) _WorldEventNotice(text: eventNotice),
             const SizedBox(height: 8),
             ...controller.availableChoices.map(
               (choice) => ChoiceButton(
@@ -212,6 +214,49 @@ class _LogEntryView extends StatelessWidget {
           ],
           if (alreadyAnswered)
             Divider(color: Colors.brown.withOpacity(0.15), height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kept deliberately small: this is a breath before a major turn, not a
+/// quest marker or a warning modal. The story itself remains the context.
+class _WorldEventNotice extends StatelessWidget {
+  final String text;
+
+  const _WorldEventNotice({required this.text});
+
+  static const _notices = <String, String>{
+    'event1_coda': 'Approaching world event · The War with the Northern Reach',
+    'event2_coda': 'The realm is changing again.',
+    'event3_coda': 'Approaching world event · Sickness in the Hollow Reaches',
+    'event4_coda': 'Approaching world event · The Succession Crisis',
+    'event5_coda': 'Approaching world event · Strange sails in the west',
+    'event6_coda': 'Approaching world event · The Dark Legion',
+    'event7_realm_falls': 'The final world event is approaching.',
+  };
+
+  static String? forScene(String sceneId) => _notices[sceneId];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 4),
+      child: Row(
+        children: [
+          Container(width: 18, height: 1, color: Colors.brown[400]),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text.toUpperCase(),
+              style: GoogleFonts.merriweather(
+                fontSize: 10,
+                letterSpacing: 0.9,
+                color: Colors.brown[500],
+              ),
+            ),
+          ),
         ],
       ),
     );

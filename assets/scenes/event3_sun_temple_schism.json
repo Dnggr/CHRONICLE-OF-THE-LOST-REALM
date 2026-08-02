@@ -30,7 +30,7 @@
     "illustrationId": null,
     "narrative": "The factions finally stop pretending they are one congregation. The Ash-Speaker's followers light small lamps around the empty ground. Bellik's followers arrive with chains for the gates they intend to build. Rane reads a decree that makes fear sound like order.",
     "choices": [
-      {"id":"schism_found_order","label":"Stand with the Ash-Speaker and found a new order","outcomeSuccessNode":"event3_new_orthodoxy","effects":{"npc.ash_speaker.trust":3,"npc.halvard_rane.trust":-2,"run_history":"Backed the Ash-Speaker's new religious order"}},
+      {"id":"schism_found_order","label":"Stand with the Ash-Speaker and found a new order","outcomeSuccessNode":"event3_new_orthodoxy","effects":{"npc.ash_speaker.trust":3,"npc.inquisitor_rane.trust":-2,"run_history":"Backed the Ash-Speaker's new religious order"}},
       {"id":"schism_back_zealots","label":"Give Bellik's faction the authority it demands","outcomeSuccessNode":"event3_zealots","effects":{"npc.bellik_thorne.trust":3,"world_flags.schism_zealot_support":true,"reputation.infamy":2,"run_history":"Backed Bellik Thorne's hard-line Temple faction"}},
       {"id":"schism_unify","label":"Ask both sides to keep the ruin open to everyone (Charisma check)","requiredAttribute":"charisma","difficultyClass":16,"outcomeSuccessNode":"event3_new_orthodoxy","outcomeFailNode":"event3_abandoned","effects":{"run_history":"Attempted to keep the Sun Temple ruin open to every mourner"}},
       {"id":"schism_walk","label":"Refuse to make an institution out of a wound","outcomeSuccessNode":"event3_abandoned","effects":{"run_history":"Refused to choose a new keeper for the Sun Temple's grief"}}
@@ -46,7 +46,7 @@
     "sceneId": "event3_zealots",
     "illustrationId": null,
     "narrative": "Bellik's followers take the ground before dawn. By noon, the Ash-Speaker is dead—not by an enemy's blade, but by people who called them insufficiently pure. Rane's decree hangs straight in the windless square.",
-    "choices": [{"id":"schism_record_zealots","label":"Leave the new watchmen to their silence","outcomeSuccessNode":"event3_coda","effects":{"world_flags.sun_temple_schism":"resolved","world_flags.sun_temple_schism_outcome":"zealot_uprising","npc.ash_speaker.status":"dead","npc.halvard_rane.trust":2,"reputation.infamy":2,"run_history":"Saw the Sun Temple schism become a zealot uprising"}}]
+    "choices": [{"id":"schism_record_zealots","label":"Leave the new watchmen to their silence","outcomeSuccessNode":"event3_coda","effects":{"world_flags.sun_temple_schism":"resolved","world_flags.sun_temple_schism_outcome":"zealot_uprising","npc.ash_speaker.status":"dead","npc.inquisitor_rane.trust":2,"reputation.infamy":2,"run_history":"Saw the Sun Temple schism become a zealot uprising"}}]
   },
   {
     "sceneId": "event3_abandoned",

@@ -159,6 +159,9 @@ On death:
 - `docs/story_timeline.md` — author-facing event order, gates, and handoff
   rules. It is not a second runtime timeline system; scene JSON remains the
   source of truth.
+- `docs/npc_route_matrix.md` — author-facing record of which NPC routes have
+  actual recurring scenes today, and the reading-first pacing rule for growing
+  them without pretending a registry entry is a finished personal story.
 - `npc_dialogue_and_routes.txt` — novel-pacing, NPC voice/feelings, and
   relationship-route reference for future scene authors.
 - `PROJECT_MEMORY.md` — concise design-decision record. `AGENTS.md`

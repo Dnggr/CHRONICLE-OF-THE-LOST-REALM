@@ -104,7 +104,7 @@
       "flags.rebellion_salt_road_outcome == 'regime_change'": "A crown messenger rides hard toward the Capital as a new guild-council banner rises over the toll gate. Ahead, the Northern Reach will hear that House Aldric lost a road without losing a war."
     },
     "choices": [
-      {"id":"rebellion_to_northern_war","label":"Follow the crown messenger toward the Northern Reach","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Followed the Salt Road's consequences toward the Northern Reach"}}
+      {"id":"rebellion_to_northern_war","label":"Take one last evening on the Salt Road before heading north","outcomeSuccessNode":"interlude_salt_road_letters","effects":{"run_history":"Stayed one last evening on the Salt Road before travelling north"}}
     ]
   }
 ]

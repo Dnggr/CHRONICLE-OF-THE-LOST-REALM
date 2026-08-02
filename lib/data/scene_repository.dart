@@ -18,6 +18,7 @@ class SceneRepository {
     // loaded beside the existing chapters, so Chapter 1 can lead into the
     // Salt Road rebellion without hard-coding narrative flow in the UI.
     'assets/scenes/event1_rebellion.json',
+    'assets/scenes/route_interludes.json',
     // The authored early-campaign spine. Event 3's file is loaded for
     // validation, but its only entry choice is gated by sun_temple_destroyed.
     'assets/scenes/event2_northern_war.json',

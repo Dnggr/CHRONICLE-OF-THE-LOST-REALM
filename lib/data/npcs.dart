@@ -617,6 +617,28 @@ class Npcs {
     storyHook: 'A mystery thread resolvable as ally, enemy, or nothing at all.',
   );
 
+  // Named people introduced by the major-event spine. Keeping these in the
+  // same registry as Signature NPCs means the Journal shows their real names
+  // (rather than raw ids) and every later route can use one stable npc id.
+  static const List<Npc> eventNpcs = [
+    Npc(id: 'dessa_kirren', displayName: 'Dessa Kirren', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Brave before she feels ready', motivation: 'Keep the Salt Road workers connected', secretOrFlaw: 'Fears she is only useful as a messenger', voicePattern: 'Short, rushed sentences', storyHook: 'Courier who remembers who helped her when the road turned dangerous.'),
+    Npc(id: 'orin_vasse', displayName: 'Field-Medic Orin Vasse', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Triages people, not politics', motivation: 'Keep the casualty count down', secretOrFlaw: 'Treats deserters and enemies in secret', voicePattern: 'Clipped medical calm', storyHook: 'War medic whose trust can turn mercy into a practical alliance.'),
+    Npc(id: 'threska_cael', displayName: 'Warlord Threska Cael', role: NpcRole.enemy, linkedOriginId: null, coreTrait: 'Principled and war-weary', motivation: 'Recover the disputed borderland', secretOrFlaw: 'Distrusts her own war council', voicePattern: 'Precise, untranslated old phrases', storyHook: 'A war antagonist who can become a treaty partner.'),
+    Npc(id: 'ash_speaker', displayName: 'The Ash-Speaker', role: NpcRole.mentor, linkedOriginId: null, coreTrait: 'Earnest and dangerous', motivation: 'Make honest meaning from the Temple loss', secretOrFlaw: 'Fears their followers need certainty more than truth', voicePattern: 'Short, quotable phrases', storyHook: 'Founder or casualty of the Sun Temple Schism.'),
+    Npc(id: 'bellik_thorne', displayName: 'Bellik Thorne', role: NpcRole.enemy, linkedOriginId: null, coreTrait: 'Grief turned absolute', motivation: 'Punish someone for the Temple loss', secretOrFlaw: 'Was once an ordinary mourner', voicePattern: 'Escalates within a sentence', storyHook: 'A radicalization the player can witness before choosing how to answer it.'),
+    Npc(id: 'sorne', displayName: 'Relic-Keeper Sorne', role: NpcRole.wildcard, linkedOriginId: null, coreTrait: 'Protective without being warm', motivation: 'Keep relics from every faction', secretOrFlaw: 'Hid the one relic needed for the capstone', voicePattern: 'Answers questions with questions', storyHook: 'Optional lore and a rare late-game answer.'),
+    Npc(id: 'nella_vey', displayName: 'Apothecary Nella Vey', role: NpcRole.mentor, linkedOriginId: null, coreTrait: 'Exact even in crisis', motivation: 'Understand the returning plague', secretOrFlaw: 'Hides her own illness', voicePattern: 'Corrects grammar under pressure', storyHook: 'The plague’s lore witness and a possible recurring healer contact.'),
+    Npc(id: 'yssa_coombe', displayName: 'Healer Yssa Coombe', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Exhausted, still present', motivation: 'Keep the clinic standing', secretOrFlaw: 'Lost an apprentice to this strain before', voicePattern: 'Instructions instead of comfort', storyHook: 'Quarantine ally whose respect is earned through practical help.'),
+    Npc(id: 'fen_gravedigger', displayName: 'Fen', role: NpcRole.wildcard, linkedOriginId: null, coreTrait: 'Matter-of-fact about death', motivation: 'Get his family out of the Hollow Reaches', secretOrFlaw: 'Resells grave goods to survive', voicePattern: 'Flat and unadorned', storyHook: 'A sympathetic moral complication in the plague route.'),
+    Npc(id: 'corvin_ashby', displayName: 'Corvin Ashby', role: NpcRole.enemy, linkedOriginId: null, coreTrait: 'Certain because he is grieving', motivation: 'Give the plague a purpose', secretOrFlaw: 'Never processed losing his household', voicePattern: 'Sermon cadence', storyHook: 'A personal-scale antagonist answerable with pity or refusal.'),
+    Npc(id: 'corenna_marrow', displayName: 'Corenna Marrow', role: NpcRole.rival, linkedOriginId: null, coreTrait: 'Earnest in a cynical court', motivation: 'Be seen as more than her mother’s instrument', secretOrFlaw: 'Fears she is only an heir-shaped tool', voicePattern: 'Direct and careful', storyHook: 'Can become a respected rival or useful ally after the succession crisis.'),
+    Npc(id: 'halvern_cotte', displayName: 'Regent-Marshal Halvern Cotte', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Institutionalist to a fault', motivation: 'Keep the army and transition intact', secretOrFlaw: 'Prepared contingencies for every disaster', voicePattern: 'Procedure and precedent', storyHook: 'Architect of a regency or a loaded loss during invasion.'),
+    Npc(id: 'reyva_ashkindle', displayName: 'Fleet-Marshal Reyva Ashkindle', role: NpcRole.enemy, linkedOriginId: null, coreTrait: 'Weary, formal resolve', motivation: 'Finish an inherited conquest', secretOrFlaw: 'Leaves supplies for civilians in secret', voicePattern: 'Respectful military formality', storyHook: 'An invader with a credible peace-adjacent channel.'),
+    Npc(id: 'maren_wick', displayName: 'Coastal Elder Maren Wick', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Commanding through experience', motivation: 'Save her coast without abandoning its homes', secretOrFlaw: 'Never speaks of the spouse lost in an older evacuation', voicePattern: 'Orders that sound like care', storyHook: 'Emotional anchor for the invasion’s impossible triage.'),
+    Npc(id: 'torvald_enge', displayName: 'Shipwright Torvald Enge', role: NpcRole.merchant, linkedOriginId: null, coreTrait: 'Practical to the bone', motivation: 'Build faster than ships can be sunk', secretOrFlaw: 'None required; his limits are honest', voicePattern: 'Technical and unromantic', storyHook: 'Resource ally for the coastal defense.'),
+    Npc(id: 'iska_vell', displayName: 'Resistance-Warden Iska Vell', role: NpcRole.ally, linkedOriginId: null, coreTrait: 'Hope in specific measures', motivation: 'Keep a resistance alive', secretOrFlaw: 'Survived a prior cell alone', voicePattern: 'Small achievable next steps', storyHook: 'Late-game ally available even when earlier relationships failed.'),
+  ];
+
   static const List<Npc> all = [
     corwinAshe, tollkeeper, oldFerrick, saoirseBellwether, dennHalloway, piebaldFool,
     miraTalbot, bailiffReyes, yevaSolt, oldHendrik, petraVoss, tamsinBellRinger,
@@ -629,6 +651,7 @@ class Npcs {
     widowAtCrossroads,
     bonesOkonkwoReyes, captainWielding, fenceOttoMarsh, sergeantBramwell,
     twoCoinSelby, unlistedMan,
+    ...eventNpcs,
   ];
 
   static Npc? byId(String id) {

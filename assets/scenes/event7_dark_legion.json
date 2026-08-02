@@ -1,10 +1,240 @@
 [
-  {"sceneId":"event7_omens","illustrationId":null,"narrative":"The omens arrive without spectacle: a well that tastes of iron, sheep standing still in rain, a dawn that refuses to brighten. The Piebald Fool sits on a mile marker, feeding crumbs to no birds.\n\n@Piebald Fool: What was buried, borrowed breath. What was broken, learns to walk.\n\nResistance-Warden Iska Vell is already marking safe houses on a map.","choices":[{"id":"legion_hear_fool","label":"Ask the Fool what is coming","outcomeSuccessNode":"event7_weight","effects":{"world_flags.dark_legion_warning":true,"run_history":"Heard the Piebald Fool's warning before the Dark Legion came"}},{"id":"legion_help_iska","label":"Help Iska establish the first resistance routes","outcomeSuccessNode":"event7_weight","effects":{"npc.iska_vell.trust":2,"world_flags.dark_legion_resistance":true,"run_history":"Helped Iska Vell establish resistance routes"}},{"id":"legion_ignore","label":"Refuse to give a shape to fear","outcomeSuccessNode":"event7_weight","effects":{"run_history":"Refused to act on the Dark Legion omens"}}]},
-  {"sceneId":"event7_weight","illustrationId":null,"narrative":"Before the first Legion column is seen, Iska asks you to name who would still answer your call. The question is quieter than a memorial and harder to survive.\n\n@Iska: We do not need heroes. We need people who kept one promise when it was inconvenient.","narrativeVariants":{"npc.aldous_fenn.status == 'dead'":"Before the first Legion column is seen, a black crow lands on an empty standard. Iska asks you to name who would still answer your call.\n\n@Iska: We do not need heroes. We need people who kept one promise when it was inconvenient."},"choices":[{"id":"legion_call_aldo","label":"Call on Ser Aldous Fenn's old oath","condition":"npc.aldous_fenn.status == 'alive'","outcomeSuccessNode":"event7_incursion","effects":{"world_flags.legion_aldous_support":true,"npc.aldous_fenn.trust":1,"run_history":"Called on Ser Aldous Fenn's remaining oath"}},{"id":"legion_call_mira","label":"Call on Mira Talbot's network of farms","condition":"npc.mira_talbot.trust >= 3","outcomeSuccessNode":"event7_incursion","effects":{"world_flags.legion_mira_support":true,"npc.mira_talbot.trust":1,"run_history":"Called on Mira Talbot's farm network"}},{"id":"legion_call_iska","label":"Trust Iska's resistance even without old allies","outcomeSuccessNode":"event7_incursion","effects":{"world_flags.legion_iska_support":true,"run_history":"Trusted Iska Vell's resistance network"}}]},
-  {"sceneId":"event7_incursion","illustrationId":null,"narrative":"The Dark Legion crosses the fields without raising dust. Its Herald wears a smooth mask and speaks in a voice that sounds painfully familiar, though no one can say whose. The first occupied village goes silent behind shut doors.\n\n@Herald Unbound: You called this realm yours. It did not agree.\n@Iska: Then we make it disagree with you.","choices":[{"id":"legion_resist","label":"Use the safe routes to pull families out before occupation","condition":"flags.dark_legion_resistance == true","outcomeSuccessNode":"event7_occupation","effects":{"world_flags.legion_families_saved":true,"reputation.commonfolk":2,"run_history":"Used resistance routes to evacuate families before occupation"}},{"id":"legion_aldous","label":"Let Aldous hold the bridge while Iska moves civilians","condition":"flags.legion_aldous_support == true","outcomeSuccessNode":"event7_occupation","effects":{"world_flags.legion_bridge_held":true,"run_history":"Let Ser Aldous Fenn hold the bridge against the Dark Legion"}},{"id":"legion_negotiate","label":"Ask the Herald what tribute would halt the advance","outcomeSuccessNode":"event7_bargained","effects":{"world_flags.legion_terms_offered":true,"reputation.honor":-1,"run_history":"Asked the Dark Legion what tribute would halt its advance"}},{"id":"legion_fight","label":"Meet the Legion in the open","outcomeSuccessNode":"event7_occupation","effects":{"run_history":"Met the Dark Legion in open battle"}}]},
-  {"sceneId":"event7_occupation","illustrationId":null,"narrative":"Occupation has no single battle. It is empty market stalls, The Quiet Ones standing beneath awnings, and a child who no longer asks where the missing went. Then a figure in Aldous's ruined armor steps from the fog.\n\n@Once-Ser Aldous: The oath remains. Only its country changed.","narrativeVariants":{"npc.aldous_fenn.status == 'alive'":"Occupation has no single battle. It is empty market stalls, The Quiet Ones standing beneath awnings, and a child who no longer asks where the missing went. Iska lays out three small maps and says there is still one road left."},"choices":[{"id":"legion_mercy_fenn","label":"Remind the echo who Aldous chose to protect","condition":"npc.aldous_fenn.status == 'dead'","outcomeSuccessNode":"event7_repelled","effects":{"world_flags.fenn_memory_honored":true,"reputation.honor":2,"run_history":"Honored Ser Aldous Fenn's memory within the Dark Legion"}},{"id":"legion_kill_fenn","label":"Destroy what remains of Aldous","condition":"npc.aldous_fenn.status == 'dead'","outcomeSuccessNode":"event7_realm_falls","effects":{"world_flags.fenn_echo_destroyed":true,"reputation.infamy":1,"run_history":"Destroyed the corrupted echo of Ser Aldous Fenn"}},{"id":"legion_last_route","label":"Use every resistance route in one last coordinated strike","condition":"flags.legion_families_saved == true","outcomeSuccessNode":"event7_repelled","effects":{"world_flags.legion_strike_succeeded":true,"run_history":"Coordinated the resistance's last strike against the Dark Legion"}},{"id":"legion_endure","label":"Accept the occupation to keep the survivors alive","outcomeSuccessNode":"event7_bargained","effects":{"run_history":"Accepted an occupation bargain to preserve survivors"}},{"id":"legion_break","label":"Fight until the last road closes","outcomeSuccessNode":"event7_realm_falls","effects":{"run_history":"Fought the Dark Legion until the last road closed"}}]},
-  {"sceneId":"event7_repelled","illustrationId":null,"narrative":"The Legion does not die; it withdraws, which is different and still enough for tonight. Iska opens the market gates herself. People emerge slowly, as if daylight needs permission.","choices":[{"id":"legion_record_repelled","label":"Leave the realm its hard-won morning","outcomeSuccessNode":"event7_survival_coda","effects":{"world_flags.dark_legion":"resolved","world_flags.dark_legion_outcome":"repelled","reputation.commonfolk":2,"run_history":"Helped repel the Dark Legion"}}]},
-  {"sceneId":"event7_bargained","illustrationId":null,"narrative":"The Herald accepts a tribute: grain, a border valley, and one night each year when no bell may be rung. The Legion recedes behind the agreement. Iska calls it survival without pretending it is victory.","choices":[{"id":"legion_record_bargain","label":"Carry the price of peace forward","outcomeSuccessNode":"event7_survival_coda","effects":{"world_flags.dark_legion":"resolved","world_flags.dark_legion_outcome":"bargained_with","reputation.commonfolk":-1,"run_history":"Bargained with the Dark Legion for the realm's survival"}}]},
-  {"sceneId":"event7_realm_falls","illustrationId":null,"narrative":"The last defenses fail in pieces too small for songs. The Herald removes its mask, and behind it there is only a door opening inward. Every remaining light in the realm bends toward it.","choices":[{"id":"legion_record_fall","label":"Walk toward the opening darkness","outcomeSuccessNode":"event8_revealed","effects":{"world_flags.dark_legion":"resolved","world_flags.dark_legion_outcome":"realm_falls","run_history":"Saw the realm fall beneath the Dark Legion"}}]},
-  {"sceneId":"event7_survival_coda","illustrationId":null,"narrative":"The realm survives the cascade, changed and grieving, but still its own. This is a completed ending for this playthrough: the Demon Lord never reaches the world.","choices":[]}
+  {
+    "sceneId": "event7_omens",
+    "illustrationId": null,
+    "narrative": "The omens arrive without spectacle: a well that tastes of iron, sheep standing still in rain, a dawn that refuses to brighten. The Piebald Fool sits on a mile marker, feeding crumbs to no birds.\n\n@Piebald Fool: What was buried, borrowed breath. What was broken, learns to walk.\n\nResistance-Warden Iska Vell is already marking safe houses on a map.",
+    "choices": [
+      {
+        "id": "legion_hear_fool",
+        "label": "Ask the Fool what is coming",
+        "outcomeSuccessNode": "event7_weight",
+        "effects": {
+          "world_flags.dark_legion_warning": true,
+          "run_history": "Heard the Piebald Fool's warning before the Dark Legion came"
+        }
+      },
+      {
+        "id": "legion_help_iska",
+        "label": "Help Iska establish the first resistance routes",
+        "outcomeSuccessNode": "event7_weight",
+        "effects": {
+          "npc.iska_vell.trust": 2,
+          "world_flags.dark_legion_resistance": true,
+          "run_history": "Helped Iska Vell establish resistance routes"
+        }
+      },
+      {
+        "id": "legion_ignore",
+        "label": "Refuse to give a shape to fear",
+        "outcomeSuccessNode": "event7_weight",
+        "effects": {
+          "run_history": "Refused to act on the Dark Legion omens"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_weight",
+    "illustrationId": null,
+    "narrative": "Before the first Legion column is seen, Iska asks you to name who would still answer your call. The question is quieter than a memorial and harder to survive.\n\n@Iska: We do not need heroes. We need people who kept one promise when it was inconvenient.",
+    "narrativeVariants": {
+      "npc.ser_aldous_fenn.status == 'dead'": "Before the first Legion column is seen, a black crow lands on an empty standard. Iska asks you to name who would still answer your call.\n\n@Iska: We do not need heroes. We need people who kept one promise when it was inconvenient."
+    },
+    "choices": [
+      {
+        "id": "legion_call_aldo",
+        "label": "Call on Ser Aldous Fenn's old oath",
+        "condition": "npc.ser_aldous_fenn.status == 'alive'",
+        "outcomeSuccessNode": "event7_incursion",
+        "effects": {
+          "world_flags.legion_aldous_support": true,
+          "npc.ser_aldous_fenn.trust": 1,
+          "run_history": "Called on Ser Aldous Fenn's remaining oath"
+        }
+      },
+      {
+        "id": "legion_call_mira",
+        "label": "Call on Mira Talbot's network of farms",
+        "condition": "npc.mira_talbot.trust >= 3",
+        "outcomeSuccessNode": "event7_incursion",
+        "effects": {
+          "world_flags.legion_mira_support": true,
+          "npc.mira_talbot.trust": 1,
+          "run_history": "Called on Mira Talbot's farm network"
+        }
+      },
+      {
+        "id": "legion_call_iska",
+        "label": "Trust Iska's resistance even without old allies",
+        "outcomeSuccessNode": "event7_incursion",
+        "effects": {
+          "world_flags.legion_iska_support": true,
+          "run_history": "Trusted Iska Vell's resistance network"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_incursion",
+    "illustrationId": null,
+    "narrative": "The Dark Legion crosses the fields without raising dust. Its Herald wears a smooth mask and speaks in a voice that sounds painfully familiar, though no one can say whose. The first occupied village goes silent behind shut doors.\n\n@Herald Unbound: You called this realm yours. It did not agree.\n@Iska: Then we make it disagree with you.",
+    "choices": [
+      {
+        "id": "legion_resist",
+        "label": "Use the safe routes to pull families out before occupation",
+        "condition": "flags.dark_legion_resistance == true",
+        "outcomeSuccessNode": "event7_occupation",
+        "effects": {
+          "world_flags.legion_families_saved": true,
+          "reputation.commonfolk": 2,
+          "run_history": "Used resistance routes to evacuate families before occupation"
+        }
+      },
+      {
+        "id": "legion_aldous",
+        "label": "Let Aldous hold the bridge while Iska moves civilians",
+        "condition": "flags.legion_aldous_support == true",
+        "outcomeSuccessNode": "event7_occupation",
+        "effects": {
+          "world_flags.legion_bridge_held": true,
+          "run_history": "Let Ser Aldous Fenn hold the bridge against the Dark Legion"
+        }
+      },
+      {
+        "id": "legion_negotiate",
+        "label": "Ask the Herald what tribute would halt the advance",
+        "outcomeSuccessNode": "event7_bargained",
+        "effects": {
+          "world_flags.legion_terms_offered": true,
+          "reputation.honor": -1,
+          "run_history": "Asked the Dark Legion what tribute would halt its advance"
+        }
+      },
+      {
+        "id": "legion_fight",
+        "label": "Meet the Legion in the open",
+        "outcomeSuccessNode": "event7_occupation",
+        "effects": {
+          "run_history": "Met the Dark Legion in open battle"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_occupation",
+    "illustrationId": null,
+    "narrative": "Occupation has no single battle. It is empty market stalls, The Quiet Ones standing beneath awnings, and a child who no longer asks where the missing went. Then a figure in Aldous's ruined armor steps from the fog.\n\n@Once-Ser Aldous: The oath remains. Only its country changed.",
+    "narrativeVariants": {
+      "npc.ser_aldous_fenn.status == 'alive'": "Occupation has no single battle. It is empty market stalls, The Quiet Ones standing beneath awnings, and a child who no longer asks where the missing went. Iska lays out three small maps and says there is still one road left."
+    },
+    "choices": [
+      {
+        "id": "legion_mercy_fenn",
+        "label": "Remind the echo who Aldous chose to protect",
+        "condition": "npc.ser_aldous_fenn.status == 'dead'",
+        "outcomeSuccessNode": "event7_repelled",
+        "effects": {
+          "world_flags.fenn_memory_honored": true,
+          "reputation.honor": 2,
+          "run_history": "Honored Ser Aldous Fenn's memory within the Dark Legion"
+        }
+      },
+      {
+        "id": "legion_kill_fenn",
+        "label": "Destroy what remains of Aldous",
+        "condition": "npc.ser_aldous_fenn.status == 'dead'",
+        "outcomeSuccessNode": "event7_realm_falls",
+        "effects": {
+          "world_flags.fenn_echo_destroyed": true,
+          "reputation.infamy": 1,
+          "run_history": "Destroyed the corrupted echo of Ser Aldous Fenn"
+        }
+      },
+      {
+        "id": "legion_last_route",
+        "label": "Use every resistance route in one last coordinated strike",
+        "condition": "flags.legion_families_saved == true",
+        "outcomeSuccessNode": "event7_repelled",
+        "effects": {
+          "world_flags.legion_strike_succeeded": true,
+          "run_history": "Coordinated the resistance's last strike against the Dark Legion"
+        }
+      },
+      {
+        "id": "legion_endure",
+        "label": "Accept the occupation to keep the survivors alive",
+        "outcomeSuccessNode": "event7_bargained",
+        "effects": {
+          "run_history": "Accepted an occupation bargain to preserve survivors"
+        }
+      },
+      {
+        "id": "legion_break",
+        "label": "Fight until the last road closes",
+        "outcomeSuccessNode": "event7_realm_falls",
+        "effects": {
+          "run_history": "Fought the Dark Legion until the last road closed"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_repelled",
+    "illustrationId": null,
+    "narrative": "The Legion does not die; it withdraws, which is different and still enough for tonight. Iska opens the market gates herself. People emerge slowly, as if daylight needs permission.",
+    "choices": [
+      {
+        "id": "legion_record_repelled",
+        "label": "Leave the realm its hard-won morning",
+        "outcomeSuccessNode": "event7_survival_coda",
+        "effects": {
+          "world_flags.dark_legion": "resolved",
+          "world_flags.dark_legion_outcome": "repelled",
+          "reputation.commonfolk": 2,
+          "run_history": "Helped repel the Dark Legion"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_bargained",
+    "illustrationId": null,
+    "narrative": "The Herald accepts a tribute: grain, a border valley, and one night each year when no bell may be rung. The Legion recedes behind the agreement. Iska calls it survival without pretending it is victory.",
+    "choices": [
+      {
+        "id": "legion_record_bargain",
+        "label": "Carry the price of peace forward",
+        "outcomeSuccessNode": "event7_survival_coda",
+        "effects": {
+          "world_flags.dark_legion": "resolved",
+          "world_flags.dark_legion_outcome": "bargained_with",
+          "reputation.commonfolk": -1,
+          "run_history": "Bargained with the Dark Legion for the realm's survival"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_realm_falls",
+    "illustrationId": null,
+    "narrative": "The last defenses fail in pieces too small for songs. The Herald removes its mask, and behind it there is only a door opening inward. Every remaining light in the realm bends toward it.",
+    "choices": [
+      {
+        "id": "legion_record_fall",
+        "label": "Walk toward the opening darkness",
+        "outcomeSuccessNode": "event8_revealed",
+        "effects": {
+          "world_flags.dark_legion": "resolved",
+          "world_flags.dark_legion_outcome": "realm_falls",
+          "run_history": "Saw the realm fall beneath the Dark Legion"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "event7_survival_coda",
+    "illustrationId": null,
+    "narrative": "The realm survives the cascade, changed and grieving, but still its own. This is a completed ending for this playthrough: the Demon Lord never reaches the world.",
+    "choices": []
+  }
 ]

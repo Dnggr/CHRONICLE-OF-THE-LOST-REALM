@@ -51,6 +51,17 @@ summaries, not private or verbatim chat transcripts.
   follows the expanding passage so it reads as new text arriving, rather than
   jumping to a fully rendered block at the bottom.
 
+## 2026-08-02 — Reading-first NPC route direction
+
+- The user wants a vast, reading-first fantasy game where the player develops
+  emotional attachment to NPCs and their own character, rather than rapidly
+  clicking through decisions.
+- Treat the existing NPC registry as a foundation, not completed content.
+  Future work should author recurring 6–12 beat routes, long quiet interludes,
+  and delayed consequences; avoid choice prompts for mere page turns.
+- Added the first post-rebellion reading interlude and `docs/npc_route_matrix.md`
+  to distinguish currently playable NPC beats from the NPC-route backlog.
+
 ## 2026-08-02 — Complete major-event spine
 
 - Interpreted the request to implement all events as completing the remaining

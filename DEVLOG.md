@@ -9,6 +9,28 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 11 — Reading-first NPC route foundation
+
+**Problem:** Named NPCs existed in data and major-event scenes, but most did
+not yet read as recurring people with quiet time between crises. Several
+event-only NPC IDs also lacked registry entries, so the Journal could display
+their raw technical IDs instead of their names.
+
+**Solution:**
+- Registered the named event NPCs in `Npcs.eventNpcs`, including their voice,
+  motivation, flaw, and route hook; Journal relationship entries now resolve to
+  human-readable names.
+- Corrected later-scene references to the canonical Ser Aldous Fenn, Lady
+  Ysolde Marrow, and Inquisitor Rane IDs, ensuring their trust/status choices
+  persist into their later scenes.
+- Added a Salt Road reading interlude with relationship-gated Yeva, Petra, and
+  Tamsin scenes before the Northern War, and documented the route production
+  matrix plus a reading-first interlude rule.
+
+**Scope:** this starts the route layer; it does not claim all 42 Signature NPCs
+have complete 6–12 encounter routes yet.
+
+--------------------------------------------------------------------------
 ## Session 10 — Complete major-event campaign spine
 
 **Problem:** The campaign stopped after Event 5 even though the world-event

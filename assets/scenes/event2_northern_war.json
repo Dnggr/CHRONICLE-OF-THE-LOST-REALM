@@ -28,8 +28,8 @@
       "flags.rebellion_salt_road_outcome == 'concessions_won'": "Recruitment drums answer each other across a better-supplied market. The notices promise wages, honor, and a swift campaign. Ser Aldous Fenn is pinning one back up after someone tears it down.\n\n@Aldous: I am being sent north. I would rather you heard it from me than from a list."
     },
     "choices": [
-      {"id":"war_fenn_promise","label":"Promise Ser Aldous you will look for a road out of war","outcomeSuccessNode":"event2_brewing","effects":{"npc.aldous_fenn.trust":3,"world_flags.war_treaty_groundwork":true,"run_history":"Promised Ser Aldous Fenn to seek a way out of the coming war"}},
-      {"id":"war_fenn_honest","label":"Tell Aldous no promise is worth making yet","outcomeSuccessNode":"event2_brewing","effects":{"npc.aldous_fenn.trust":1,"run_history":"Parted from Ser Aldous Fenn without a false promise"}},
+      {"id":"war_fenn_promise","label":"Promise Ser Aldous you will look for a road out of war","outcomeSuccessNode":"event2_brewing","effects":{"npc.ser_aldous_fenn.trust":3,"world_flags.war_treaty_groundwork":true,"run_history":"Promised Ser Aldous Fenn to seek a way out of the coming war"}},
+      {"id":"war_fenn_honest","label":"Tell Aldous no promise is worth making yet","outcomeSuccessNode":"event2_brewing","effects":{"npc.ser_aldous_fenn.trust":1,"run_history":"Parted from Ser Aldous Fenn without a false promise"}},
       {"id":"war_fenn_recruit","label":"Take the crown's pay and join the marching column","outcomeSuccessNode":"event2_skirmish","effects":{"world_flags.war_joined_crown":true,"reputation.crown":2,"run_history":"Joined the crown column marching north"}}
     ]
   },
@@ -58,10 +58,10 @@
     "illustrationId": null,
     "narrative": "The War-Crow lands on a snapped lance before dawn. By noon, the forward line has folded around a farmhouse and Ser Aldous is pinned there with the wounded. Orin Vasse is carrying bandages with both hands red.\n\n@Orin: I can save whoever reaches me. I cannot reach everyone.\n\nAcross the field, Threska's banner hesitates instead of advancing.",
     "choices": [
-      {"id":"war_rescue_fenn","label":"Cross the field to bring Aldous and the wounded out (Wisdom check)","condition":"npc.aldous_fenn.trust >= 3","requiredAttribute":"wisdom","difficultyClass":15,"outcomeSuccessNode":"event2_treaty","outcomeFailNode":"event2_crown_victory","effects":{"world_flags.war_fenn_rescue_attempted":true,"run_history":"Attempted to rescue Ser Aldous Fenn under the War-Crow"}},
+      {"id":"war_rescue_fenn","label":"Cross the field to bring Aldous and the wounded out (Wisdom check)","condition":"npc.ser_aldous_fenn.trust >= 3","requiredAttribute":"wisdom","difficultyClass":15,"outcomeSuccessNode":"event2_treaty","outcomeFailNode":"event2_crown_victory","effects":{"world_flags.war_fenn_rescue_attempted":true,"run_history":"Attempted to rescue Ser Aldous Fenn under the War-Crow"}},
       {"id":"war_treaty_call","label":"Raise the truce cloth and call to Threska across the field","condition":"flags.war_treaty_groundwork == true","outcomeSuccessNode":"event2_treaty","effects":{"world_flags.war_treaty_path":true,"npc.threska_cael.trust":2,"run_history":"Called for a truce at the Northern front"}},
-      {"id":"war_press_attack","label":"Join Casswell's charge and break the Reach line","outcomeSuccessNode":"event2_crown_victory","effects":{"world_flags.war_fenn_dead":true,"npc.aldous_fenn.status":"dead","reputation.crown":3,"reputation.commonfolk":-1,"run_history":"Pressed the crown attack while Aldous remained pinned"}},
-      {"id":"war_aid_reach","label":"Guide Northern wounded through Orin's tent","outcomeSuccessNode":"event2_northern_victory","effects":{"world_flags.war_fenn_dead":true,"npc.aldous_fenn.status":"dead","reputation.crown":-3,"reputation.honor":1,"npc.threska_cael.trust":3,"run_history":"Aided Northern wounded against crown orders"}}
+      {"id":"war_press_attack","label":"Join Casswell's charge and break the Reach line","outcomeSuccessNode":"event2_crown_victory","effects":{"world_flags.war_fenn_dead":true,"npc.ser_aldous_fenn.status":"dead","reputation.crown":3,"reputation.commonfolk":-1,"run_history":"Pressed the crown attack while Aldous remained pinned"}},
+      {"id":"war_aid_reach","label":"Guide Northern wounded through Orin's tent","outcomeSuccessNode":"event2_northern_victory","effects":{"world_flags.war_fenn_dead":true,"npc.ser_aldous_fenn.status":"dead","reputation.crown":-3,"reputation.honor":1,"npc.threska_cael.trust":3,"run_history":"Aided Northern wounded against crown orders"}}
     ]
   },
   {
@@ -87,7 +87,7 @@
     "illustrationId": null,
     "narrative": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. If Aldous's name is missing, it is because he stands at the back, ashamed to have survived it. Soldiers arrive coughing from the northern camps. No one calls it an omen yet.",
     "narrativeVariants": {
-      "npc.aldous_fenn.status == 'dead'": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Ser Aldous Fenn's name is among them. Soldiers arrive coughing from the northern camps. No one calls it an omen yet.",
+      "npc.ser_aldous_fenn.status == 'dead'": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Ser Aldous Fenn's name is among them. Soldiers arrive coughing from the northern camps. No one calls it an omen yet.",
       "flags.sun_temple_destroyed == true": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Beyond them, the ground where the Sun Temple stood remains empty. Grief has begun to gather there into something with a voice."
     },
     "choices": [

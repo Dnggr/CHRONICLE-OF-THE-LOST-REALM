@@ -34,6 +34,7 @@ class SceneScreen extends StatefulWidget {
 class _SceneScreenState extends State<SceneScreen> {
   final _scrollController = ScrollController();
   int _lastRenderedLogLength = 0;
+  bool _revealScrollQueued = false;
 
   @override
   void dispose() {
@@ -54,6 +55,20 @@ class _SceneScreenState extends State<SceneScreen> {
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeOut,
       );
+    });
+  }
+
+  /// A new entry expands one line at a time. Keep the reading position
+  /// attached to that expanding edge so a choice feels like the next passage
+  /// is being revealed, rather than a completed page abruptly appearing below
+  /// the viewport.
+  void _followNarrativeReveal() {
+    if (_revealScrollQueued) return;
+    _revealScrollQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _revealScrollQueued = false;
+      if (!_scrollController.hasClients) return;
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
   }
 
@@ -101,8 +116,12 @@ class _SceneScreenState extends State<SceneScreen> {
                           _LogEntryView(
                             entry: controller.sceneLog[i],
                             isLatest: i == controller.sceneLog.length - 1,
+                            animateNarrative:
+                                i == controller.sceneLog.length - 1 &&
+                                    controller.sceneLog.length > 1,
                             controller: controller,
                             showRollBanner: showRollBanner,
+                            onNarrativeReveal: _followNarrativeReveal,
                           ),
                       ],
                     ),
@@ -125,14 +144,18 @@ class _SceneScreenState extends State<SceneScreen> {
 class _LogEntryView extends StatelessWidget {
   final SceneLogEntry entry;
   final bool isLatest;
+  final bool animateNarrative;
   final GameController controller;
   final bool showRollBanner;
+  final VoidCallback onNarrativeReveal;
 
   const _LogEntryView({
     required this.entry,
     required this.isLatest,
+    required this.animateNarrative,
     required this.controller,
     required this.showRollBanner,
+    required this.onNarrativeReveal,
   });
 
   @override
@@ -145,7 +168,11 @@ class _LogEntryView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           NarrativeText(
-              text: entry.narrative, illustrationId: entry.illustrationId),
+            text: entry.narrative,
+            illustrationId: entry.illustrationId,
+            animate: animateNarrative,
+            onRevealProgress: onNarrativeReveal,
+          ),
           if (alreadyAnswered)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),

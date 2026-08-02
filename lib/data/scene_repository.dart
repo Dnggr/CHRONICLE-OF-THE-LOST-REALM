@@ -18,6 +18,15 @@ class SceneRepository {
     // loaded beside the existing chapters, so Chapter 1 can lead into the
     // Salt Road rebellion without hard-coding narrative flow in the UI.
     'assets/scenes/event1_rebellion.json',
+    // The authored early-campaign spine. Event 3's file is loaded for
+    // validation, but its only entry choice is gated by sun_temple_destroyed.
+    'assets/scenes/event2_northern_war.json',
+    'assets/scenes/event3_sun_temple_schism.json',
+    'assets/scenes/event4_hollow_plague.json',
+    'assets/scenes/event5_succession_crisis.json',
+    'assets/scenes/event6_salt_sea_invasion.json',
+    'assets/scenes/event7_dark_legion.json',
+    'assets/scenes/event8_demon_lord.json',
   ];
 
   Future<void> loadAll() async {

@@ -1,0 +1,98 @@
+[
+  {
+    "sceneId": "event2_envoy",
+    "illustrationId": null,
+    "narrative": "The Northern Reach envoy arrives beneath a flag patched so often its original blue is almost gone. Envoy Sera Vaun counts each guard at the gate before she speaks.\n\n@Sera Vaun: I have come for words, not tribute. That distinction has become difficult for your court.\n\nA black crow watches from the milestone. It does not move when the horses pass.",
+    "narrativeVariants": {
+      "flags.rebellion_salt_road_outcome == 'crushed'": "The Northern Reach envoy arrives to find the Salt Road gate still scarred by the crown's victory. Envoy Sera Vaun counts each guard at the gate before she speaks.\n\n@Sera Vaun: I have come for words, not tribute. That distinction has become difficult for your court.\n\nA black crow watches from the milestone. It does not move when the horses pass.",
+      "flags.rebellion_salt_road_outcome == 'regime_change'": "The Northern Reach envoy arrives beneath a flag patched so often its original blue is almost gone. She studies the guild-council banner at the Salt Road gate before she speaks.\n\n@Sera Vaun: Your realm changes banners quickly. Perhaps it can change its mind as well.\n\nA black crow watches from the milestone. It does not move when the horses pass."
+    },
+    "choices": [
+      {"id":"war_envoy_respect","label":"Receive Envoy Vaun with the courtesy due a rival realm","outcomeSuccessNode":"event2_recruitment","effects":{"world_flags.war_envoy_respected":true,"reputation.crown":1,"run_history":"Received the Northern Reach envoy with restraint"}},
+      {"id":"war_envoy_insult","label":"Call the Reach's claim an old thief's excuse","outcomeSuccessNode":"event2_recruitment","effects":{"world_flags.war_envoy_insulted":true,"reputation.crown":1,"reputation.honor":-1,"run_history":"Insulted the Northern Reach envoy and hastened the border crisis"}},
+      {"id":"war_envoy_listen","label":"Ask what the Reach believes was stolen","outcomeSuccessNode":"event2_veteran","effects":{"world_flags.war_envoy_heard":true,"run_history":"Heard the Northern Reach claim before the war"}}
+    ]
+  },
+  {
+    "sceneId": "event2_veteran",
+    "illustrationId": null,
+    "narrative": "Old veteran Mara Dain warms her hands over a brazier and laughs without humor.\n\n@Mara: Third war over the same fields in my life. Every treaty drew a line. None of them asked who had been buried on either side of it.\n\nShe forgets to thank you for listening, then remembers an insult from thirty years ago with perfect clarity.",
+    "choices": [{"id":"war_veteran_leave","label":"Carry the old grievance back to the road","outcomeSuccessNode":"event2_recruitment","effects":{"run_history":"Learned the Northern border dispute has outlived three treaties"}}]
+  },
+  {
+    "sceneId": "event2_recruitment",
+    "illustrationId": null,
+    "narrative": "Recruitment drums answer each other across the market. The notices promise wages, honor, and a swift campaign. Ser Aldous Fenn is pinning one back up after someone tears it down.\n\n@Aldous: I am being sent north. I would rather you heard it from me than from a list.\n\nHe presses the paper flat with a careful hand.",
+    "narrativeVariants": {
+      "flags.rebellion_salt_road_outcome == 'crushed'": "Recruitment drums answer each other across a market that has not forgotten the Salt Road. The notices promise wages, honor, and a swift campaign; the men reading them look hungry rather than proud. Ser Aldous Fenn is pinning one back up after someone tears it down.\n\n@Aldous: I am being sent north. I would rather you heard it from me than from a list.",
+      "flags.rebellion_salt_road_outcome == 'concessions_won'": "Recruitment drums answer each other across a better-supplied market. The notices promise wages, honor, and a swift campaign. Ser Aldous Fenn is pinning one back up after someone tears it down.\n\n@Aldous: I am being sent north. I would rather you heard it from me than from a list."
+    },
+    "choices": [
+      {"id":"war_fenn_promise","label":"Promise Ser Aldous you will look for a road out of war","outcomeSuccessNode":"event2_brewing","effects":{"npc.aldous_fenn.trust":3,"world_flags.war_treaty_groundwork":true,"run_history":"Promised Ser Aldous Fenn to seek a way out of the coming war"}},
+      {"id":"war_fenn_honest","label":"Tell Aldous no promise is worth making yet","outcomeSuccessNode":"event2_brewing","effects":{"npc.aldous_fenn.trust":1,"run_history":"Parted from Ser Aldous Fenn without a false promise"}},
+      {"id":"war_fenn_recruit","label":"Take the crown's pay and join the marching column","outcomeSuccessNode":"event2_skirmish","effects":{"world_flags.war_joined_crown":true,"reputation.crown":2,"run_history":"Joined the crown column marching north"}}
+    ]
+  },
+  {
+    "sceneId": "event2_brewing",
+    "illustrationId": null,
+    "narrative": "At the border council, maps cover a table too small for the men leaning over it. Warlord Threska Cael waits outside the tent under a truce flag. Lieutenant Casswell Marrow calls the meeting a waste of daylight.\n\n@Threska: I want the farms your king took. I do not want boys frozen in them.\n@Casswell: Hear that? Even their threats are farming talk.",
+    "choices": [
+      {"id":"war_open_talks","label":"Ask Threska to put a temporary border before pride","outcomeSuccessNode":"event2_skirmish","effects":{"world_flags.war_treaty_groundwork":true,"npc.threska_cael.trust":1,"reputation.honor":1,"run_history":"Opened a fragile negotiation with Warlord Threska Cael"}},
+      {"id":"war_back_casswell","label":"Support Casswell's demand for a decisive campaign","outcomeSuccessNode":"event2_skirmish","effects":{"world_flags.war_hawk":true,"reputation.crown":2,"npc.threska_cael.trust":-2,"run_history":"Backed the crown's decisive war faction"}},
+      {"id":"war_walk_away","label":"Leave the council before its certainty becomes yours","outcomeSuccessNode":"event2_skirmish","effects":{"run_history":"Refused to choose a side at the Northern border council"}}
+    ]
+  },
+  {
+    "sceneId": "event2_skirmish",
+    "illustrationId": null,
+    "narrative": "The first skirmish is smaller than the songs will make it. Rain fills the wagon ruts; men die in them anyway. Behind a collapsed wall, a crown soldier has dropped their helmet and cannot stop shaking.\n\n@Soldier: I ran. I know what that means. Please do not make me go back.",
+    "choices": [
+      {"id":"war_deserter_help","label":"Lead the deserter to Field-Medic Orin's hidden tent","outcomeSuccessNode":"event2_active","effects":{"world_flags.war_deserter_saved":true,"npc.orin_vasse.trust":2,"reputation.crown":-1,"reputation.commonfolk":1,"reputation.honor":1,"run_history":"Helped a frightened crown deserter disappear"}},
+      {"id":"war_deserter_turnin","label":"Turn the deserter over to the provost","outcomeSuccessNode":"event2_active","effects":{"world_flags.war_deserter_reported":true,"reputation.crown":2,"reputation.honor":-1,"run_history":"Turned a crown deserter over to the provost"}},
+      {"id":"war_deserter_reassign","label":"Argue for a support posting instead (Charisma check)","requiredAttribute":"charisma","difficultyClass":14,"outcomeSuccessNode":"event2_active","outcomeFailNode":"event2_active","effects":{"world_flags.war_deserter_reassigned":true,"run_history":"Argued for a deserter to be reassigned instead of punished"}}
+    ]
+  },
+  {
+    "sceneId": "event2_active",
+    "illustrationId": null,
+    "narrative": "The War-Crow lands on a snapped lance before dawn. By noon, the forward line has folded around a farmhouse and Ser Aldous is pinned there with the wounded. Orin Vasse is carrying bandages with both hands red.\n\n@Orin: I can save whoever reaches me. I cannot reach everyone.\n\nAcross the field, Threska's banner hesitates instead of advancing.",
+    "choices": [
+      {"id":"war_rescue_fenn","label":"Cross the field to bring Aldous and the wounded out (Wisdom check)","condition":"npc.aldous_fenn.trust >= 3","requiredAttribute":"wisdom","difficultyClass":15,"outcomeSuccessNode":"event2_treaty","outcomeFailNode":"event2_crown_victory","effects":{"world_flags.war_fenn_rescue_attempted":true,"run_history":"Attempted to rescue Ser Aldous Fenn under the War-Crow"}},
+      {"id":"war_treaty_call","label":"Raise the truce cloth and call to Threska across the field","condition":"flags.war_treaty_groundwork == true","outcomeSuccessNode":"event2_treaty","effects":{"world_flags.war_treaty_path":true,"npc.threska_cael.trust":2,"run_history":"Called for a truce at the Northern front"}},
+      {"id":"war_press_attack","label":"Join Casswell's charge and break the Reach line","outcomeSuccessNode":"event2_crown_victory","effects":{"world_flags.war_fenn_dead":true,"npc.aldous_fenn.status":"dead","reputation.crown":3,"reputation.commonfolk":-1,"run_history":"Pressed the crown attack while Aldous remained pinned"}},
+      {"id":"war_aid_reach","label":"Guide Northern wounded through Orin's tent","outcomeSuccessNode":"event2_northern_victory","effects":{"world_flags.war_fenn_dead":true,"npc.aldous_fenn.status":"dead","reputation.crown":-3,"reputation.honor":1,"npc.threska_cael.trust":3,"run_history":"Aided Northern wounded against crown orders"}}
+    ]
+  },
+  {
+    "sceneId": "event2_treaty",
+    "illustrationId": null,
+    "narrative": "Threska walks into the mud alone. Aldous, pale beneath the blood on his sleeve, meets her halfway. Neither side receives what it came to take. Both sides receive the chance to count their dead before making more.\n\n@Threska: Put the farms under shared law. Let the graves belong to no crown.\n@Aldous: It is not victory.\n@Threska: Then perhaps it can last.",
+    "choices": [{"id":"war_record_treaty","label":"Witness the Northern treaty","outcomeSuccessNode":"event2_coda","effects":{"world_flags.northern_war":"resolved","world_flags.northern_war_outcome":"stalemate_treaty","world_flags.war_fenn_saved":true,"reputation.crown":1,"reputation.honor":2,"run_history":"Witnessed a shared-law treaty at the Northern border"}}]
+  },
+  {
+    "sceneId": "event2_crown_victory",
+    "illustrationId": null,
+    "narrative": "The crown holds the border by sunset. Casswell Marrow gives a speech loud enough for the dead to hear. The War-Crow has already gone. A runner brings word that Captain Yusra Wielding's company was lost on the eastern road; there will be no heroic correction to that sentence.",
+    "choices": [{"id":"war_record_crown","label":"Leave the costly victory to its songs","outcomeSuccessNode":"event2_coda","effects":{"world_flags.northern_war":"resolved","world_flags.northern_war_outcome":"aldric_victory","reputation.crown":2,"reputation.commonfolk":-2,"run_history":"Saw House Aldric win the Northern war at great cost"}}]
+  },
+  {
+    "sceneId": "event2_northern_victory",
+    "illustrationId": null,
+    "narrative": "The crown line breaks in orderly pieces, which is still breaking. Threska does not cheer when the old boundary stone is pulled from the earth. She only asks Orin how many can still be moved before night.",
+    "choices": [{"id":"war_record_northern","label":"Leave the border to the victors","outcomeSuccessNode":"event2_coda","effects":{"world_flags.northern_war":"resolved","world_flags.northern_war_outcome":"northern_victory","reputation.crown":-3,"reputation.commonfolk":1,"run_history":"Saw the Northern Reach reclaim the disputed border"}}]
+  },
+  {
+    "sceneId": "event2_coda",
+    "illustrationId": null,
+    "narrative": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. If Aldous's name is missing, it is because he stands at the back, ashamed to have survived it. Soldiers arrive coughing from the northern camps. No one calls it an omen yet.",
+    "narrativeVariants": {
+      "npc.aldous_fenn.status == 'dead'": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Ser Aldous Fenn's name is among them. Soldiers arrive coughing from the northern camps. No one calls it an omen yet.",
+      "flags.sun_temple_destroyed == true": "In the Capital, clerks read the names of the war dead beneath windows that will not stay shut. Beyond them, the ground where the Sun Temple stood remains empty. Grief has begun to gather there into something with a voice."
+    },
+    "choices": [
+      {"id":"war_to_schism","label":"Travel to the empty ground of the Sun Temple","condition":"flags.sun_temple_destroyed == true","outcomeSuccessNode":"event3_empty_ground","effects":{"run_history":"Followed the war's aftermath to the ruined Sun Temple"}},
+      {"id":"war_to_plague","label":"Follow the returning soldiers toward the Hollow Reaches","condition":"flags.sun_temple_destroyed == false","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Followed reports of sickness from the northern camps"}}
+    ]
+  }
+]

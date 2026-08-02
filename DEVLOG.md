@@ -9,6 +9,63 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 10 — Complete major-event campaign spine
+
+**Problem:** The campaign stopped after Event 5 even though the world-event
+catalogue specifies the Salt Sea Invasion, Dark Legion cascade, and Demon Lord
+capstone.
+
+**Solution:**
+- Added Event 6, Event 7, and Event 8 scene graphs and registered them in the
+  scene repository.
+- Replaced Event 5's temporary terminal coda with the Foreign Invasion handoff.
+- Built an intentional late-game branch: surviving or bargaining with the Dark
+  Legion completes a run; `realm_falls` unlocks the Demon Lord confrontation,
+  which can end in survival or a fatal Chronicle entry.
+- Updated the README and author timeline; minor/side events remain outside this
+  major-spine implementation.
+
+--------------------------------------------------------------------------
+## Session 9 — Animated scene-log reveals
+
+**Problem:** Choosing an option appended the next scene and immediately
+auto-scrolled to its fully rendered bottom, which made the reading flow feel
+like a jump instead of a continuation.
+
+**Solution:**
+- Added a staggered per-line reveal to `NarrativeText`: each complete line
+  expands, fades in, and rises slightly after a choice.
+- Kept the animation line-based rather than character-based so `@Name:`
+  screenplay dialogue never renders temporarily as malformed prose.
+- Made `SceneScreen` follow the expanding content edge while it reveals. The
+  opening scene remains immediate; only newly appended log entries animate.
+
+--------------------------------------------------------------------------
+## Session 8 — Events 2–5 campaign spine and timeline
+
+**Problem:** Event 1 ended on a no-choice coda, so a run could not continue;
+the later world events existed as design data but had no playable dialogue,
+NPC scenes, or consequence handoffs.
+
+**Solution:**
+- Added Event 1's handoff to Event 2 and authored four connected scene graphs:
+  Northern War, conditional Sun Temple Schism, Hollow Reaches Plague, and
+  Succession Crisis.
+- Wove persistent flags, reputation, and NPC trust/status into the outcomes:
+  Ser Aldous can survive or die, the Temple schism can be skipped or resolved,
+  Old Hendrik can be saved through a two-step commitment, and the succession
+  resolves as Aldric continuation, Marrow ascension, regency council, or civil
+  war.
+- Added `docs/story_timeline.md` as the authoring map of gates and coda
+  handoffs. It is documentation only, preventing a second flow system from
+  drifting out of sync with the JSON scene graphs.
+
+**Verification:** all scene JSON parses and a static target check confirms
+every authored choice target resolves to an existing scene. Flutter's Snap
+installation cannot launch in this environment, so `flutter analyze` and
+`flutter test` could not be run here.
+
+--------------------------------------------------------------------------
 ## Session 7 — Novel pacing, origin openings, and integrity fixes
 
 **Problem:** The playable story rushed from a generic heroic ceremony into

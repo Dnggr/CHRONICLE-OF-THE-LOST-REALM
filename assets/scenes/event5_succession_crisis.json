@@ -1,0 +1,76 @@
+[
+  {
+    "sceneId": "event5_kings_health",
+    "illustrationId": null,
+    "narrative": "The King receives no visitors, but the palace windows glow all night. In the outer court, Lady Ysolde Marrow waits with the patience of someone who has already chosen the ending. Regent-Marshal Halvern Cotte checks a list of contingencies twice.\n\n@Halvern: The realm needs a lawful transition. It does not need another opinion shouted from a balcony.",
+    "narrativeVariants": {"flags.plague_hollow_reaches_outcome == 'spreads_to_capital'": "The King receives no visitors; plague lamps burn in the palace windows all night. In the outer court, Lady Ysolde Marrow waits with the patience of someone who has already chosen the ending. Regent-Marshal Halvern Cotte checks a list of contingencies twice.\n\n@Halvern: The realm needs a lawful transition. It does not need another opinion shouted from a balcony."},
+    "choices": [
+      {"id":"succession_help_halvern","label":"Offer Halvern help keeping the army out of the court","outcomeSuccessNode":"event5_mourning","effects":{"npc.halvern_cotte.trust":2,"world_flags.succession_process":true,"run_history":"Helped Regent-Marshal Halvern Cotte protect the succession process"}},
+      {"id":"succession_speak_marrow","label":"Ask Lady Marrow what she actually intends","outcomeSuccessNode":"event5_marrow","effects":{"npc.ysolde_marrow.trust":1,"run_history":"Asked Lady Ysolde Marrow to name her ambition openly"}},
+      {"id":"succession_watch","label":"Watch the palace gates change shifts","outcomeSuccessNode":"event5_mourning","effects":{"run_history":"Watched the Capital prepare for the King's death"}}
+    ]
+  },
+  {
+    "sceneId": "event5_marrow",
+    "illustrationId": null,
+    "narrative": "Lady Marrow does not deny wanting the throne. Her daughter Corenna stands one step behind her, trying not to look like a weapon being held in reserve.\n\n@Ysolde: The realm confuses inheritance with competence because inheritance is easier to recognize.\n@Corenna: Mother.\n@Ysolde: It is kinder that they hear it now.",
+    "choices": [
+      {"id":"succession_marrow_respect","label":"Tell Corenna she deserves a voice separate from her mother","outcomeSuccessNode":"event5_mourning","effects":{"npc.corenna_marrow.trust":2,"npc.ysolde_marrow.trust":1,"world_flags.marrow_channel_open":true,"run_history":"Recognized Corenna Marrow as more than her mother's instrument"}},
+      {"id":"succession_marrow_oppose","label":"Call Marrow's claim a coup in fine clothes","outcomeSuccessNode":"event5_mourning","effects":{"npc.ysolde_marrow.trust":-2,"world_flags.marrow_opposed":true,"reputation.crown":1,"run_history":"Openly opposed Lady Marrow's claim"}}
+    ]
+  },
+  {
+    "sceneId": "event5_mourning",
+    "illustrationId": null,
+    "narrative": "King Aldric III dies before dawn. The court grieves because it must, and then because some of them mean it. Ser Aldous Fenn reads the eulogy without raising his voice.\n\n@Aldous: A crown is not a person. But a person bore it, and we should remember the weight before we fight over who takes it next.",
+    "narrativeVariants": {"npc.aldous_fenn.status == 'dead'": "King Aldric III dies before dawn. The court grieves because it must, and then because some of them mean it. No one reads the eulogy. The absence where Ser Aldous Fenn would have stood is more honest than most speeches."},
+    "choices": [
+      {"id":"succession_aldric_claim","label":"Support House Aldric's direct continuation","outcomeSuccessNode":"event5_claims","effects":{"world_flags.succession_lean":"aldric","reputation.crown":2,"run_history":"Supported House Aldric's direct succession"}},
+      {"id":"succession_marrow_claim","label":"Support Lady Marrow's claim to the throne","outcomeSuccessNode":"event5_claims","effects":{"world_flags.succession_lean":"marrow","npc.ysolde_marrow.trust":2,"run_history":"Supported Lady Ysolde Marrow's claim to the throne"}},
+      {"id":"succession_council_claim","label":"Call for a regency council while claims are tested","outcomeSuccessNode":"event5_claims","effects":{"world_flags.succession_lean":"council","npc.halvern_cotte.trust":2,"reputation.honor":1,"run_history":"Called for a regency council during the succession crisis"}},
+      {"id":"succession_no_claim","label":"Refuse to lend your name to any claimant","outcomeSuccessNode":"event5_claims","effects":{"world_flags.succession_lean":"none","run_history":"Refused to back any claimant during the mourning"}}
+    ]
+  },
+  {
+    "sceneId": "event5_claims",
+    "illustrationId": null,
+    "narrative": "The Hall of Claims fills with banners and lawyers. Herald Wexler Doone recites rules older than the kingdom's current borders. A dockworker in the gallery compares you to a dead hero from another age, then apologizes as if legacy were not already in the room.\n\n@Wexler: By the twelfth binding of the river compact—\n@Halvern: Please state the relevant part.\n@Wexler: All of it is relevant.",
+    "choices": [
+      {"id":"succession_confirm_aldric","label":"Use the old rites to confirm the Aldric heir","condition":"flags.succession_lean == 'aldric'","outcomeSuccessNode":"event5_aldric","effects":{"run_history":"Used the old rites to secure the Aldric succession"}},
+      {"id":"succession_confirm_marrow","label":"Use the old precedent to confirm Marrow's claim","condition":"flags.succession_lean == 'marrow'","outcomeSuccessNode":"event5_marrow_ascends","effects":{"run_history":"Used the old precedent to secure Marrow's claim"}},
+      {"id":"succession_confirm_council","label":"Bind the factions to a limited regency council (Charisma check)","condition":"flags.succession_lean == 'council'","requiredAttribute":"charisma","difficultyClass":16,"outcomeSuccessNode":"event5_council","outcomeFailNode":"event5_civil_war","effects":{"run_history":"Attempted to bind the claimants into a regency council"}},
+      {"id":"succession_stall","label":"Let the arguments continue until the guards choose sides","condition":"flags.succession_lean == 'none'","outcomeSuccessNode":"event5_civil_war","effects":{"run_history":"Let the succession crisis curdle into open conflict"}}
+    ]
+  },
+  {
+    "sceneId": "event5_aldric",
+    "illustrationId": null,
+    "narrative": "The Aldric heir takes the crown under the old rites. It is a conservative answer to a dangerous question, and for now the army accepts it. Lady Marrow bows deeply enough that no one can tell whether it is surrender or calculation.",
+    "choices": [{"id":"succession_record_aldric","label":"Leave the new reign to its first quiet night","outcomeSuccessNode":"event5_coda","effects":{"world_flags.succession_crisis":"resolved","world_flags.succession_crisis_outcome":"aldric_continues","reputation.crown":2,"run_history":"Saw House Aldric continue after King Aldric III"}}]
+  },
+  {
+    "sceneId": "event5_marrow_ascends",
+    "illustrationId": null,
+    "narrative": "Lady Ysolde Marrow accepts the crown without triumph. Corenna watches her mother become the thing she prepared for all her life, and looks briefly afraid of what that preparation cost. The court calls it lawful because the old precedent says it is.",
+    "choices": [{"id":"succession_record_marrow","label":"Leave Queen Marrow to her first decree","outcomeSuccessNode":"event5_coda","effects":{"world_flags.succession_crisis":"resolved","world_flags.succession_crisis_outcome":"marrow_ascends","reputation.crown":-1,"npc.ysolde_marrow.trust":3,"run_history":"Saw Lady Ysolde Marrow lawfully ascend the throne"}}]
+  },
+  {
+    "sceneId": "event5_council",
+    "illustrationId": null,
+    "narrative": "Halvern's council seats representatives from the crown, the guilds, the border, and the old houses. Nobody mistakes it for peace. Yet everyone must now argue in the same room, under the same roof, where witnesses can remember the words.",
+    "choices": [{"id":"succession_record_council","label":"Leave the council to its first impossible agenda","outcomeSuccessNode":"event5_coda","effects":{"world_flags.succession_crisis":"resolved","world_flags.succession_crisis_outcome":"regency_council","reputation.honor":2,"npc.halvern_cotte.trust":3,"run_history":"Helped establish a regency council for the realm"}}]
+  },
+  {
+    "sceneId": "event5_civil_war",
+    "illustrationId": null,
+    "narrative": "The first arrow is fired before the herald finishes announcing recess. Banners become targets. In the confusion, Lady Marrow is found beneath the fallen gallery, and Corenna is left holding a claim she never wanted to inherit. The realm has chosen a war because no one chose an ending in time.",
+    "choices": [{"id":"succession_record_war","label":"Leave the Capital as its gates close","outcomeSuccessNode":"event5_coda","effects":{"world_flags.succession_crisis":"resolved","world_flags.succession_crisis_outcome":"civil_war","npc.ysolde_marrow.status":"dead","reputation.commonfolk":-2,"run_history":"Saw the succession crisis collapse into civil war"}}]
+  },
+  {
+    "sceneId": "event5_coda",
+    "illustrationId": null,
+    "narrative": "The realm has a new balance of power, not peace. On the western horizon, ships from across the Salt Sea are reported where no trading fleet should be.",
+    "narrativeVariants": {"flags.succession_crisis_outcome == 'civil_war'": "The realm has a new balance of power, not peace. Its army is divided, its gates are closed, and ships from across the Salt Sea are reported where no trading fleet should be."},
+    "choices": [{"id":"succession_to_invasion","label":"Travel west toward the strange sails","outcomeSuccessNode":"event6_strange_sails","effects":{"run_history":"Travelled west as strange ships gathered beyond the Salt Sea"}}]
+  }
+]

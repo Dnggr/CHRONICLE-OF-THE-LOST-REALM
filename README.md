@@ -148,7 +148,17 @@ On death:
   Story & Systems Bible's own section 6 worked example.
 - `assets/scenes/event1_rebellion.json` — Event 1: the Salt Road
   Rebellion, including pre-arc warnings, levy lore, courier choice,
-  Yeva/Petra conflict, uprising, and persistent outcomes.
+  Yeva/Petra conflict, uprising, persistent outcomes, and a handoff to
+  Event 2.
+- `assets/scenes/event2_northern_war.json` through
+  `assets/scenes/event8_demon_lord.json` — the complete playable major-event
+  spine: Northern War, conditional Sun Temple Schism, Hollow Reaches Plague,
+  Succession Crisis, Salt Sea Invasion, Dark Legion, and Demon Lord capstone.
+  Their scene choices preserve reputation, NPC trust/status, and world-state
+  consequences across events.
+- `docs/story_timeline.md` — author-facing event order, gates, and handoff
+  rules. It is not a second runtime timeline system; scene JSON remains the
+  source of truth.
 - `npc_dialogue_and_routes.txt` — novel-pacing, NPC voice/feelings, and
   relationship-route reference for future scene authors.
 - `PROJECT_MEMORY.md` — concise design-decision record. `AGENTS.md`
@@ -173,11 +183,12 @@ On death:
 - Inventory screen and Achievements screen are still unbuilt
   (placeholders in the bottom nav).
 - No audio.
-- Only the Prologue, Event 0 (Harvest Failure), and Event 1 (Salt Road
-  Rebellion) have written scenes — most Signature NPCs and later World Events
-  exist as structured data (`lib/data/npcs.dart`, `lib/data/world_events.dart`)
-  but have no scene content behind them yet. New chapters need a new
-  `assets/scenes/*.json` file added to `SceneRepository._sceneFiles`.
+- Events 0–8 have authored scenes and complete the major campaign spine. The
+  Dark Legion can end a surviving playthrough directly; its `realm_falls`
+  outcome leads to the Demon Lord capstone. Minor world events and most
+  Signature-NPC-specific routes remain structured data only. New chapters need
+  an `assets/scenes/*.json` file added to `SceneRepository._sceneFiles` and a
+  handoff recorded in `docs/story_timeline.md`.
 - Narrative Routes (Love/Redemption/Revenge/etc, from the Story &
   Systems Bible section 5) aren't a tracked/named system — they're
   meant to emerge from scene writers checking reputation/npc conditions

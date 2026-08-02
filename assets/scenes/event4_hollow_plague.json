@@ -1,0 +1,75 @@
+[
+  {
+    "sceneId": "event4_cough",
+    "illustrationId": null,
+    "narrative": "At a Hollow Reaches roadside inn, Elder Pella coughs once into a handkerchief and apologizes for the noise. Her grandson keeps pouring tea as though politeness can hold the room together. Old Hendrik sits near the stove, quieter than you remember.\n\n@Hendrik: Weather gets into old beams. And old lungs. Don't look at me like that.",
+    "choices": [
+      {"id":"plague_hendrik_prepare","label":"Buy Hendrik a place in the next healer's wagon (-15 Gold)","condition":"gold >= 15","outcomeSuccessNode":"event4_rumors","effects":{"gold":-15,"world_flags.hendrik_prepared":true,"npc.old_hendrik.trust":2,"run_history":"Reserved Old Hendrik a place with a healer before the outbreak"}},
+      {"id":"plague_ask_pella","label":"Ask Elder Pella how long the cough has lasted","outcomeSuccessNode":"event4_lore","effects":{"run_history":"Noticed the first Hollow Reaches cough"}},
+      {"id":"plague_press_on","label":"Call it a cold and continue on","outcomeSuccessNode":"event4_rumors","effects":{"run_history":"Dismissed the first sign of sickness in the Hollow Reaches"}}
+    ]
+  },
+  {
+    "sceneId": "event4_lore",
+    "illustrationId": null,
+    "narrative": "Apothecary Nella Vey corrects your use of the word 'contagion' before answering. Her own cough is hidden behind a sleeve.\n\n@Nella: It is recurrent, not new. The grammar matters. So does the ruin cluster where it always begins.\n\nShe gives you directions with the precision of someone afraid to be asked to come along.",
+    "choices": [{"id":"plague_lore_continue","label":"Take the warning seriously","outcomeSuccessNode":"event4_rumors","effects":{"world_flags.plague_lore_known":true,"npc.nella_vey.trust":1,"run_history":"Learned the Hollow plague has returned from the old ruin cluster"}}]
+  },
+  {
+    "sceneId": "event4_rumors",
+    "illustrationId": null,
+    "narrative": "Rumors outrun wagons. Healer Yssa Coombe has turned a stable into a clinic, while Quarantine-Warden Bettina Grask counts bottles as if numbers might multiply under pressure. Fen, the gravedigger's boy, waits nearby with mud on his boots.\n\n@Yssa: I need hands, clean water, and people who do not lie about being ill. I will accept two.\n@Fen: My mum says don't sell your coat. She sold hers. That was before winter.",
+    "choices": [
+      {"id":"plague_supply_clinic","label":"Pay for a sealed medicine case (-20 Gold)","condition":"gold >= 20","outcomeSuccessNode":"event4_outbreak","effects":{"gold":-20,"world_flags.plague_medicine_secured":true,"npc.yssa_coombe.trust":2,"run_history":"Funded a sealed medicine case for the Hollow clinic"}},
+      {"id":"plague_help_fen","label":"Help Fen carry water and learn who is already sick","outcomeSuccessNode":"event4_outbreak","effects":{"npc.fen_gravedigger.trust":2,"reputation.commonfolk":1,"run_history":"Helped Fen carry water during the plague rumors"}},
+      {"id":"plague_loot_ruin","label":"Search the marked ruin for anything useful","outcomeSuccessNode":"event4_outbreak","effects":{"world_flags.plague_ruin_looted":true,"reputation.infamy":1,"run_history":"Looted a marked Hollow Reaches ruin despite the warning"}},
+      {"id":"plague_keep_moving","label":"Keep your supplies for the road","outcomeSuccessNode":"event4_outbreak","effects":{"run_history":"Kept personal supplies while plague rumors spread"}}
+    ]
+  },
+  {
+    "sceneId": "event4_outbreak",
+    "illustrationId": null,
+    "narrative": "Elder Pella dies before the bells finish their first warning. The clinic fills in a day. Hendrik's cough has become blood on a cloth he tries to hide. Yssa does not soften the truth.\n\n@Yssa: We have one prepared dose that might carry him through. There will be other people who need it.\n\nOutside, Corvin Ashby tells a frightened crowd that the sickness has chosen them for a reason.",
+    "choices": [
+      {"id":"plague_defy_corvin","label":"Send Corvin's listeners to the clinic instead of his sermon","outcomeSuccessNode":"event4_quarantine","effects":{"npc.corvin_ashby.trust":-2,"npc.yssa_coombe.trust":1,"reputation.commonfolk":1,"run_history":"Pulled frightened villagers away from Corvin Ashby's plague sermon"}},
+      {"id":"plague_hear_corvin","label":"Ask Corvin why suffering needs a reason","outcomeSuccessNode":"event4_quarantine","effects":{"npc.corvin_ashby.trust":1,"run_history":"Heard Corvin Ashby's theology of the plague"}},
+      {"id":"plague_focus_hendrik","label":"Stay with Hendrik through the night","outcomeSuccessNode":"event4_quarantine","effects":{"world_flags.hendrik_seen":true,"npc.old_hendrik.trust":2,"run_history":"Stayed with Old Hendrik as the plague worsened"}}
+    ]
+  },
+  {
+    "sceneId": "event4_quarantine",
+    "illustrationId": null,
+    "narrative": "Bettina unlocks the medicine chest exactly once. There is enough for one household. Hendrik's room is at one end of the lane; a family of strangers burns with fever at the other. A merchant offers more gold than the whole village has seen this year.\n\n@Bettina: Procedure has no answer for this. It only says I must write down what you decide.",
+    "choices": [
+      {"id":"plague_medicine_hendrik","label":"Give the dose to Old Hendrik","condition":"flags.hendrik_prepared == true","outcomeSuccessNode":"event4_contained","effects":{"world_flags.hendrik_saved":true,"npc.old_hendrik.trust":4,"reputation.honor":1,"run_history":"Gave the scarce plague medicine to Old Hendrik"}},
+      {"id":"plague_medicine_strangers","label":"Give the dose to the strangers' household","outcomeSuccessNode":"event4_contained","effects":{"world_flags.hendrik_dead":true,"npc.old_hendrik.status":"dead","reputation.commonfolk":3,"reputation.honor":2,"run_history":"Gave scarce plague medicine to strangers instead of Hendrik"}},
+      {"id":"plague_medicine_merchant","label":"Sell the dose to the merchant's household","outcomeSuccessNode":"event4_spreads","effects":{"gold":35,"world_flags.hendrik_dead":true,"npc.old_hendrik.status":"dead","reputation.infamy":3,"reputation.commonfolk":-3,"run_history":"Sold scarce plague medicine to the wealthiest household"}},
+      {"id":"plague_medicine_hold","label":"Refuse to choose and lock the chest again","outcomeSuccessNode":"event4_mystery","effects":{"world_flags.hendrik_dead":true,"npc.old_hendrik.status":"dead","run_history":"Refused to choose a recipient for scarce plague medicine"}}
+    ]
+  },
+  {
+    "sceneId": "event4_contained",
+    "illustrationId": null,
+    "narrative": "The cordon holds, barely. Yssa sleeps sitting upright for the first time in weeks. If Hendrik lives, he complains that everyone has become too gentle with him; if he does not, his empty chair remains near the stove. The village learns the names of the dead before it learns to laugh again.",
+    "choices": [{"id":"plague_record_contained","label":"Leave the clinic its hard-won quiet","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"contained","reputation.commonfolk":1,"run_history":"Saw the Hollow Reaches plague contained"}}]
+  },
+  {
+    "sceneId": "event4_spreads",
+    "illustrationId": null,
+    "narrative": "The cordon breaks where hunger always breaks it: at a family door. Carts leave for the Capital before the fever has finished choosing them. Bettina records each departure and then tears the page from her ledger.",
+    "choices": [{"id":"plague_record_spreads","label":"Watch the infected road turn south","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"spreads_to_capital","reputation.commonfolk":-1,"run_history":"Saw the Hollow Reaches plague spread toward the Capital"}}]
+  },
+  {
+    "sceneId": "event4_mystery",
+    "illustrationId": null,
+    "narrative": "At dawn, the fever simply stops. Nella Vey is more frightened by this than she was by the bodies.\n\n@Nella: Diseases do not forgive. They finish, or they change. This did neither.\n\nNo one has an answer worth carrying home.",
+    "choices": [{"id":"plague_record_mystery","label":"Leave before the silence changes its mind","outcomeSuccessNode":"event4_coda","effects":{"world_flags.plague_hollow_reaches":"resolved","world_flags.plague_hollow_reaches_outcome":"mysteriously_ends","run_history":"Saw the Hollow plague end without explanation"}}]
+  },
+  {
+    "sceneId": "event4_coda",
+    "illustrationId": null,
+    "narrative": "A royal carriage passes the Hollow road under black curtains. The King is ill, the driver says, and the Capital has begun to count heirs aloud. The plague has reached farther than any cart, even where no fever followed.",
+    "narrativeVariants": {"flags.plague_hollow_reaches_outcome == 'contained'": "A royal carriage passes the Hollow road under black curtains. The King has grown frail, the driver says, and the Capital has begun to count heirs aloud. Even a contained plague leaves fear to travel on its own."},
+    "choices": [{"id":"plague_to_succession","label":"Travel to the Capital as the court gathers","outcomeSuccessNode":"event5_kings_health","effects":{"run_history":"Travelled to the Capital as the succession crisis began"}}]
+  }
+]

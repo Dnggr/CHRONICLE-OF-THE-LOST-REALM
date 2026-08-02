@@ -1,0 +1,64 @@
+[
+  {
+    "sceneId": "event3_empty_ground",
+    "illustrationId": null,
+    "narrative": "The Sun Temple is gone so completely that the sky appears indecent above its foundations. Two mourners stand where the altar was. One wants every stone restored; the other says no god worth keeping would ask for a copy.\n\n@Bellik Thorne: You cannot rebuild what was betrayed.\n@Ash-Speaker: Then we should not pretend we can. We should learn what the ash remembers.",
+    "choices": [
+      {"id":"schism_hear_ash","label":"Ask the Ash-Speaker what they mean by remembering","outcomeSuccessNode":"event3_lore","effects":{"npc.ash_speaker.trust":1,"run_history":"Met the Ash-Speaker at the empty Sun Temple"}},
+      {"id":"schism_hear_bellik","label":"Ask Bellik who he believes betrayed the temple","outcomeSuccessNode":"event3_mourning","effects":{"npc.bellik_thorne.trust":1,"run_history":"Heard Bellik Thorne's anger at the ruined Sun Temple"}},
+      {"id":"schism_leave_ruin","label":"Leave the mourners to their argument","outcomeSuccessNode":"event3_mourning","effects":{"run_history":"Left the Sun Temple mourners without taking a side"}}
+    ]
+  },
+  {
+    "sceneId": "event3_lore",
+    "illustrationId": null,
+    "narrative": "Ithrenel Dusk arrives after sunset and touches none of the rubble.\n\n@Ithrenel: The Temple was not built to make the sun kinder. It was built to keep a door from opening when people became desperate enough to knock.\n\nRelic-Keeper Sorne watches you from the broken stair. @Sorne: Which part of that story do you intend to use?",
+    "choices": [{"id":"schism_lore_continue","label":"Keep the warning, not the relic","outcomeSuccessNode":"event3_mourning","effects":{"world_flags.sun_temple_lore_known":true,"npc.sorne.trust":1,"run_history":"Learned the Sun Temple guarded more than worship"}}]
+  },
+  {
+    "sceneId": "event3_mourning",
+    "illustrationId": null,
+    "narrative": "By the next market day, grief has acquired pamphlets. The Ash-Speaker asks people to admit the temple failed them. Bellik asks them to name the people who made it fail. Inquisitor Halvard Rane has begun attending both gatherings, smiling at neither.\n\n@Ash-Speaker: A story can be a shelter.\n@Bellik: Or a weapon, if cowards are holding it.",
+    "choices": [
+      {"id":"schism_shared_grief","label":"Repeat a public account that includes everyone's loss","outcomeSuccessNode":"event3_split","effects":{"world_flags.schism_shared_grief":true,"reputation.honor":1,"npc.ash_speaker.trust":2,"run_history":"Urged the Sun Temple mourners to share responsibility and grief"}},
+      {"id":"schism_blame_outsiders","label":"Repeat the account that blames outsiders for the ruin","outcomeSuccessNode":"event3_split","effects":{"world_flags.schism_blame":true,"npc.bellik_thorne.trust":2,"reputation.infamy":1,"run_history":"Helped turn the Temple's grief toward outsiders"}},
+      {"id":"schism_sell_relic","label":"Offer Sorne's hidden relic to the highest faction","outcomeSuccessNode":"event3_split","effects":{"world_flags.schism_relic_exploited":true,"npc.sorne.trust":-3,"reputation.infamy":2,"run_history":"Tried to profit from a relic of the Sun Temple"}}
+    ]
+  },
+  {
+    "sceneId": "event3_split",
+    "illustrationId": null,
+    "narrative": "The factions finally stop pretending they are one congregation. The Ash-Speaker's followers light small lamps around the empty ground. Bellik's followers arrive with chains for the gates they intend to build. Rane reads a decree that makes fear sound like order.",
+    "choices": [
+      {"id":"schism_found_order","label":"Stand with the Ash-Speaker and found a new order","outcomeSuccessNode":"event3_new_orthodoxy","effects":{"npc.ash_speaker.trust":3,"npc.halvard_rane.trust":-2,"run_history":"Backed the Ash-Speaker's new religious order"}},
+      {"id":"schism_back_zealots","label":"Give Bellik's faction the authority it demands","outcomeSuccessNode":"event3_zealots","effects":{"npc.bellik_thorne.trust":3,"world_flags.schism_zealot_support":true,"reputation.infamy":2,"run_history":"Backed Bellik Thorne's hard-line Temple faction"}},
+      {"id":"schism_unify","label":"Ask both sides to keep the ruin open to everyone (Charisma check)","requiredAttribute":"charisma","difficultyClass":16,"outcomeSuccessNode":"event3_new_orthodoxy","outcomeFailNode":"event3_abandoned","effects":{"run_history":"Attempted to keep the Sun Temple ruin open to every mourner"}},
+      {"id":"schism_walk","label":"Refuse to make an institution out of a wound","outcomeSuccessNode":"event3_abandoned","effects":{"run_history":"Refused to choose a new keeper for the Sun Temple's grief"}}
+    ]
+  },
+  {
+    "sceneId": "event3_new_orthodoxy",
+    "illustrationId": null,
+    "narrative": "No new temple rises. Instead, the Ash-Speaker's people open a hall with no locked inner door and leave a place at every bench for the faithless. Bellik watches from the road and does not come in.",
+    "choices": [{"id":"schism_record_new","label":"Leave the new lamps burning","outcomeSuccessNode":"event3_coda","effects":{"world_flags.sun_temple_schism":"resolved","world_flags.sun_temple_schism_outcome":"new_orthodoxy","reputation.honor":2,"run_history":"Saw a new Sun Temple order begin without rebuilding the old one"}}]
+  },
+  {
+    "sceneId": "event3_zealots",
+    "illustrationId": null,
+    "narrative": "Bellik's followers take the ground before dawn. By noon, the Ash-Speaker is dead—not by an enemy's blade, but by people who called them insufficiently pure. Rane's decree hangs straight in the windless square.",
+    "choices": [{"id":"schism_record_zealots","label":"Leave the new watchmen to their silence","outcomeSuccessNode":"event3_coda","effects":{"world_flags.sun_temple_schism":"resolved","world_flags.sun_temple_schism_outcome":"zealot_uprising","npc.ash_speaker.status":"dead","npc.halvard_rane.trust":2,"reputation.infamy":2,"run_history":"Saw the Sun Temple schism become a zealot uprising"}}]
+  },
+  {
+    "sceneId": "event3_abandoned",
+    "illustrationId": null,
+    "narrative": "The arguments run out of listeners before they run out of reasons. The ruin stays open to rain, grass, and anyone quiet enough to remember it without claiming it.",
+    "choices": [{"id":"schism_record_abandoned","label":"Let the ruin remain a ruin","outcomeSuccessNode":"event3_coda","effects":{"world_flags.sun_temple_schism":"resolved","world_flags.sun_temple_schism_outcome":"faith_abandoned","run_history":"Let the Sun Temple's grief fade without a new institution"}}]
+  },
+  {
+    "sceneId": "event3_coda",
+    "illustrationId": null,
+    "narrative": "Someone must tend the sick in the Hollow Reaches soon. In the new hall, volunteers are already folding bandages. Beyond the city, a cough carries too long through a crowded inn.",
+    "narrativeVariants": {"flags.sun_temple_schism_outcome == 'zealot_uprising'": "Someone must tend the sick in the Hollow Reaches soon. Bellik's watchmen close their gates early, and no one can say who will be allowed through them. Beyond the city, a cough carries too long through a crowded inn."},
+    "choices": [{"id":"schism_to_plague","label":"Travel toward the Hollow Reaches","outcomeSuccessNode":"event4_cough","effects":{"run_history":"Left the Sun Temple's aftermath for the Hollow Reaches"}}]
+  }
+]

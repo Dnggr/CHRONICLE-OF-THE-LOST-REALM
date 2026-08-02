@@ -103,6 +103,8 @@
       "flags.rebellion_salt_road_outcome == 'concessions_won'": "A crown messenger rides hard toward the Capital with a signed Salt Road concession. Behind you, workers rebuild the toll gate without tearing down its banner. Ahead, the Northern Reach will hear that House Aldric was forced to bargain.",
       "flags.rebellion_salt_road_outcome == 'regime_change'": "A crown messenger rides hard toward the Capital as a new guild-council banner rises over the toll gate. Ahead, the Northern Reach will hear that House Aldric lost a road without losing a war."
     },
-    "choices": []
+    "choices": [
+      {"id":"rebellion_to_northern_war","label":"Follow the crown messenger toward the Northern Reach","outcomeSuccessNode":"event2_envoy","effects":{"run_history":"Followed the Salt Road's consequences toward the Northern Reach"}}
+    ]
   }
 ]

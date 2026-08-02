@@ -33,12 +33,23 @@ class NarrativeText extends StatelessWidget {
   final String text;
   final String? illustrationId;
 
+  /// When a player has just selected a choice, the next story block unfolds
+  /// line-by-line instead of appearing fully rendered below the scroll.
+  final bool animate;
+  final VoidCallback? onRevealProgress;
+
   static final RegExp _dialoguePattern = RegExp(r'^@([^:]+):\s*(.*)$');
   static final RegExp _emphasisPattern = RegExp(r'_(.+?)_');
 
   static const _proseColor = Color(0xFF2A2420);
 
-  const NarrativeText({super.key, required this.text, this.illustrationId});
+  const NarrativeText({
+    super.key,
+    required this.text,
+    this.illustrationId,
+    this.animate = false,
+    this.onRevealProgress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +60,24 @@ class NarrativeText extends StatelessWidget {
       children: [
         ...(() {
           final widgets = <Widget>[];
+          var revealIndex = 0;
+          Widget reveal(Widget child) {
+            final index = revealIndex++;
+            if (!animate) return child;
+            return _RevealLine(
+              delay: Duration(milliseconds: index * 75),
+              onProgress: onRevealProgress,
+              child: child,
+            );
+          }
+
           for (final rawLine in lines) {
             final line = rawLine;
             final trimmed = line.trim();
             final dialogueMatch = _dialoguePattern.firstMatch(trimmed);
 
             if (trimmed.startsWith('+') || trimmed.startsWith('-')) {
-              widgets.add(
+              widgets.add(reveal(
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Text(
@@ -69,16 +91,16 @@ class NarrativeText extends StatelessWidget {
                     ),
                   ),
                 ),
-              );
+              ));
             } else if (dialogueMatch != null) {
-              widgets.add(_DialogueLine(
+              widgets.add(reveal(_DialogueLine(
                 speaker: dialogueMatch.group(1)!.trim(),
                 line: dialogueMatch.group(2)!.trim(),
-              ));
+              )));
             } else if (trimmed.isEmpty) {
-              widgets.add(const SizedBox(height: 12));
+              widgets.add(reveal(const SizedBox(height: 12)));
             } else {
-              widgets.add(
+              widgets.add(reveal(
                 Text.rich(
                   TextSpan(
                     children: _emphasisSpans(
@@ -91,7 +113,7 @@ class NarrativeText extends StatelessWidget {
                     ),
                   ),
                 ),
-              );
+              ));
             }
           }
           return widgets;
@@ -126,6 +148,70 @@ class NarrativeText extends StatelessWidget {
       spans.add(TextSpan(text: source.substring(cursor), style: baseStyle));
     }
     return spans;
+  }
+}
+
+/// A small, staggered reveal is intentionally used instead of a character
+/// typewriter: the latter would briefly mis-parse `@Name:` dialogue markup
+/// while only half a speaker tag had appeared. Expanding complete lines keeps
+/// screenplay dialogue formatted correctly throughout the animation.
+class _RevealLine extends StatefulWidget {
+  final Duration delay;
+  final VoidCallback? onProgress;
+  final Widget child;
+
+  const _RevealLine({
+    required this.delay,
+    required this.onProgress,
+    required this.child,
+  });
+
+  @override
+  State<_RevealLine> createState() => _RevealLineState();
+}
+
+class _RevealLineState extends State<_RevealLine>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    )..addListener(widget.onProgress ?? () {});
+    _startAfterDelay();
+  }
+
+  Future<void> _startAfterDelay() async {
+    await Future<void>.delayed(widget.delay);
+    if (mounted) _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    return SizeTransition(
+      sizeFactor: curved,
+      axisAlignment: -1,
+      child: FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.08),
+            end: Offset.zero,
+          ).animate(curved),
+          child: widget.child,
+        ),
+      ),
+    );
   }
 }
 

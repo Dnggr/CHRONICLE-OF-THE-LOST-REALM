@@ -11,6 +11,7 @@ class SceneRepository {
 
   static const List<String> _sceneFiles = [
     'assets/scenes/prologue.json',
+    'assets/scenes/chapter1_harvest.json',
   ];
 
   Future<void> loadAll() async {

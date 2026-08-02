@@ -64,7 +64,9 @@ On death:
   illustrated portrait art yet).
 - `ConditionEvaluator` — scene JSON condition language:
   `flags.<key> == true/false/'string'`, `origin.<tag> == true/false`,
-  `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `inventory.contains('x')`.
+  `attributes.<key> >= N` (also `<=`/`>`/`<`/`==`), `inventory.contains('x')`,
+  `reputation.<track> >= N` (honor/infamy/crown/commonfolk; negative
+  values allowed), `npc.<id>.trust >= N`, `npc.<id>.status == 'x'`.
   Attribute keys are `strength`, `dexterity`, `intelligence`, `wisdom`,
   `charisma`, `constitution` — matching Life in Adventure's D&D-style
   6-stat system (STR/DEX/INT/WIS/CHA/CON), not a custom stat set.
@@ -73,7 +75,33 @@ On death:
   `world_box` (permanent legacy, only clearable via Settings > Reset
   World), `settings_box` (preferences).
 - `LegacyEngine` — death → `DeceasedHero` → `WorldHistory`, title
-  auto-derived from the dead character's archetype.
+  auto-derived from the dead character's archetype, `alignment`
+  auto-derived from the four reputation tracks, plus an extra
+  reputation-extreme canon phrase for genuinely notable deaths.
+- `Npc`/`Npcs` (`lib/data/npcs.dart`) — all 42 Signature NPCs from the
+  Story & Systems Bible (6 roles × 7 origins), as structured,
+  referenceable data. Only Mira Talbot has a written scene arc so far
+  (see Chapter 1 below) — the rest exist as data, ready to write scenes
+  against.
+- `WorldEvent`/`WorldEvents` (`lib/data/world_events.dart`) — all 13
+  catalog world events (War, Rebellion, Dragon, Schism, Plague,
+  Succession Crisis, Foreign Invasion, + 6 minor events), each with its
+  `world_flags` key, ordered stages, and outcomes. Data only — stage
+  transitions happen via hand-written `SceneChoice.effects`, same as
+  `sun_temple_destroyed` always has. Only Harvest Failure has scenes
+  written (Chapter 1).
+
+**Honor/Reputation System**
+- Four independent tracks on `CharacterState.reputation`: `honor`,
+  `infamy`, `crown`, `commonfolk` — deliberately not one meter, since a
+  player can be simultaneously trusted by common folk, distrusted by
+  the crown, and notorious all at once. Written via
+  `SceneChoice.effects` keys like `"reputation.honor": 2` (a delta, not
+  an absolute).
+- Per-NPC `npcTrust` and `npcStatus` maps — private standing with a
+  specific person, separate from public reputation. Written via
+  `"npc.<id>.trust": 3` / `"npc.<id>.status": "estranged"`.
+- Visible in-run via the Journal screen's Reputation section.
 
 **UI (`lib/ui/`)**
 - `MainMenuScreen` — Continue / New Game (with an overwrite-warning
@@ -98,16 +126,27 @@ On death:
   Note: the scroll is in-memory for the current session only — see
   DEVLOG.md Session 4 for why it isn't persisted across app restarts yet.
 - `DeathScreen` — recap, then routes back to the main menu.
-- `JournalScreen` — this life's choice log + a quick chronicle glance
-  (in-run access; HistoryScreen is the main-menu equivalent with more
-  aggregate detail).
+- `JournalScreen` — this life's choice log, Reputation (the four tracks
+  + tracked NPC relationships), and a quick chronicle glance (in-run
+  access; HistoryScreen is the main-menu equivalent with more aggregate
+  detail).
 
 **Content**
 - `assets/scenes/prologue.json` — 6 connected scenes: a Charisma stat
   check, a world-flag-gated variant (`sun_temple_destroyed`), two
   origin-gated examples (Royal Heir / Vampire get unique choices at the
   village fork), and a dialogue scene (`prologue_ruin_encounter`)
-  demonstrating the `@Speaker: line` / `_emphasis_` markup below.
+  demonstrating the `@Speaker: line` / `_emphasis_` markup below. Its
+  final choice now leads into Chapter 1 instead of looping back.
+- `assets/scenes/chapter1_harvest.json` — **Chapter 1: the Harvest
+  Failure.** 8 scenes implementing Mira Talbot's full Signature NPC arc
+  (a Redemption-flavored subplot with three real Honor System
+  consequences: help her confess / help her cover it up / report her —
+  the last one costs a permanent `npc.mira_talbot.status: "estranged"`)
+  woven through the Harvest Failure world event, including a
+  `npc.mira_talbot.trust >= 3`-gated bonus scene that only appears if
+  you built the relationship earlier. This is a playable version of the
+  Story & Systems Bible's own section 6 worked example.
 
 **Writing dialogue in scene JSON**
 - `@Name: their line` inside a `narrative` string renders as a
@@ -128,8 +167,17 @@ On death:
 - Inventory screen and Achievements screen are still unbuilt
   (placeholders in the bottom nav).
 - No audio.
-- Only the prologue chapter exists — new chapters need a new
+- Only Chapters "Prologue" and "1: The Harvest Failure" have written
+  scenes — 41 of the 42 Signature NPCs and 12 of the 13 World Events
+  exist as structured data (`lib/data/npcs.dart`, `lib/data/world_events.dart`)
+  but have no scene content behind them yet. New chapters need a new
   `assets/scenes/*.json` file added to `SceneRepository._sceneFiles`.
+- Narrative Routes (Love/Redemption/Revenge/etc, from the Story &
+  Systems Bible section 5) aren't a tracked/named system — they're
+  meant to emerge from scene writers checking reputation/npc conditions
+  that already work (Chapter 1's redemption-flavored branch is an
+  example), not a separate "current route" flag. See DEVLOG.md
+  Session 6 for the reasoning.
 
 ## Testing the full loop right now
 
@@ -148,3 +196,11 @@ On death:
 5. To test Reset World: Settings → Reset World → confirm → confirm you
    land back on a fresh MainMenuScreen with no Continue button and "No
    hero has yet fallen."
+6. To test the Honor System + Chapter 1: play through the prologue to
+   the ruin encounter, step through the door into Chapter 1, meet Mira
+   Talbot. Try "help her confess" on one run and "report her" on
+   another — confirm the Journal's Reputation section shows different
+   honor/commonfolk numbers, and that reporting her shows
+   "Mira Talbot (estranged)" in the "People who remember you" list. To
+   see the trust-gated bonus scene, pick choices that raise
+   `npc.mira_talbot.trust` to 3+ before reaching the granary scene.

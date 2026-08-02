@@ -9,6 +9,114 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 6 — Honor System, Signature NPCs, World Events, Chapter 1
+
+This session implements the engine/data foundation for the Story &
+Systems Bible (story_systems_bible.txt) and builds ONE fully-realized
+worked example on top of it (the bible's own section 6 mini-example,
+made real). See the scope notes below for exactly what's data-only vs.
+what has actual scene content.
+
+**Honor/Reputation System (bible section 4):**
+- `CharacterState` gained `reputation` (a `Map<String,int>` with keys
+  'honor', 'infamy', 'crown', 'commonfolk' - the bible's four
+  independent tracks, deliberately not one meter), `npcTrust` (per-NPC
+  private trust, keyed by npc_id), and `npcStatus` (per-NPC state like
+  'estranged'/'dead', absent = 'alive').
+- `ConditionEvaluator` gained three new patterns:
+  `reputation.<track> >= N` (negative values allowed, unlike attribute
+  checks), `npc.<id>.trust >= N`, and `npc.<id>.status == 'x'` - same
+  family as the existing `flags.<key>`/`origin.<tag>` syntax.
+- `GameController.selectChoice`'s effects handler gained matching write
+  support: `reputation.<track>`, `npc.<id>.trust`, `npc.<id>.status`,
+  plus a plain `gold` delta (added because two of the new Chapter 1
+  choices promised a gold cost in their label and nothing was applying
+  it - a real bug caught while wiring content, not a planned feature).
+- `LegacyEngine.recordDeath` now DERIVES `alignment` from the four
+  reputation tracks instead of a hardcoded 'Neutral' default, and
+  appends an extra canon-event phrase for genuinely extreme reputation
+  states (the bible's own example: "Ruled through fear, not law" for
+  high-infamy/low-honor) - future playthroughs' NPCs now have something
+  concrete to react to from a past character's reputation, not just
+  their causeOfDeath.
+
+**Signature NPC registry (bible section 2.3):**
+- `lib/data/npcs.dart` — all 42 Signature NPCs (Ally/Enemy/Merchant/
+  Mentor/Rival/Wildcard x 7 origins) as structured `Npc` objects: id,
+  role, linked origin, core trait, motivation, secret/flaw, voice
+  pattern, story hook. `Npcs.byId()` and `Npcs.forOrigin()` for lookup.
+- SCOPE NOTE: this makes all 42 real, referenceable entities in the
+  engine - it does NOT mean all 42 have scenes written. Only Mira Talbot
+  has an actual implemented arc this session (see Chapter 1 below).
+  Writing another NPC's scenes is pure content work from here - the
+  npc_id already exists, the trust/status condition syntax already
+  works, nothing in the engine needs to change again for NPC #2.
+
+**World Event catalog (bible section 3):**
+- `lib/data/world_events.dart` — all 13 catalog events (7 major + 6
+  minor) as structured `WorldEvent` objects: id, world_flags key,
+  ordered stages, possible outcomes, description, Legacy Engine tie-in.
+  Deliberately DATA only, not behavior - stage transitions still happen
+  via hand-written `SceneChoice.effects` entries exactly like
+  `sun_temple_destroyed` already worked before this session. The
+  catalog exists so every event's flag key/stage names are defined once
+  instead of re-typed (and possibly typo'd out of sync) across scene
+  files as more chapters get written.
+- SCOPE NOTE: only Harvest Failure has real scene content behind it.
+  The other 12 are ready to write against - the catalog entry tells you
+  exactly which flag key and stage strings to use so new scenes stay
+  consistent with older ones referencing the same event.
+
+**Chapter 1: the Harvest Failure, in full (`assets/scenes/chapter1_harvest.json`):**
+- 8 connected scenes implementing Mira Talbot's Signature NPC arc woven
+  through the Harvest Failure event - this is a direct, playable version
+  of the bible's own section 6 "worked mini-example."
+- Demonstrates multiple Honor System triggers from one small arc: a
+  Redemption-flavored choice (help her confess vs. cover it up vs.
+  report her - the last one sets `npc.mira_talbot.status: "estranged"`
+  AND a reputation.honor/commonfolk penalty, a real betrayal-weight
+  consequence, not just a flavor difference), a "not helping during a
+  world event" choice at the granary, and a trust-gated bonus scene
+  (`npc.mira_talbot.trust >= 3`) that only appears if the player built
+  the relationship earlier - literally the bible's "a background NPC's
+  behavior changed because of a Signature NPC interaction three
+  chapters earlier" point, except it's the SAME NPC reacting, which is
+  the simpler and more provable version of that claim to ship first.
+- Also demonstrates the `@Speaker:` dialogue markup and origin-gated
+  `narrativeVariants` (Mira reacts differently to Civilian vs. Royal
+  Heir origins) from earlier sessions, so this chapter exercises nearly
+  every engine feature built so far in one place.
+- Wired in: `SceneRepository._sceneFiles` now includes
+  `chapter1_harvest.json`, and the prologue's old placeholder ending
+  ("Step through the door... build Chapter 1 from here") now actually
+  routes into `chapter1_harvest_intro` instead of looping back to the
+  start.
+
+**UI:**
+- `JournalScreen` gained a Reputation section: the four tracks as signed
+  numbers (not a 0-100 bar - the whole point of the bible's design was
+  that these can go negative and don't collapse to one axis), plus a
+  "People who remember you" list showing any NPC the player has a
+  tracked trust value with, their current status if not 'alive', and
+  their trust delta.
+
+**What this session deliberately did NOT do (see bible section 0's own
+scope note, which this session followed):**
+- Did not write scene content for the other 41 Signature NPCs or the
+  other 12 World Events - see the SCOPE NOTEs above. The engine/data
+  foundation is real and complete; the remaining work is authoring more
+  scene JSON against it, not building more engine.
+- Did not implement the bible's Narrative Routes (section 5) as a
+  tracked/named system (e.g. no "current route: Redemption" flag). The
+  bible describes routes as PATTERNS the story recognizes via
+  accumulated reputation/flags/npcTrust, not a separate state machine -
+  which means routes don't need their own code to exist; they emerge
+  from scene writers checking the reputation/npc conditions that
+  already work, the same way Chapter 1's redemption-flavored branch
+  already does. Worth revisiting only if you want an explicit
+  "route achieved" flag for ending-selection logic later.
+
+--------------------------------------------------------------------------
 ## Session 5 — Deeper character creator, screenplay-style dialogue
 
 **Problem 1:** Character creation was just Name + Archetype - much

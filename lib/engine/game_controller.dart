@@ -223,12 +223,42 @@ class GameController extends ChangeNotifier {
     }
 
     // Apply immediate effects (world flags, run history entries) first.
+    // PROBLEM: SceneChoice.effects previously only understood
+    // "world_flags.<key>" and "run_history" - the Story & Systems
+    // Bible's Honor System needed a way for a single choice to also
+    // move a reputation track or a specific NPC's trust. SOLUTION:
+    // three more key prefixes, all still going through this one
+    // effects-application block so there's still exactly one place
+    // choice consequences get applied, not several.
     choice.effects.forEach((key, value) {
       if (key.startsWith('world_flags.')) {
         final flagKey = key.substring('world_flags.'.length);
         LegacyEngine.applyFlagEffect(world, flagKey, value);
       } else if (key == 'run_history') {
         activeCharacter.runHistory.add(value as String);
+      } else if (key.startsWith('reputation.')) {
+        // value is a DELTA (e.g. -2, +5), not an absolute value - so
+        // repeated choices accumulate naturally instead of overwriting.
+        final track = key.substring('reputation.'.length);
+        final delta = (value as num).toInt();
+        activeCharacter.reputation[track] =
+            (activeCharacter.reputation[track] ?? 0) + delta;
+      } else if (key.startsWith('npc.') && key.endsWith('.trust')) {
+        final npcId = key.substring(4, key.length - '.trust'.length);
+        final delta = (value as num).toInt();
+        activeCharacter.npcTrust[npcId] =
+            (activeCharacter.npcTrust[npcId] ?? 0) + delta;
+      } else if (key.startsWith('npc.') && key.endsWith('.status')) {
+        final npcId = key.substring(4, key.length - '.status'.length);
+        activeCharacter.npcStatus[npcId] = value as String;
+      } else if (key == 'gold') {
+        // PROBLEM: several Harvest Failure choices promise a gold cost
+        // in their label ("-15 Gold") but nothing applied it - effects
+        // only understood world_flags/run_history/reputation/npc keys.
+        // SOLUTION: a plain numeric delta on character.gold, same
+        // pattern as every other numeric effect here.
+        final delta = (value as num).toInt();
+        activeCharacter.gold += delta;
       }
     });
 

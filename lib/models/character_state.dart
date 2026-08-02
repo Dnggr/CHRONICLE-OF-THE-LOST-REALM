@@ -9,16 +9,20 @@ import '../data/traits.dart';
 /// CHANGE LOG (see /DEVLOG.md for the full story):
 /// - Added [originTags] so the story can react to which Archetype the
 ///   player picked at creation (royal, elf, vampire, etc), not just to
-///   raw attribute numbers. SOLUTION: originTags is a permanent,
-///   un-earnable label set once at creation and read via
-///   ConditionEvaluator's "origin.<tag> == true" pattern.
-/// - Added [gender], [portraitId], [backgroundId], [traitId] this
-///   session, to match the reference game's deeper character creator
-///   (Name/Gender/Portrait/Background/Trait/Stat Distribution/Starting
-///   Equipment, all as separate layers - see fromCreationData below).
-///   Background and Trait also contribute their ids to [originTags],
-///   the same way Archetype does, so scene JSON can react to them too
-///   without any new condition syntax.
+///   raw attribute numbers.
+/// - Added [gender], [portraitId] and the layered creation system
+///   (Background/Trait/EquipmentKit/Stat Distribution - see
+///   fromCreationData below).
+/// - Added [reputation] and [npcTrust]/[npcStatus] this session, per the
+///   Story & Systems Bible's Honor/Reputation System (bible section 4).
+///   PROBLEM the bible identified: a single global "honor" number can't
+///   represent a player who is simultaneously trusted by common folk,
+///   distrusted by the crown, notorious, AND personally forgiven by one
+///   specific NPC they wronged. SOLUTION: four separate tracked values
+///   (honor/infamy/crown/commonfolk) plus a PER-NPC trust/status map,
+///   read via ConditionEvaluator's new "reputation.<track>" and
+///   "npc.<id>.trust" / "npc.<id>.status" patterns - same family as the
+///   existing flags.<key>/origin.<tag> syntax, not a new subsystem.
 class CharacterState {
   String name;
   String gender;
@@ -41,6 +45,27 @@ class CharacterState {
   /// before the story started," not a flag you earn.
   List<String> originTags;
 
+  /// The four public reputation tracks from the Story & Systems Bible:
+  /// 'honor', 'infamy', 'crown', 'commonfolk'. All start at 0 and can go
+  /// negative (a "cruel but keeps promises" character is possible:
+  /// negative honor delta events avoided, but infamy still high from
+  /// being feared). Read via "reputation.<track> >= N" in scene JSON.
+  Map<String, int> reputation;
+
+  /// Per-NPC private trust value, keyed by npc_id (see
+  /// lib/data/npcs.dart for the Signature NPC registry this keys into).
+  /// Distinct from the four public reputation tracks - this is
+  /// "how does THIS specific person feel about you," not public opinion.
+  /// Read via "npc.<npc_id>.trust >= N".
+  Map<String, int> npcTrust;
+
+  /// Per-NPC status string, e.g. 'alive' (default/absent), 'dead',
+  /// 'estranged', 'turned_enemy'. Read via "npc.<npc_id>.status == 'x'".
+  /// Only NPCs whose status has actually changed need an entry here -
+  /// absence means 'alive' (the implicit default, see
+  /// ConditionEvaluator's npc.<id>.status handling).
+  Map<String, String> npcStatus;
+
   /// Log of major choices taken this run, used both for the Journal
   /// screen and to decide what gets written into WorldHistory on death.
   List<String> runHistory;
@@ -60,6 +85,9 @@ class CharacterState {
     List<String>? inventory,
     List<String>? statusEffects,
     List<String>? originTags,
+    Map<String, int>? reputation,
+    Map<String, int>? npcTrust,
+    Map<String, String>? npcStatus,
     List<String>? runHistory,
     this.currentSceneId = 'prologue_start',
   })  : attributes = attributes ??
@@ -74,6 +102,10 @@ class CharacterState {
         inventory = inventory ?? [],
         statusEffects = statusEffects ?? [],
         originTags = originTags ?? [],
+        reputation = reputation ??
+            {'honor': 0, 'infamy': 0, 'crown': 0, 'commonfolk': 0},
+        npcTrust = npcTrust ?? {},
+        npcStatus = npcStatus ?? {},
         runHistory = runHistory ?? [];
 
   /// Builds a brand-new character from every layer of the creation
@@ -152,6 +184,9 @@ class CharacterState {
         'inventory': inventory,
         'statusEffects': statusEffects,
         'originTags': originTags,
+        'reputation': reputation,
+        'npcTrust': npcTrust,
+        'npcStatus': npcStatus,
         'runHistory': runHistory,
         'currentSceneId': currentSceneId,
       };
@@ -159,9 +194,10 @@ class CharacterState {
   factory CharacterState.fromJson(Map<String, dynamic> json) {
     return CharacterState(
       name: json['name'] as String,
-      // COMPATIBILITY NOTE: gender/portraitId were added after the first
-      // save format shipped, same situation as originTags before them -
-      // default rather than throw on an older save.
+      // COMPATIBILITY NOTE: gender/portraitId/reputation/npcTrust/
+      // npcStatus were all added after the first save format shipped -
+      // default rather than throw on an older save, same pattern as
+      // originTags before them.
       gender: json['gender'] as String? ?? 'Unspecified',
       portraitId: json['portraitId'] as String? ?? 'p_wanderer',
       age: json['age'] as int,
@@ -173,6 +209,10 @@ class CharacterState {
       inventory: (json['inventory'] as List).cast<String>(),
       statusEffects: (json['statusEffects'] as List).cast<String>(),
       originTags: (json['originTags'] as List?)?.cast<String>() ?? [],
+      reputation: (json['reputation'] as Map?)?.cast<String, int>() ??
+          {'honor': 0, 'infamy': 0, 'crown': 0, 'commonfolk': 0},
+      npcTrust: (json['npcTrust'] as Map?)?.cast<String, int>() ?? {},
+      npcStatus: (json['npcStatus'] as Map?)?.cast<String, String>() ?? {},
       runHistory: (json['runHistory'] as List).cast<String>(),
       currentSceneId: json['currentSceneId'] as String,
     );

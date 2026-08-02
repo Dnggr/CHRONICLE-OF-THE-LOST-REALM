@@ -109,8 +109,8 @@
     "choices": [
       {
         "id": "enter_door",
-        "label": "Step through the door (this is a placeholder - build Chapter 1 from here)",
-        "outcomeSuccessNode": "prologue_start"
+        "label": "Step through the door",
+        "outcomeSuccessNode": "chapter1_harvest_intro"
       }
     ]
   }

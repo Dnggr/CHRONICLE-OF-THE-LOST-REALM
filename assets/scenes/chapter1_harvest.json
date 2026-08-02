@@ -1,0 +1,196 @@
+[
+  {
+    "sceneId": "chapter1_harvest_intro",
+    "illustrationId": null,
+    "narrative": "The door groans open onto open air and late-afternoon light. Beyond it, a dirt path winds down out of the ruins toward a cluster of farms and a low stone wall - a village, smaller than the one you left behind.\n\nEven from here, something looks wrong. Fields that should be green this time of year are patched with yellow, like a fever sweating through the ground itself.",
+    "choices": [
+      {
+        "id": "descend_to_village",
+        "label": "Head down toward the village",
+        "outcomeSuccessNode": "chapter1_harvest_meet_mira",
+        "effects": {
+          "world_flags.harvest_failure": "warning_signs"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_meet_mira",
+    "illustrationId": null,
+    "narrative": "A woman is fighting a losing battle with a fence post, swearing at it like it can be shamed into standing straight. She looks up when your shadow crosses her, sizes you up in about a second, and goes back to the post.\n\n@Mira: You're not from around here. Good. Means you probably don't owe anybody money in this village yet.\n\nShe nods at the post. _It's not going to hold itself._",
+    "narrativeVariants": {
+      "origin.civilian == true": "A woman is fighting a losing battle with a fence post, swearing at it like it can be shamed into standing straight. She looks up when your shadow crosses her - and something in your bearing makes her relax half a step.\n\n@Mira: You've got farm hands. I can tell. Good - means you probably know a stubborn post when you see one.\n\nShe nods at it. _It's not going to hold itself._",
+      "origin.royal == true": "A woman is fighting a losing battle with a fence post, swearing at it like it can be shamed into standing straight. She catches sight of the signet at your hand and her whole posture changes - wary, not impressed.\n\n@Mira: A lord's get, out here? Don't tell me House Aldric's come to collect taxes on a fence post.\n\nShe doesn't smile. _It's not going to hold itself, in case you were only here to watch._"
+    },
+    "choices": [
+      {
+        "id": "help_fence_strength",
+        "label": "Help her wrestle the post into place (Strength check)",
+        "requiredAttribute": "strength",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "chapter1_harvest_mira_secret",
+        "outcomeFailNode": "chapter1_harvest_mira_secret",
+        "effects": {
+          "npc.mira_talbot.trust": 1,
+          "run_history": "Helped Mira Talbot mend a fence"
+        }
+      },
+      {
+        "id": "ask_whats_wrong",
+        "label": "Ask her what's really wrong - the fence isn't why the fields look like that",
+        "outcomeSuccessNode": "chapter1_harvest_mira_secret",
+        "effects": {
+          "npc.mira_talbot.trust": 1
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_mira_secret",
+    "illustrationId": null,
+    "narrative": "Mira wipes her hands on her trousers and finally stops pretending the fence is the problem.\n\n@Mira: Fields have been bad since spring. Not the kind of bad you fix with better weather. And I've been - \n\nShe stops herself.\n\n@Mira: I've been taking grain from Old Ferrick's cousin's store. Small amounts. Nobody's noticed. I tell myself nobody's noticed.\n\nShe won't look at you now.\n\n@Mira: I don't need a lecture. I need to know what you're going to do about it.",
+    "choices": [
+      {
+        "id": "help_confess",
+        "label": "Help her confess and make it right with the neighbor",
+        "outcomeSuccessNode": "chapter1_harvest_time_passes",
+        "effects": {
+          "npc.mira_talbot.trust": 3,
+          "reputation.honor": 2,
+          "reputation.commonfolk": 1,
+          "run_history": "Helped Mira Talbot make amends for stealing grain"
+        }
+      },
+      {
+        "id": "help_cover_up",
+        "label": "Help her cover her tracks instead - no one needs to know",
+        "outcomeSuccessNode": "chapter1_harvest_time_passes",
+        "effects": {
+          "npc.mira_talbot.trust": 2,
+          "reputation.honor": -2,
+          "reputation.commonfolk": -1,
+          "run_history": "Helped Mira Talbot hide the theft from her neighbor"
+        }
+      },
+      {
+        "id": "report_her",
+        "label": "Tell her this needs to go to the Bailiff",
+        "outcomeSuccessNode": "chapter1_harvest_time_passes",
+        "effects": {
+          "npc.mira_talbot.trust": -5,
+          "npc.mira_talbot.status": "estranged",
+          "reputation.crown": 2,
+          "reputation.honor": -3,
+          "reputation.commonfolk": -2,
+          "run_history": "Reported Mira Talbot to Bailiff Reyes"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_time_passes",
+    "illustrationId": null,
+    "narrative": "Seasons turn slowly out here. What started as a few sickly fields spreads, field by field, farm by farm, until the whole village is watching its granaries with the particular fear of people who have done this math before and didn't like the answer.\n\nThe Harvest Failure has stopped being a rumor.",
+    "choices": [
+      {
+        "id": "continue_to_event",
+        "label": "See how the village is holding up",
+        "outcomeSuccessNode": "chapter1_harvest_event",
+        "effects": {
+          "world_flags.harvest_failure": "active"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_event",
+    "illustrationId": null,
+    "narrative": "The granary doors stand open, mostly empty. A line has formed - quiet, orderly, the kind of quiet that comes right before it isn't anymore. Every household in the village needs more than there is to go around.",
+    "choices": [
+      {
+        "id": "give_gold_to_village",
+        "label": "Give what gold you can spare to the village stores (-15 Gold)",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "gold": -15,
+          "reputation.commonfolk": 3,
+          "reputation.honor": 1,
+          "run_history": "Gave gold to the village during the Harvest Failure"
+        }
+      },
+      {
+        "id": "walk_past",
+        "label": "This isn't your fight - walk on",
+        "outcomeSuccessNode": "chapter1_harvest_mira_check",
+        "effects": {
+          "reputation.commonfolk": -2,
+          "run_history": "Did not help the village during the Harvest Failure"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_mira_check",
+    "illustrationId": null,
+    "narrative": "Word moves fast in a village this size - about the granary, about you, about who showed up and who didn't.",
+    "choices": [
+      {
+        "id": "find_mira_special",
+        "label": "Go find Mira - she trusts you enough to ask for help directly",
+        "condition": "npc.mira_talbot.trust >= 3",
+        "outcomeSuccessNode": "chapter1_harvest_mira_intervention"
+      },
+      {
+        "id": "move_on_from_village",
+        "label": "Move on - there's nothing more to do here",
+        "outcomeSuccessNode": "chapter1_harvest_end"
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_mira_intervention",
+    "illustrationId": null,
+    "narrative": "Mira finds you before you can find her. No fence post to fight this time - just her, and the particular stillness of someone who's already decided to ask for something and hates that it's come to this.\n\n@Mira: I wouldn't ask if I had anyone else to ask. The farm doesn't make it through the season without help. Real help, not gold I'll owe back double.\n\nShe waits. _She's trying very hard not to look like she's waiting._",
+    "choices": [
+      {
+        "id": "personally_intervene",
+        "label": "Give her what she needs, no strings attached (-20 Gold)",
+        "outcomeSuccessNode": "chapter1_harvest_end",
+        "effects": {
+          "gold": -20,
+          "npc.mira_talbot.trust": 4,
+          "reputation.honor": 2,
+          "reputation.commonfolk": 2,
+          "world_flags.harvest_failure": "desperate",
+          "world_flags.harvest_failure_outcome": "resolved",
+          "run_history": "Personally saved Mira Talbot's farm during the Harvest Failure"
+        }
+      },
+      {
+        "id": "cant_afford_it",
+        "label": "Tell her honestly you can't afford to help further",
+        "outcomeSuccessNode": "chapter1_harvest_end",
+        "effects": {
+          "npc.mira_talbot.trust": 1,
+          "run_history": "Told Mira Talbot the truth - you couldn't help further"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "chapter1_harvest_end",
+    "illustrationId": null,
+    "narrative": "The village goes quiet with winter, the way it does every year - but this year the quiet has an edge to it, everyone counting what's left and doing the math on how long it holds.",
+    "narrativeVariants": {
+      "flags.harvest_failure_outcome == 'resolved'": "The village goes quiet with winter, the way it does every year - but this year there's less fear in it. The granary held. People will say later it was luck. Mira will know better, and so will you.",
+      "npc.mira_talbot.status == 'estranged'": "The village goes quiet with winter. Mira Talbot doesn't meet your eyes anymore when your paths cross - word travels fast in a place this small, and it travels faster about people like you."
+    },
+    "choices": [
+      {
+        "id": "continue_the_chronicle",
+        "label": "Continue onward (this is a placeholder - build Chapter 2 from here)",
+        "outcomeSuccessNode": "prologue_start"
+      }
+    ]
+  }
+]

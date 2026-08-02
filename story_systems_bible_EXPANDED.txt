@@ -1,0 +1,2767 @@
+================================================================================
+CHRONICLE OF THE LOST REALM — STORY & SYSTEMS BIBLE
+NPCs, World Events, Narrative Routes, and the Honor/Reputation System
+EXPANDED EDITION — Campaign Spine, Lore/Lesson Routes, NPC Deaths & Arrivals
+================================================================================
+
+--------------------------------------------------------------------------
+0. HOW TO READ THIS DOCUMENT (read this first)
+--------------------------------------------------------------------------
+This is a design document, not code — it's meant to be the reference you
+(and any AI co-writer, including future-Claude) work FROM when authoring
+actual scene JSON. It uses the engine vocabulary already built into the
+project (originTags, world_flags, ConditionEvaluator, SceneChoice.effects,
+DeceasedHero, etc.) so every system here is something you can actually
+wire up with what exists today, not a wishlist that needs a new engine.
+
+EXPANSION NOTE: section 3 (World Events System) has been rebuilt into a
+full CAMPAIGN SPINE — every catalog event now has a lead-in (PRE-ARC), an
+optional lore-focused minor route, an optional lesson-focused route, its
+original stages expanded with explicit branch options, concrete NPC-death
+conditions, new NPCs the event itself produces, and a lead-out (POST-ARC)
+that bridges into the next event on the spine, in order, from the
+already-built Harvest Failure through the Demon Lord capstone. What comes
+after the very last event a given playthrough reaches is deliberately
+left undecided — see 3.14 — consistent with the Legacy Engine's own
+premise that the NEXT playthrough is the real answer to "what happens
+after," not a fixed epilogue. Everything else in the document is
+unchanged from the prior edition.
+
+SCOPE NOTE on "500 unique NPCs" — read this before you judge the NPC
+section light on named characters:
+Hand-authoring 500 fully fleshed, individually-named characters in one
+document would not actually give you 500 characters who "feel like real
+people" — past the first 40-ish, it becomes name-and-adjective padding,
+which is worse than not having them. Instead, this document gives you:
+  (a) 42 SIGNATURE NPCs — fully authored, named, with personality,
+      voice, secrets, and story arcs — 6 per origin (Ally, Enemy,
+      Merchant, Mentor, Rival, Wildcard) x 7 origins. These are your
+      main cast: the characters who actually recur across the branching
+      story and interact with the Legacy Engine.
+  (b) A GENERATION FRAMEWORK (section 2.4) — trait/motivation/flaw/voice
+      tables you combine to author BACKGROUND NPCs on demand, as scenes
+      need them. The tables alone produce well over 500 non-repeating
+      combinations, and because every table entry is a concrete,
+      specific detail (not a generic placeholder), a background NPC
+      built from three table rolls still reads as a specific person, not
+      a randomized stat block.
+This is how a solo dev (with or without an AI co-writer) actually reaches
+"the world feels full of real people" without 500 hand-written character
+sheets nobody will ever finish, let alone maintain.
+
+--------------------------------------------------------------------------
+1. WORLD PRIMER (context for everything below)
+--------------------------------------------------------------------------
+Setting recap (from the existing prologue + Royal Heir archetype):
+- Ruling house: House Aldric, currently King Aldric III (WorldHistory
+  default monarchInPower).
+- The Sun Temple: a holy site, destroyed in a prior playthrough if
+  world_flags.sun_temple_destroyed is true — already wired into the
+  engine as your first example of a world-shaping past choice.
+- The realm is unnamed so far — for this document it's referred to as
+  "the Realm" or "Aldric's Realm." Name it properly when you're ready;
+  nothing here depends on the name.
+
+Three broad regions to hang content on (expand freely):
+- The Capital & Crownlands — House Aldric's seat, court intrigue,
+  Royal Heir content lives here.
+- The Hollow Reaches — wilderness, ruins, the Sun Temple, Elf/Dwarf/
+  Wanderer content, most of the "danger and old magic" content.
+- The Salt Road — trade routes and border towns, Civilian/Mercenary/
+  Vampire content, most of the "people and politics" content.
+
+--------------------------------------------------------------------------
+2. NPC SYSTEM
+--------------------------------------------------------------------------
+
+2.1 NPC ROLES (expanded beyond Ally/Enemy/Merchant)
+--------------------------------------------------------------------------
+Every origin gets at least one NPC in EACH of these six roles. More roles
+than the user's original three (Ally/Enemy/Merchant) because a world
+that only has "friend, foe, shopkeeper" reads thin fast:
+
+- ALLY — helps the player advance the main plot; can die, betray you, or
+  be betrayed BY you (see Honor System, section 4).
+- ENEMY — actively works against the player; not always evil — some
+  enemies are enemies because of what YOU did in a past playthrough
+  (see Legacy Engine hooks below).
+- MERCHANT — sells goods/services; has their own agenda beyond
+  commerce (debt, a missing relative, a smuggling operation).
+- MENTOR — teaches the player a skill or worldview; mentors in this
+  structure are allowed to be WRONG about things, and the player can
+  outgrow or reject them (feeds the Redemption/Isolation routes).
+- RIVAL — wants the same THING the player wants (a title, a relic, a
+  person's affection) but isn't a straightforward enemy — rivalry can
+  resolve into respect, romance, or genuine hatred depending on choices.
+- WILDCARD — doesn't fit a clean role; a chaotic element who might help
+  or hurt depending on player choices, mood, or world state. Wildcards
+  are where most of the game's dark humor and unpredictability lives.
+
+2.2 NPC DATA MODEL (for when this becomes engine content)
+--------------------------------------------------------------------------
+When you're ready to formalize this in Dart/JSON, each NPC should carry:
+
+  npc_id            unique slug, e.g. "npc_thessaly_vane"
+  display_name      "Thessaly Vane"
+  role              ally | enemy | merchant | mentor | rival | wildcard
+  linked_origin     which Archetype they're the "corresponding NPC" for
+                     (nullable — background NPCs aren't origin-locked)
+  core_trait        one-line personality anchor (see table 2.4.A)
+  motivation        what they actually want (see table 2.4.B)
+  flaw_or_secret    what could break them or what they're hiding (2.4.C)
+  voice_pattern     a speech quirk so their @Name: dialogue lines are
+                     recognizable without a dialogue tag (2.4.D)
+  relationship      current standing with the player, tracked per-NPC
+                     (see Honor System, section 4.2) — NOT a single
+                     global number
+  status_flags      alive / dead / estranged / turned_enemy / etc,
+                     stored the same way DeceasedHero tracks fallen
+                     PLAYER characters — NPCs deserve the same treatment
+  first_scene       where the player can first meet them
+  death_conditions  what player choices/world events can kill them
+  legacy_hook       how THIS NPC reacts to WorldHistory.deceasedHeroes —
+                     e.g. a NPC who was allied with a PAST player
+                     character treats the new player differently
+
+Mechanically: extend CharacterState (or a new NpcRelationship model) with
+a Map<String, NpcRelationship> keyed by npc_id, so ConditionEvaluator can
+gain a new pattern: "npc.<npc_id>.trust >= N" or
+"npc.<npc_id>.status == 'dead'" — same syntax family as the existing
+flags.<key> / origin.<tag> patterns, so it's a small, consistent addition
+rather than a new subsystem.
+
+2.3 SIGNATURE NPCs — the 42 (6 per origin x 7 origins)
+--------------------------------------------------------------------------
+Format per NPC: Role | Name | Core trait | What they want | Voice quirk |
+Secret/flaw | Story hook
+
+--- WANDERER-linked NPCs ---
+(Wanderers meet people ON THE ROAD — these NPCs are itinerant, or tied
+to the road itself.)
+
+ALLY — Corwin Ashe | Core trait: relentlessly practical | Wants: to find
+the sister he lost track of three winters ago | Voice: never uses a
+metaphor when a plain sentence will do | Secret: he already knows his
+sister is dead and hasn't admitted it to himself | Hook: joins the
+player as a traveling companion; his arc resolves only if the player
+helps him find (and bury) her — skipping it leaves him permanently
+withdrawn for the rest of the run.
+
+ENEMY — The Tollkeeper (true name unknown) | Core trait: performs
+politeness as a weapon | Wants: total control of a stretch of the Old
+Salt Road | Voice: uses formal, archaic phrasing even when threatening
+you | Secret: was a Crownlands tax officer who was fired for corruption
+and now runs an identical racket unofficially | Hook: recurring
+antagonist for Wanderer-origin players who use the road often; escalates
+from "toll" to "hostage" if ignored too many times.
+
+MERCHANT — Old Ferrick | Core trait: sells anything, asks nothing |
+Wants: enough coin to stop moving and open a real shop | Voice: talks in
+prices ("that'll cost you a story, not just coin") | Secret: half his
+stock is stolen from OTHER travelers he's "helped" | Hook: a
+double-edged resource — great prices, but trusting him with anything
+valuable to hold "for safekeeping" is a trap.
+
+MENTOR — Saoirse Bellwether | Core trait: teaches through discomfort |
+Wants: to see if this Wanderer is different from the ones who gave up |
+Voice: answers questions with harder questions | Secret: she was once a
+Royal Heir's bodyguard and abandoned that life; SHE relates hardest to
+Royal Heir-origin players, creating a cross-origin content hook | Hook:
+teaches the player to read weather/danger signs (mechanically: unlocks
+extra info before certain stat checks).
+
+RIVAL — Denn Halloway | Core trait: competitive about EVERYTHING |
+Wants: to be remembered as the greatest road-walker the Realm has seen |
+Voice: turns every conversation into a bet | Secret: deeply lonely,
+picks rivalries because they're the only relationships he knows how to
+sustain | Hook: shows up at odd intervals to challenge the player;
+losing repeatedly to him has a small Reputation cost (see section 4);
+befriending him instead of always competing is a hidden resolution.
+
+WILDCARD — The Piebald Fool | Core trait: unreadable, possibly touched
+by something otherworldly | Wants: unclear, possibly nothing human |
+Voice: rhymes, sometimes mid-sentence | Secret: knows things about
+world_flags-level events before they happen (a soft "the world reacts to
+the player, and something notices" narrative device) | Hook: shows up
+near major world-event trigger points; never directly helps or harms,
+but drops information the player can use or ignore.
+
+--- CIVILIAN-linked NPCs ---
+(Civilians meet people who never left home — these NPCs are rooted in
+one town/village, community-facing.)
+
+ALLY — Mira Talbot | Core trait: fiercely loyal once trust is earned |
+Wants: to keep her family's farm through a bad harvest year | Voice:
+plainspoken, dry humor | Secret: has been quietly stealing from a
+neighbor to make ends meet and is ashamed of it | Hook: her arc is a
+small-scale Redemption Route in miniature — the player can help her
+confess and make amends, or help her cover it up (Honor consequences
+differ significantly).
+
+ENEMY — Bailiff Corin Reyes | Core trait: believes rules ARE morality |
+Wants: to enforce order, full stop, regardless of context | Voice:
+quotes actual statutes at people | Secret: enforces the law harshest on
+people who remind him of his own poor upbringing | Hook: recurring
+antagonist for Civilian-origin players who bend rules to survive;
+NOT irredeemably evil — has a late-story redemption opening if the
+player demonstrates mercy was the right call, repeatedly.
+
+MERCHANT — Guildmistress Yeva Solt | Core trait: shrewd, never
+unfriendly | Wants: to expand her trade guild's influence into the
+Capital | Voice: always asks "and what's in it for YOU?" before agreeing
+to anything | Secret: quietly funds the local orphanage and would be
+furious if anyone found out and thanked her for it | Hook: gates access
+to better prices/gear behind small favors, building toward a genuine
+business partnership late-game.
+
+MENTOR — Old Hendrik | Core trait: stubbornly optimistic | Wants: to
+pass on the trade (smithing, farming — flexible per scene) before he
+dies | Voice: tells the same three stories, slightly differently, every
+time | Secret: is dying of something he hasn't told anyone | Hook:
+teaching relationship; the player can be present for his death (a strong
+non-lethal use of the "someone dies" beat that doesn't require combat).
+
+RIVAL — Petra Voss | Core trait: ambitious, hides it under modesty |
+Wants: the Guildmistress's position, eventually | Voice: self-deprecating
+in a way that's clearly strategic | Secret: is better at the job than
+Yeva Solt and knows it | Hook: rival for influence, not violence — this
+rivalry resolves through social/economic choices rather than combat,
+useful variety in RIVAL role.
+
+WILDCARD — Tamsin the Bell-Ringer | Core trait: town gossip, weaponized
+| Wants: to matter, to be the one who KNOWS things | Voice: always
+starts with "you didn't hear this from me" | Secret: half of what she
+says is true and she genuinely can't remember which half | Hook:
+information broker who is sometimes right, sometimes catastrophically
+wrong — teaches the player not to trust sources blindly.
+
+--- ROYAL HEIR-linked NPCs ---
+(Court politics — these NPCs are almost all double-dealing to some
+degree; that's the genre.)
+
+ALLY — Ser Aldous Fenn | Core trait: old-fashioned loyalty | Wants: to
+protect House Aldric's line even from itself | Voice: formal, clipped |
+Secret: privately believes the king is unfit and is conflicted about his
+own oath | Hook: the player's most reliable protector; his loyalty is
+tested hardest if the player pursues the Revenge or Power routes against
+the crown.
+
+ENEMY — Lady Ysolde Marrow | Core trait: patient, plays decades-long
+games | Wants: House Marrow on the throne instead of House Aldric |
+Voice: compliments that land like threats | Secret: has a legitimate,
+buried claim to the throne herself | Hook: the Royal Heir's primary
+long-game antagonist; late-story reveal potential connects her directly
+to whatever caused the Sun Temple's destruction, if that flag is set.
+
+MERCHANT — Quartermaster Bellamy Cray | Core trait: transactional even
+about loyalty | Wants: to profit from BOTH sides of any coming conflict
+| Voice: never says no, always says "for a price" | Secret: is
+simultaneously supplying the crown AND smuggling to whoever opposes it |
+Hook: access to rare/military-grade gear; discovering his double-dealing
+is a meaningful Honor-System choice point (expose him vs. use him).
+
+MENTOR — The Dowager Regent Elowen | Core trait: ruthlessly pragmatic |
+Wants: House Aldric to survive her, whatever that costs | Voice: teaches
+in riddles that are actually just uncomfortable truths | Secret: she
+had a previous heir (not the player) removed from succession, and it
+haunts her | Hook: teaches statecraft; her lessons are morally gray on
+purpose — following her advice exactly can lead toward the
+Corruption/Fall route.
+
+RIVAL — Cousin Tobias Aldric | Core trait: charming, resentful | Wants:
+what the player has (birthright, attention, both) | Voice: jokes that
+have a blade in them | Secret: doesn't actually want the throne, wants
+to be SEEN as capable of taking it | Hook: resolves via approval-seeking
+if handled with genuine respect, or escalates to real betrayal if
+dismissed repeatedly.
+
+WILDCARD — The Court Jester, Pim | Core trait: says the true thing
+disguised as a joke | Wants: to survive the court by being underestimated
+| Voice: rhyming, self-mocking | Secret: is a spy for a foreign power,
+but genuinely likes the player anyway | Hook: reveals real information
+buried in jokes; a rare NPC whose betrayal (if the spying is discovered)
+can be forgiven without a full Honor penalty, since it was never
+personal.
+
+--- ELF-linked NPCs ---
+(Elves' NPCs skew toward the very old, the very slow-moving, and things
+measured in centuries rather than seasons.)
+
+ALLY — Ithrenel Dusk | Core trait: patient to the point of unsettling
+humans | Wants: to prevent a mistake she watched happen once before,
+centuries ago | Voice: speaks slowly, chooses words like they're
+expensive | Secret: the "mistake" she's trying to prevent might be
+unavoidable, and she knows it | Hook: has actual knowledge of the Sun
+Temple's history predating the player's own playthroughs — a direct
+Legacy Engine tie-in NPC.
+
+ENEMY — Kaelis Thorn | Core trait: contempt dressed as sorrow | Wants:
+humanity to simply stop expanding into old Elven land | Voice: switches
+to the old tongue when truly angry (untranslated on purpose, for effect)
+| Secret: lost someone to human violence long before the player's story
+begins | Hook: not wrong to be angry, which is the point — this enemy
+is a genuine moral complication, not a mustache-twirler.
+
+MERCHANT — Yew | Core trait: transactional across an inhuman timescale
+| Wants: nothing urgent — genuinely has centuries to wait for the right
+deal | Voice: unnervingly calm, never haggles, never budges | Secret:
+none, really — the lack of a secret IS the character beat (total
+transparency reads as alien to human players) | Hook: sells things no
+one else has, at prices that are fair but non-negotiable.
+
+MENTOR — Master Ealdrin | Core trait: teaches by making you fail safely
+| Wants: to see if ANY human/mixed-origin player can actually learn
+patience | Voice: never raises his voice, ever, even in danger | Secret:
+has failed to teach this lesson to dozens of past students who gave up |
+Hook: teaches a genuinely useful mechanical skill (reading danger before
+a stat check) gated behind demonstrated patience (declining a rash
+choice earlier in the story).
+
+RIVAL — Sarel Windholt | Core trait: young for an elf, reckless by
+elvish standards | Wants: to prove elves aren't all as slow-moving as
+their reputation | Voice: speaks fast, interrupts herself | Secret:
+is being quietly shunned by her own community for her recklessness |
+Hook: a rivalry about WHO can move the story forward faster — she's a
+foil specifically for patient playstyles.
+
+WILDCARD — The Hollow Choir (a group, not one person) | Core trait:
+collectively strange, individually forgettable | Wants: unclear, sing in
+a language no one alive speaks fluently | Voice: only ever heard in
+unison | Secret: might not be elves at all, might not be anything that
+has a "want" in the way other NPCs do | Hook: pure atmosphere/mystery
+element for Elf-adjacent scenes; deliberately never fully explained.
+
+--- DWARF-linked NPCs ---
+(Dwarves' NPCs are almost all clan/craft-bound — loyalty and grudges run
+generational.)
+
+ALLY — Brennhild Ironjaw | Core trait: says exactly what she means,
+always | Wants: to reclaim a clan-hall lost to a cave-in years ago |
+Voice: blunt to the point of rudeness, never unkind underneath it |
+Secret: blames herself for the cave-in, incorrectly | Hook: a
+excavation/reclamation arc; a strong candidate for a Redemption Route
+companion (her guilt, not the player's).
+
+ENEMY — Thane Dolgrym Ashveil | Core trait: holds a grudge like a
+religion | Wants: revenge against whichever clan (or player action) he
+believes wronged his | Voice: formal clan-oath phrasing even in casual
+speech | Secret: the original grudge was based on a misunderstanding
+generations old that nobody alive can actually verify anymore | Hook:
+an enemy whose entire conflict can be resolved via evidence/diplomacy,
+not just combat — rewards investigation-minded players.
+
+MERCHANT — Gorrik Stonepurse | Core trait: obsessed with fair
+weighing/measuring | Wants: to be known as the most honest trader under
+the mountain | Voice: narrates his own honesty out loud constantly
+("and I'm not rounding that up, mind") | Secret: was cheated badly once
+himself, which is WHY he's obsessive about it now | Hook: consistently
+fair prices; his trust, once earned, extends to warning the player about
+OTHER merchants' scams.
+
+MENTOR — Old Mother Fjorna | Core trait: teaches through doing, not
+talking | Wants: to see the clan's crafting traditions survive her |
+Voice: speaks only when it matters, silence otherwise | Secret: is the
+last person alive who remembers a specific old technique, and hasn't
+found a worthy student yet | Hook: teaches a crafting-flavored mechanical
+bonus; withholding the lesson is possible if the player proves impatient
+or disrespectful of the process.
+
+RIVAL — Korrin Stonepurse (Gorrik's nephew) | Core trait: wants to
+modernize everything | Wants: to prove old dwarven methods are holding
+the clan back | Voice: peppers speech with trade-route jargon | Secret:
+privately terrified he's wrong and it'll cost the clan everything |
+Hook: a generational-conflict rivalry — siding with tradition vs.
+progress has real Honor/reputation consequences with the wider clan.
+
+WILDCARD — Deep Tunnel Yorik | Core trait: has spent too long
+underground alone | Wants: someone to just LISTEN for a while | Voice:
+rambling, tangential, occasionally profound by accident | Secret: found
+something down in the deep tunnels he won't fully describe | Hook: a
+rumor/lore source who might be unreliable, might be a warning the player
+should have heeded.
+
+--- VAMPIRE-linked NPCs ---
+(Vampire-linked NPCs split between the vampire's own kind and the
+mortals who know, suspect, or hunt them.)
+
+ALLY — Delphine Corvassa | Core trait: performs warmth she doesn't
+always feel, and means it anyway | Wants: a mortal life she can actually
+keep, for once | Voice: overly formal when nervous, unusually so |
+Secret: has outlived and lost three "found families" already and is
+terrified of a fourth | Hook: an ally who understands the Vampire-origin
+player better than anyone else can — mutual isolation as the bond.
+
+ENEMY — Inquisitor Halvard Rane | Core trait: certain, dangerously so |
+Wants: to cleanse the Realm of "unnatural" things, vampires foremost |
+Voice: sermon-cadence even in casual threats | Secret: has never
+actually confirmed a vampire committed the crime he blames them for —
+his zealotry outpaced his evidence years ago | Hook: primary hunter
+antagonist; a redemption opening exists if the player can survive long
+enough to force him to confront the gap between his certainty and the
+truth.
+
+MERCHANT — The Pale Apothecary (name withheld even from regulars) |
+Core trait: discretion above all | Wants: to remain unbothered by
+anyone's business but the transaction at hand | Voice: never asks
+follow-up questions, ever | Secret: sells to hunters and hunted alike
+with equal disinterest | Hook: sells rare, morally-gray goods (poisons,
+wards, disguises) without judgment — useful, but never an ally.
+
+MENTOR — Ancient Voss | Core trait: exhausted by immortality | Wants:
+nothing, mostly — has to be convinced to want things again | Voice:
+long pauses before answering, like the words have to travel a long way |
+Secret: is one of the oldest vampires alive and has watched dozens of
+younger vampires either burn out or become monstrous | Hook: teaches
+control/restraint; the alternative path (rejecting his lessons) pushes
+toward the Corruption/Fall route mechanically and narratively.
+
+RIVAL — Cassian Thorne | Core trait: embraces the monstrous reputation
+fully, almost gleefully | Wants: to prove restraint is weakness | Voice:
+theatrical, enjoys being feared | Secret: is actually more controlled
+than he lets on — the menace is partly a performance for OTHER vampires'
+benefit | Hook: a rivalry about what kind of vampire the player's
+character is going to be, mechanically tied to Trait/Honor choices.
+
+WILDCARD — The Widow at the Crossroads | Core trait: unclear if human,
+vampire, or something else entirely | Wants: company on specific
+nights, for reasons never explained | Voice: answers questions with the
+exact opposite question | Secret: kept intentionally, permanently
+ambiguous | Hook: recurring odd encounter, low-stakes, high-atmosphere.
+
+--- MERCENARY-linked NPCs ---
+(Exiled Mercenary content is almost all about the company that betrayed
+them, and who's still out there from it.)
+
+ALLY — "Bones" Okonkwo-Reyes | Core trait: fiercely protective of the
+few people he trusts | Wants: out — a genuinely quiet life, which he
+doesn't believe he deserves | Voice: short sentences, avoids talking
+about the past directly | Secret: was part of the same betrayal that
+exiled the player, and has been trying to atone for it since | Hook: a
+DIRECT redemption arc — trusting him at all is a real choice given his
+history.
+
+ENEMY — Captain Yusra Wielding | Core trait: believes loyalty to the
+company above all else, full stop | Wants: to finish the job the old
+company started (i.e., the player) | Voice: barks orders even in one-on
+-one conversation, old habit | Secret: privately disagrees with the
+order but won't break rank | Hook: primary hunted-by antagonist for
+Mercenary-origin players — resolvable via combat, negotiation, or
+exposing her superiors' corruption to undercut the order itself.
+
+MERCHANT — Fence Otto Marsh | Core trait: no judgment, no questions,
+fast service | Wants: to stay useful enough to everyone that no one
+targets him specifically | Voice: talks fast, changes subject faster |
+Secret: quietly informs on his clients to whoever pays best, including
+possibly Captain Wielding | Hook: useful black-market access at the
+cost of operational security — using him too much has Honor/practical
+consequences.
+
+MENTOR — Old Sergeant Bramwell | Core trait: institutional cynicism,
+worn smooth into dark humor | Wants: to make sure the player doesn't
+repeat his own worst mistakes | Voice: deadpan, undercuts his own advice
+with a joke immediately after giving it | Secret: is the one who
+originally recruited the company that later betrayed the player — carries
+real guilt about it | Hook: teaches combat pragmatism; his own guilt is
+a subplot the player can help him resolve or ignore.
+
+RIVAL — Two-Coin Selby | Core trait: also exiled, also bitter, in a
+completely different way | Wants: to be the one who "wins" at being a
+disgraced mercenary — richest, most feared, doesn't matter which | Voice:
+brags reflexively, even about bad outcomes | Secret: is actually barely
+scraping by and the bragging is entirely compensatory | Hook: a rivalry
+that's mostly comic relief with real stakes underneath, good tonal
+variety against the Mercenary origin's otherwise grim content.
+
+WILDCARD — The Unlisted Man | Core trait: has no fixed identity, uses a
+different name every encounter | Wants: unknown, possibly involves the
+player specifically | Voice: adapts his speech pattern to mirror
+whoever he's talking to | Secret: might be another exile from the SAME
+company, might be something else entirely | Hook: a mystery thread that
+can pay off as an ally, enemy, or nothing at all, depending entirely on
+player choices — genuinely undetermined until you decide what he is.
+
+2.4 GENERATION FRAMEWORK — building the other 458+ background NPCs
+--------------------------------------------------------------------------
+Roll or hand-pick one item from each table below to build a background
+NPC in under two minutes, ready to drop into any scene. The tables below
+are intentionally SPECIFIC (not "brave" or "shy") so combinations don't
+read as generic.
+
+TABLE 2.4.A — CORE TRAIT (30 entries; sample of 15 shown, extend freely)
+1. Counts everything out loud without noticing
+2. Never sits with their back to a door
+3. Corrects people's grammar mid-crisis
+4. Names every animal they own, including livestock they'll eat
+5. Can't lie convincingly and has stopped trying
+6. Remembers insults from a decade ago, forgets kindnesses from
+   yesterday
+7. Apologizes before disagreeing, every single time
+8. Only trusts people who've seen them fail at something
+9. Collects a specific useless object (buttons, bottlecaps, bad poetry)
+10. Speaks to animals like they'll answer back
+11. Finishes other people's sentences, usually wrong
+12. Has an opinion about bread specifically, strongly
+13. Cannot walk past a debt unpaid, theirs or anyone else's
+14. Treats every goodbye like it might be permanent
+15. Laughs at the wrong moments, always has
+
+TABLE 2.4.B — MOTIVATION (30 entries; sample of 15 shown)
+1. Paying off a debt they didn't personally incur
+2. Proving a dead parent wrong about them
+3. Protecting a secret that isn't even theirs to keep
+4. Earning back a title/position they were stripped of
+5. Finding someone who vanished without explanation
+6. Undoing one specific mistake, however long it takes
+7. Being the first in their family to survive past a certain age
+8. Keeping a promise made to someone who's since died
+9. Avoiding becoming exactly like a parent/mentor
+10. Building something that will outlast them
+11. Being believed, after a long time of not being believed
+12. Getting far enough away that the past can't follow
+13. Earning a place in a community that hasn't fully accepted them
+14. Making amends they're not sure are even wanted anymore
+15. Simply surviving the season — no bigger plan than that
+
+TABLE 2.4.C — FLAW OR SECRET (30 entries; sample of 15 shown)
+1. Owes money to someone dangerous
+2. Was complicit in something they've never admitted to
+3. Is estranged from family over something minor that calcified
+4. Has a habit that will eventually get them killed
+5. Lied about their past to everyone they currently know
+6. Is in love with someone who doesn't know it
+7. Made a promise they now realize they can't keep
+8. Is slowly losing a skill/sense central to their identity
+9. Betrayed someone once and got away with it clean
+10. Believes something about themselves that isn't true
+11. Is hiding an injury/illness from people who'd worry
+12. Has taken credit for someone else's work, once, and never corrected
+    it
+13. Is more afraid of a specific small thing than anything "reasonable"
+14. Genuinely doesn't know they're the villain of someone else's story
+15. Is waiting for a good moment to leave that will never come
+
+TABLE 2.4.D — VOICE/SPEECH PATTERN (20 entries; sample of 12 shown)
+1. Trails off mid-sentence when nervous
+2. Uses trade/craft jargon for everything, even feelings
+3. Answers questions with the opposite question
+4. Overexplains simple things, underexplains complicated ones
+5. Speaks in short declaratives, avoids qualifiers entirely
+6. Quotes a specific book/scripture constantly, often wrong
+7. Softens bad news with unrelated compliments first
+8. Talks to themselves mid-conversation, audibly
+9. Never uses contractions, formal to a fault
+10. Curses creatively, never repeats the same one twice
+11. Repeats the last few words of what you just said, thinking
+12. Goes quiet entirely when it matters most
+
+TABLE 2.4.E — RELATIONSHIP-TO-PLAYER TEMPLATES (15 entries; sample of 8)
+1. Owes the player from an earlier scene, resents the debt
+2. Mistakes the player for someone from their past
+3. Sizes the player up against a Deceased Hero from a prior playthrough
+4. Wants something FROM the player before offering any help
+5. Is testing the player deliberately, for reasons of their own
+6. Already has an opinion of the player based on reputation (see Honor
+   System, section 4) before ever meeting them
+7. Needs the player's specific origin/skills for one narrow purpose
+8. Doesn't care who the player is at all — purely transactional
+
+MATH CHECK: 30 traits x 30 motivations x 30 flaws x 20 voices x 15
+relationship templates = well over 8 million unique combinations before
+even touching names or locations. You will run out of story before you
+run out of NPC combinations — the constraint was never volume, it's
+picking combinations that serve the scene you're writing.
+
+--------------------------------------------------------------------------
+3. WORLD EVENTS SYSTEM & THE CAMPAIGN SPINE
+--------------------------------------------------------------------------
+REVISION NOTE (read this first): this section was expanded from the
+original World Events System to give every catalog event a full arc —
+a lead-in (PRE-ARC), optional lore/lesson side-content, the event itself,
+concrete NPC-death conditions, NPCs the event itself produces, and a
+lead-out (POST-ARC) that hands off into the next event on the spine. The
+goal is a usable backbone for a solo dev (or an AI co-writer) to write
+actual scene JSON against, chapter by chapter, without having to invent
+the connective tissue between events from scratch each time. Nothing
+here removes or contradicts the original catalog — every original
+Trigger/Stages/Player intervention/NPC impact/Legacy tie-in block is
+preserved inside its event's new EVENT STAGES subsection, expanded
+rather than replaced.
+
+3.1 HOW WORLD EVENTS WORK MECHANICALLY
+--------------------------------------------------------------------------
+A World Event is a multi-stage world_flags sequence, NOT a single flag.
+Example shape (extending the pattern the Sun Temple flag already uses):
+
+  world_flags.war_with_northern_reach = "brewing" | "active" | "over"
+  world_flags.war_outcome = "aldric_victory" | "northern_victory" |
+                             "stalemate_treaty" | null
+
+Each stage change is triggered by either (a) enough in-story time passing
+(world.currentYear, which already increments on every death — see
+LegacyEngine.recordDeath) or (b) a specific major player choice, exactly
+like sun_temple_destroyed already works. Scenes check the CURRENT stage
+via the existing flags.<key> == 'value' condition syntax — no new syntax
+needed, just multi-value flags instead of only booleans (ConditionEvaluator
+already supports flags.<key> == 'someString').
+
+Crucially: World Events affect the SIGNATURE NPCs above, not just the
+player. An NPC's status_flags can change because of a world event even
+if the player never personally interacts with that event — e.g. Captain
+Yusra Wielding (Mercenary enemy) might die in the war_with_northern_reach
+event whether or not the player ever fought her directly, which the
+player then learns about secondhand. This is what makes the world feel
+alive rather than player-centric.
+
+Two additions the expanded catalog below leans on constantly, both
+additive to the existing model — no engine rewrite required:
+
+  PRE-ARC / POST-ARC — every event below is bracketed by a short run of
+  scenes BEFORE its first stage (foreshadowing, a chance to notice
+  warning signs, a chance to prepare or ignore them) and a short run of
+  scenes AFTER its final stage (the world absorbing the outcome). These
+  aren't new stages in the world_flags sense — they're ordinary scenes
+  gated on the stage BEFORE the event starts (e.g. flags.<key> == null
+  or a dedicated "_rumors" pre-flag) and the stage AFTER it resolves
+  (flags.<key> == 'over' or a specific outcome value). Mechanically
+  identical to writing any other scene; the only discipline required is
+  writing them at all instead of jumping straight from "nothing" to
+  "stage 1."
+
+  cascadeTriggers — already specified in 7.2 below: an optional
+  {finalOutcome: nextEventId} map checked when an event resolves. The
+  campaign spine in 3.2 is the DEFAULT path that map implies; 7.2's
+  Dark Legion / Demon Lord entries are folded into the spine as its
+  final two events instead of living as a separate "expansion" bolted
+  onto the end, since they ARE the end.
+
+3.2 THE CAMPAIGN SPINE — DEFAULT CRITICAL-PATH ORDER
+--------------------------------------------------------------------------
+The catalog in the original document treated events as mostly
+independent, which is correct for how the ENGINE checks them (any flag
+can technically fire whenever its trigger condition is met) but not
+correct for how a WRITER should approach authoring them. You need a
+default order to write toward, even if the branching state machine can
+in practice deviate from it. This is that order:
+
+  EVENT 0  — The Harvest Failure           (already built, Chapter 1)
+  EVENT 1  — The Rebellion of the Salt Road  (early game)
+  EVENT 2  — The War with the Northern Reach (early-mid game)
+  EVENT 3  — The Sun Temple Schism           (mid game, CONDITIONAL)
+  EVENT 4  — The Plague out of the Hollow Reaches (mid game)
+  EVENT 5  — The Succession Crisis           (mid-late game)
+  EVENT 6  — Foreign Invasion from Across the Salt Sea (late game)
+  EVENT 7  — The Dark Legion                 (cascade, late game)
+  EVENT 8  — The Demon Lord                  (capstone, endgame)
+  POST-FINALE — deliberately undecided (3.14)
+
+Why this order, specifically:
+- Harvest Failure first because it's already built, small-scale, and
+  teaches the Honor System's "who do you help when you can't help
+  everyone" pattern before anything bigger asks the same question at
+  higher stakes.
+- Rebellion before War because Rebellion is bottom-up (guilds, common
+  folk, a Bailiff's redemption arc) and War is top-down (the crown, a
+  foreign power) — starting local before national matches how the
+  Origin archetypes are introduced (Civilian/Wanderer content is more
+  front-loaded than Royal Heir content in the existing prologue).
+- War before Schism/Plague because War is the spine's first EXISTENTIAL
+  stake (a named Signature NPC, Ser Aldous Fenn, can die in it) and
+  needs to land before quieter, weirder events (Schism, Plague) ask the
+  player to sit with grief and scarcity rather than combat.
+- Schism is marked CONDITIONAL and slots in wherever
+  world_flags.sun_temple_destroyed became true — if it never did, this
+  event simply never fires and the spine quietly runs Event 2 -> 4
+  instead. Nothing downstream depends on Schism firing; it's a bonus
+  branch, not a gate.
+- Succession Crisis after Plague because a realm already weakened by
+  disease makes a succession fight higher-stakes than it would be
+  fresh — and because by this point the player has enough reputation
+  history for background NPCs to start recognizing them (see the
+  worked example in section 6).
+- Foreign Invasion, Dark Legion, and the Demon Lord are kept in strict
+  sequence because each is LITERALLY built from the wreckage of what
+  came before it (7.2's cascade logic) — Invasion's fractured-realm
+  severity scaling feeds Dark Legion's trigger odds, which feeds
+  whether the Demon Lord appears at all. This is the one stretch of the
+  spine that should NOT be treated as freely reorderable.
+
+Branch logic note: nothing above is a hard gate that blocks the player
+from reaching later content if they "did it wrong." Every event has an
+outcome range (see each EVENT STAGES block) rather than a pass/fail —
+the spine describes which event the world is LIKELY to surface next
+given how the previous one resolved, using the same cascadeTriggers
+pattern already specified in 7.2, not a locked sequence.
+
+3.3 THE EVENT ARC TEMPLATE — THE SEVEN-PART SHAPE
+--------------------------------------------------------------------------
+Every event from 3.4 onward (except the already-built Harvest Failure,
+which gets a lighter treatment) follows this same seven-part shape, so
+it's specified once here instead of re-explained nine times:
+
+  PRE-ARC — 2-4 scenes/branch points that exist BEFORE the event's first
+  stage. Always includes at least one moment where an attentive player
+  (or a specific NPC) could notice the event coming and either brace for
+  it or ignore it — the ignoring is a legitimate, unpunished choice, not
+  a trap; it just changes which options are available once the event
+  starts.
+
+  LORE ROUTE — one OPTIONAL, skippable minor route that exists purely to
+  deepen the player's understanding of the world/event's backstory. Never
+  required to progress. Usually gated behind curiosity (an extra dialogue
+  branch, an out-of-the-way location) rather than a stat check, so it
+  rewards attention rather than build optimization.
+
+  LESSON ROUTE — one branch built specifically to teach the player a
+  THEMATIC lesson through consequence rather than exposition — the
+  player does something, the world responds, and the response IS the
+  lesson (no NPC delivers it as a speech). Tied to a concrete mechanical
+  hook (a reputation delta, an npc.trust change, a locked/unlocked scene)
+  so the lesson has a felt cost or reward, not just narration.
+
+  EVENT STAGES — the original catalog's Trigger/Stages/Player
+  intervention/NPC impact/Legacy tie-in block, preserved and expanded
+  with explicit per-stage branch options.
+
+  NPC DEATHS — which NPCs (Signature, Notable, or newly introduced by
+  this event) CAN die here, under what specific condition, and why the
+  death serves the plot rather than existing for shock value. Every
+  death listed is avoidable through specific player action unless
+  marked "FIXED" (meaning it happens regardless of player choice, for
+  pacing/stakes reasons the entry explains).
+
+  NEW NPCS — named characters this event itself produces (refugees,
+  officers, opportunists, survivors) rather than pre-existing cast,
+  using the same Format per NPC as section 2.3 (Role | Name | Core trait
+  | Wants | Voice | Secret | Hook) so they drop into the data model in
+  2.2 without translation.
+
+  POST-ARC — 2-4 scenes AFTER the event's final stage, showing the world
+  absorbing the outcome, closing loose NPC threads the event opened, and
+  explicitly setting up the conditions (per 3.2's cascade logic) for the
+  NEXT event on the spine.
+
+3.4 EVENT 0 — THE HARVEST FAILURE (spine anchor, already built)
+--------------------------------------------------------------------------
+Already implemented as Chapter 1 (Mira Talbot's arc) — this entry only
+adds the connective tissue the spine needs, not a rewrite of the working
+chapter.
+
+PRE-ARC: already covered by the prologue's final scenes (the ruin
+encounter leading into the door onto the village).
+
+LORE ROUTE: an optional line of dialogue with an unnamed elder at the
+village well explaining that failed harvests happen "every generation
+or two" in this valley, specifically because the Sun Temple's old wards
+(see world_flags.sun_temple_destroyed) used to keep a blight-wind off
+the fields — if the flag is true, this line changes to the elder
+flatly blaming "whoever let the temple burn," a small, low-cost payoff
+that connects a background NPC's throwaway line directly to a past
+playthrough's Legacy Engine record.
+
+LESSON ROUTE: already functionally present in the confess/cover-up/
+report branch on Mira's arc — the lesson is "mercy and consequence
+aren't opposites," made concrete by the fact that reporting her is the
+ONLY option that costs a permanent relationship lock, even though it's
+also the most "correct" option by the letter of the law.
+
+EVENT STAGES: unchanged from the shipped chapter.
+
+NPC DEATHS: none required. If a future revision wants a death here, the
+lowest-cost option is a nameless background farmer mentioned in
+retrospect ("old Bram didn't make it through the winter") rather than
+touching Mira's arc, which should stay a non-fatal, relationship-driven
+beat as designed.
+
+NEW NPCS: none beyond Mira Talbot, already Signature-tier (2.3).
+
+POST-ARC (NEW): once granary scenes resolve, add a short coda scene —
+travel time passing, a caravan or road encounter — where the player
+overhears unrelated news: guild wagons refusing to pay standard toll on
+the Salt Road, or a guild office nailed shut overnight. This is the
+Rebellion's PRE-ARC starting to surface, planted here rather than
+introduced cold in the next chapter, so Event 1 doesn't open with zero
+setup.
+
+--------------------------------------------------------------------------
+3.5 EVENT 1 — THE REBELLION OF THE SALT ROAD
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("Toll Trouble"): a Salt Road merchant refuses standard
+  tender, insisting on guild scrip instead — the player's first
+  concrete sign something below the surface has shifted. Works for any
+  origin; Civilian-origin gets an extra line recognizing the scrip from
+  Guildmistress Yeva Solt's guild specifically.
+- Scene B ("Closed Doors"): a shuttered guild office, a hand-written
+  notice about "unfair crown levies." An attentive player can ask
+  around; a Wildcard NPC (Tamsin the Bell-Ringer, 2.3) offers a
+  characteristically unreliable rumor here — some of what she says
+  turns out true once the event starts, seeding her "sometimes right,
+  sometimes catastrophically wrong" hook honestly.
+- Scene C ("Take a Side, Quietly"): a low-stakes choice — help a guild
+  courier evade a crown patrol, or report the courier to the patrol for
+  a small reward. This choice writes a hidden world_flags.player_
+  rebellion_lean value (per the per-conflict tracker recommended in
+  4.2's SIDING WITH A FACTION note) that softly weights which faction
+  treats the player as sympathetic once the event goes active, without
+  locking anything.
+- Ignoring all three PRE-ARC scenes is legitimate — the event still
+  fires on schedule, the player just enters "unrest" cold, same as a
+  first-time player would.
+
+LORE ROUTE: an optional conversation with Auditor Cassin Hollis
+(Notable NPC, 7.3, "the one incorruptible council employee") laying out,
+in his own dry terms, exactly how the crown levy changed and why it
+hits smaller guild members harder than large ones — the ONLY place in
+the game the economic mechanics of the rebellion are explained in plain
+terms rather than felt through scene consequences; entirely skippable.
+
+LESSON ROUTE: "Yeva or Petra" — during the "organized" stage, the
+player learns Guildmistress Yeva Solt and her rival Petra Voss (2.3)
+have landed on OPPOSITE sides of the rebellion, exactly as the original
+catalog entry flagged as possible. The lesson branch forces the player
+to publicly back one in front of the other, with no secret option to
+support both — the mechanical point being that some conflicts really
+do cost you something no matter how well you've played every
+individual relationship up to that moment. Backing either raises that
+NPC's trust and lowers the other's, plus a reputation.commonfolk swing
+sized by WHICH one wins the eventual outcome.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: Civilian-heavy world_flags (repeated player siding against
+merchant guilds) OR a fixed late-Prologue/early-Ch2 trigger if the
+PRE-ARC is ignored entirely.
+Stages: unrest -> organized -> uprising -> (crushed / concessions_won /
+regime_change).
+  unrest: player can still de-escalate here — a successful
+    Charisma/Wisdom check brokering a meeting between a guild
+    representative and a crown tax officer prevents escalation to
+    "organized" entirely, a full early-exit branch not present in the
+    original catalog.
+  organized: the Yeva/Petra lesson branch above fires here. Bailiff
+    Corin Reyes (2.3) becomes actively involved — his statute-quoting
+    rigidity is tested directly against a sympathetic rebel cause for
+    the first time.
+  uprising: point of no return — de-escalation options close. Player
+    chooses to join, suppress, or attempt a last-minute broker (harder
+    check than the unrest-stage version, since trust has eroded).
+  resolution: crushed (crown wins, high infamy cost if player suppressed
+    personally), concessions_won (negotiated, best outcome for
+    commonfolk+crown balance, hardest to reach), regime_change (guild
+    council effectively replaces local crown authority — big
+    reputation.commonfolk gain, matching reputation.crown loss).
+Player intervention: can join, suppress, or broker compromise; Civilian
+-origin players get unique entry points via Guildmistress Yeva Solt and
+Petra Voss (who may end up on OPPOSITE sides).
+NPC impact: Bailiff Corin Reyes's redemption arc (section 2.3) is
+directly tested here — his choices during the rebellion are where his
+late-story redemption opening either fires or closes permanently.
+Legacy tie-in: if a past playthrough's hero died as an executed outlaw
+("Executed by the Royal Guard" style causeOfDeath), rebellion sentiment
+starts higher — the realm remembers martyrs.
+
+NPC DEATHS:
+- Bailiff Corin Reyes — dies ONLY if the player pushes him toward his
+  redemption opening (showing him mercy mattered, repeatedly) AND the
+  "uprising" stage resolves as "crushed" — he breaks ranks to shield
+  rebel civilians from his own guard company and is cut down for it.
+  This is the strongest, most costly version of his arc: the redemption
+  the player worked to earn only becomes visible in the moment he dies
+  for it. Avoidable by steering resolution toward concessions_won or
+  regime_change instead, or by never engaging his redemption opening at
+  all (he survives, but stays exactly the rule-bound man he started as).
+- Guildmistress Yeva Solt OR Petra Voss (never both) — whichever one the
+  player did NOT back during the LESSON ROUTE dies during "uprising" if
+  the resolution is "crushed." The survivor inherits the guild outright,
+  a permanent, visible world-state change (prices/access at that guild
+  shift going forward) and a standing grudge if the player backed the
+  now-dead rival.
+- A background NPC option ("the courier from Scene C") dies FIXED if the
+  player reported them to the crown patrol in the PRE-ARC — a small,
+  quiet, easily-missed consequence for a choice that looked low-stakes
+  at the time, deliberately teaching that PRE-ARC choices aren't
+  actually free.
+
+NEW NPCS:
+ALLY — Dessa Kirren | Core trait: organizes before she agonizes | Wants:
+guild workers to have a legal voice, not just a black-market one |
+Voice: speaks in motions and seconds, like she's always chairing a
+meeting | Secret: forged a signature to get the rebellion's initial
+petition taken seriously, and it worked | Hook: becomes the "organized"
+stage's de facto leader if Yeva Solt dies; a strong Redemption-adjacent
+companion for players who back regime_change.
+
+ENEMY — Captain-Reeve Osgar Vell | Core trait: believes he's the only
+adult in the room | Wants: order restored before it costs him his
+crown commission | Voice: addresses everyone, including the player, like
+subordinates | Secret: privately petitioned the crown for MORE troops
+weeks before "unrest" even began — he saw this coming and was ignored |
+Hook: the "crushed" resolution's on-the-ground enforcer; sparing him
+after uprising opens a small late-game reconciliation scene.
+
+WILDCARD — "Pockets" Wrenna Silt | Core trait: profiteers off chaos,
+feels a little bad about it | Wants: to get rich before the rebellion
+resolves either way | Voice: prices everything as "a deal, honestly" |
+Secret: quietly redirects a cut of her profits to rebel families she's
+also selling stolen crown supplies to | Hook: a black-market vendor
+during "organized"/"uprising" only — sells scarce goods at rebellion-
+inflated prices, disappears once the event resolves.
+
+MERCHANT — Coalgate the Elder (no other name given) | Core trait:
+outlasted three prior "troubles," unimpressed by a fourth | Wants:
+simply to keep selling regardless of who's in charge afterward | Voice:
+answers urgent questions at exactly the same pace as idle ones | Hook: a
+useful, apolitical resource during the event who has genuinely seen
+enough rebellions to offer the player calm, practical advice — a rare
+NPC whose Wildcard-adjacent detachment reads as wisdom, not
+unpredictability.
+
+POST-ARC:
+- A short coda depending on resolution: crushed shows a quieter, warier
+  Salt Road (background-NPC mood text shifts, per 4.3's MODERATE
+  consequences); concessions_won shows visible rebuilding; regime_change
+  shows a new guild-council banner replacing a crown one at the toll
+  gate the player first saw in the PRE-ARC, a direct visual callback.
+- Regardless of resolution, the coda ends on a crown messenger riding
+  hard toward the Capital — explicit foreshadowing that this event's
+  outcome has reached House Aldric's attention, bridging directly into
+  Event 2's PRE-ARC (the War with the Northern Reach opens partly on
+  how "distracted" or "weakened" the crown looked after the rebellion).
+--------------------------------------------------------------------------
+3.6 EVENT 2 — THE WAR WITH THE NORTHERN REACH
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("The Envoy"): a Northern Reach envoy passes through, stiff
+  and formal, testing the political temperature. A rude/hostile choice
+  here is the original catalog's stated accelerant trigger; a
+  respectful choice instead buys the player a genuine early warning —
+  the envoy privately admits tensions are worse than the crown is
+  letting on, information no other PRE-ARC branch offers.
+- Scene B ("Recruitment Drums"): crown recruiters posting notices in
+  whichever regions the player has visited — text varies by
+  world_flags.rebellion_outcome from Event 1 (a "crushed" rebellion
+  yields resentful, under-strength recruitment; "concessions_won" yields
+  a calmer, better-supplied one), a direct mechanical link between the
+  two events beyond the vague "distracted crown" framing.
+- Scene C ("Ser Aldous Fenn's Warning"): if the player has met Fenn
+  (2.3) already, he privately flags that he expects to be deployed and
+  says so plainly — planting the stakes of his possible death BEFORE
+  "active" stage, so it lands as a fulfilled warning rather than a cold
+  open.
+
+LORE ROUTE: an old veteran background NPC (built from the Generation
+Framework — core trait #6 "remembers insults from a decade ago,
+forgets kindnesses from the same stretch," motivation #12 "getting far
+enough away that the past can't follow") who fought the LAST war with
+the Northern Reach, a generation ago, and explains — bitterly, briefly —
+that this is the third time in living memory the same border dispute
+has restarted because neither side's treaty ever actually resolved the
+original land claim. Entirely optional; exists to make the war read as
+a repeating historical pattern rather than a fresh, isolated conflict.
+
+LESSON ROUTE: "The Deserter" — during "skirmishes," the player
+encounters a young crown soldier who has fled the front. Turning them
+in is legal and raises reputation.crown; helping them disappear costs
+reputation.crown but raises reputation.commonfolk and reputation.honor
+slightly — the lesson being that "lawful" and "honorable" aren't
+synonyms in this system, deliberately surfacing the gap the Honor
+System's four separate tracks (4.1) were built to represent. A third,
+harder-to-find option (a high-Charisma check) gets the soldier
+reassigned to a support role instead of deserting outright — the only
+branch that avoids BOTH reputation costs, rewarding a player who looks
+for it.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: world.currentYear crosses a threshold OR player choice
+(insulting/attacking a Northern Reach envoy).
+Stages: brewing -> skirmishes -> active -> (aldric_victory /
+northern_victory / stalemate_treaty).
+  brewing: last full window for diplomacy — a Royal Heir-origin player
+    specifically can attempt a formal negotiation scene here, gated on
+    reputation.crown, that can prevent "skirmishes" from ever
+    triggering (a full early-exit, mirroring Event 1's "unrest"-stage
+    de-escalation).
+  skirmishes: the Deserter lesson branch fires here; Quartermaster
+    Bellamy Cray's (2.3) double-dealing becomes concretely visible for
+    the first time — supplying both sides simultaneously, discoverable
+    via a specific investigation branch.
+  active: Ser Aldous Fenn is deployed. His death condition (below) is
+    checked here specifically.
+  resolution: aldric_victory (crown reputation gain, commonfolk cost —
+    victories are expensive), northern_victory (rare, requires actively
+    working against the crown's war effort repeatedly), stalemate_treaty
+    (best long-term outcome, hardest to broker, requires the brewing
+    -stage diplomacy groundwork even if it didn't fully prevent the
+    war).
+Player intervention: can accelerate, delay, or redirect the war via
+diplomacy, sabotage, or open combat at specific chapter gates.
+NPC impact: Ser Aldous Fenn (Royal ally) is deployed and can die in
+"active" stage if the player hasn't secured a treaty path; Captain
+Wielding's mercenary company may be hired by either side.
+Legacy tie-in: if a prior playthrough's DeceasedHero has "assassinated
+Duke Vane" or similar destabilizing canon events, war triggers EARLIER
+and starts already at "skirmishes," not "brewing" — past chaos begets
+future chaos.
+
+NPC DEATHS:
+- Ser Aldous Fenn — dies in "active" stage UNLESS the player secured
+  the stalemate_treaty path (either via brewing-stage diplomacy or a
+  specific active-stage rescue scene gated on npc.aldous_fenn.trust >=
+  3). This is the spine's first Signature-tier, near-certain death for
+  players who don't actively work to prevent it — deliberately, since
+  his PRE-ARC warning (Scene C) exists specifically so this doesn't
+  feel like a cheap ambush. His death record feeds directly into Event
+  7 (Dark Legion): if he died here, "Once-Ser Aldous Fenn" — already
+  specified in the original document's section 8.4 as a corrupted echo
+  that appears "ONLY IF the original Ser Aldous Fenn died in the
+  War/Dark Legion cascade" — becomes available as a Dark Legion
+  antagonist, the single most direct payoff in the whole spine.
+- Captain Yusra Wielding (mercenary company, background/Notable tier) —
+  FIXED, dies off-screen regardless of player action, exactly as the
+  original catalog specified ("whether or not the player ever fought
+  her directly") — the player learns about it secondhand, a deliberate
+  demonstration that the world moves without the player at the center
+  of every consequence.
+- A background NPC death cluster (not named) — visible via a
+  village's population/mood shifting in later scene text, per the
+  original catalog's "visible cost to the world" design note; kept
+  deliberately un-named here so Signature deaths stay meaningfully
+  rarer than background ones.
+
+NEW NPCS:
+ALLY — Field-Medic Orin Vasse | Core trait: triages people, not
+politics | Wants: to keep the casualty count as low as the crown will
+let him | Voice: clipped, medical, calm even under fire | Secret:
+quietly treats deserters and Northern Reach wounded alongside crown
+soldiers, against orders | Hook: a Sacrifice-Route-flavored ally who can
+join permanently as a companion if the player protects his practice
+from a court-martial investigation.
+
+ENEMY — Warlord Threska Cael | Core trait: fights for a homeland she
+genuinely believes the crown stole first | Wants: the disputed border
+land back, full stop | Voice: speaks the Realm's tongue fluently but
+switches to her own when quoting old treaties, untranslated on purpose
+| Secret: privately doesn't trust her own side's war council either —
+she thinks THEY escalated past what the original land claim justified |
+Hook: the war's actual counterpart to Lady Ysolde Marrow's court-side
+scheming — a genuine moral complication, not a mustache-twirler, who
+becomes the natural face of the stalemate_treaty resolution if the
+player reaches it.
+
+RIVAL — Lieutenant Casswell Marrow (a distant cousin of Lady Ysolde
+Marrow, 2.3) | Core trait: ambitious in exactly the way his cousin is,
+minus her patience | Wants: a battlefield reputation he can trade for
+political standing back home | Voice: narrates his own bravery slightly
+too loudly | Secret: is quietly feeding field intelligence back to Lady
+Ysolde Marrow, not out of malice, mostly out of family obligation |
+Hook: a rivalry resolvable through the war's outcome itself — humiliate
+him in a skirmish and he becomes a genuine Marrow-faction enemy later;
+outshine him generously and he becomes a reluctant, useful contact
+inside House Marrow's circle instead.
+
+WILDCARD — The War-Crow (a specific, recognizable crow, not a person) |
+Core trait: shows up before bad news, every time | Wants: unclear —
+possibly nothing, possibly everything | Voice: no dialogue, ever — pure
+atmosphere | Secret: none stated, deliberately, in the same spirit as
+Yew's "the lack of a secret IS the character beat" (2.3) | Hook: a
+recurring, wordless omen that appears in the scene immediately before
+any FIXED death in this event — the player learns to dread it, purely
+through pattern recognition, no exposition required.
+
+POST-ARC:
+- Regardless of resolution, a coda scene at the war's end shows the
+  Capital processing the cost — a public accounting of the dead (Aldous
+  Fenn's name read aloud if he died, a direct emotional beat), and the
+  crown's attention visibly turning toward whatever the Sun Temple flag
+  state currently is: if world_flags.sun_temple_destroyed is true, this
+  coda scene is where the Schism's mourning stage is explicitly seeded
+  ("even now, with everything else, no one has rebuilt the temple");
+  if false, the coda instead seeds the Plague's PRE-ARC via a line
+  about returning soldiers bringing "something" back from the northern
+  border camps — the spine's CONDITIONAL branch point, decided entirely
+  by which flag is already true rather than a new choice.
+--------------------------------------------------------------------------
+3.7 EVENT 3 — THE SUN TEMPLE SCHISM (CONDITIONAL)
+--------------------------------------------------------------------------
+Gate reminder: this entire event only exists if world_flags.
+sun_temple_destroyed == true. If it's false, skip straight from Event
+2's POST-ARC to Event 4's PRE-ARC — do not write a "nothing happens"
+placeholder chapter; the spine is meant to route around this cleanly.
+
+PRE-ARC (only relevant in runs where this event can fire):
+- Scene A ("The Empty Ground"): the player can visit the temple ruin
+  itself — always accessible, low-key, mostly atmosphere — and
+  overhear two mourners disagreeing about whether it should be rebuilt
+  as it was or replaced with something new. This disagreement IS the
+  schism in miniature, before the event's mechanical stages begin.
+- Scene B ("A Preacher Arrives"): a stranger begins preaching near the
+  ruin — this is the New Prophet (see NEW NPCS) making first contact,
+  gated to appear only once Event 2 has resolved, so the timing always
+  reads as "grief finally has somewhere to go" rather than random.
+
+LORE ROUTE: Ithrenel Dusk (2.3, Elf ally) — already documented as
+having "actual knowledge of the Sun Temple's history predating the
+player's own playthroughs" — offers, if sought out specifically, a
+centuries-spanning account of what the temple actually protected
+against originally (left intentionally vague/mysterious rather than
+fully explained, consistent with the Hollow Choir's deliberately
+unresolved mystery-status elsewhere in 2.3) — the strongest single
+piece of world-lore content in the spine, entirely optional.
+
+LESSON ROUTE: "Whose Grief Gets to Lead" — during "mourning," the
+player can choose whose account of the temple's destruction gets
+repeated publicly: a version that blames outsiders (raises
+factional_split tension toward zealot_uprising) or a version that
+accepts responsibility, including the player's OWN, if they were the
+one who destroyed it in a past playthrough (lowers tension, opens
+new_orthodoxy). The lesson: the story a community tells itself about a
+tragedy shapes what it becomes, more than the tragedy itself — the
+player is directly authoring that story here, not just reacting to it.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: directly gated behind world_flags.sun_temple_destroyed == true
+— this event ONLY exists in worlds where a past hero burned the temple.
+Stages: mourning -> factional_split -> (new_orthodoxy /
+zealot_uprising / faith_abandoned).
+  mourning: the LESSON ROUTE fires here.
+  factional_split: two named factions crystallize — the New Prophet's
+    congregation (below) pulling toward new_orthodoxy, and a harder
+    -edged faction pulling toward zealot_uprising, actively courted by
+    Inquisitor Halvard Rane if he's still active. The player can back
+    either, attempt to unify them (hard, Diplomacy-Route-flavored
+    check), or walk away entirely (defaults toward faith_abandoned).
+  resolution: new_orthodoxy (a genuinely new religious institution,
+    majorCanonEvents-worthy per the Faith/Zealotry route in section 5),
+    zealot_uprising (Inquisitor Rane gains institutional backing, a
+    darker outcome that feeds directly into his own late-story
+    redemption opening becoming harder to reach), faith_abandoned (the
+    quietest ending — no new institution forms, the ruin stays a ruin,
+    a legitimate, non-punished outcome for players who walked away).
+Player intervention: can found a new religious order, suppress the
+schism, or exploit it for personal power (Power/Corruption route hook).
+NPC impact: Inquisitor Halvard Rane (Vampire enemy) either gains or
+loses institutional backing depending on this event's outcome — ties
+two unrelated origins' content together through shared world state.
+Legacy tie-in: exists ONLY because of a prior run's choice — the
+strongest possible demonstration of the Legacy Engine's promise that
+past playthroughs permanently reshape the world.
+
+NPC DEATHS:
+- The New Prophet (see NEW NPCS) — dies FIXED in the zealot_uprising
+  resolution specifically, killed by their own faction's more extreme
+  members for being "insufficiently pure" once Rane's harder line wins
+  out — a grim, specific illustration of what zealot_uprising actually
+  costs, beyond the flag name alone.
+- Inquisitor Halvard Rane — survives by default; can die only in a
+  player-initiated confrontation during factional_split if the player
+  has been actively working against him for multiple prior chapters
+  (a high-infamy, Revenge-Route-flavored option) — his death here
+  closes his redemption opening permanently and is explicitly the
+  "worse" of his two possible exits, kept rare and hard to reach on
+  purpose.
+
+NEW NPCS:
+MENTOR — The New Prophet, called only "Ash-Speaker" by followers | Core
+trait: genuinely believes what they're preaching, which is precisely
+what makes them dangerous | Wants: meaning to be made out of the
+temple's loss, honestly, not cynically | Voice: speaks in short,
+quotable fragments that spread faster than their actual arguments do |
+Secret: privately unsure whether they believe every word, and terrified
+of what happens if their followers ever find that out | Hook: the
+new_orthodoxy resolution's founding figure if they survive; a genuine
+tragedy if zealot_uprising claims them instead.
+
+WILDCARD — Relic-Keeper Sorne | Core trait: outlived their usefulness
+to everyone but themselves, and is fine with that | Wants: to protect
+what's left of the temple's physical relics from BOTH factions equally
+| Voice: answers every question about the relics with a different
+question about the asker's own motives | Secret: has already hidden the
+most important relic somewhere neither faction will think to look |
+Hook: an information/item source who trusts no institution, only
+individual demonstrated character — a rare NPC whose loyalty can't be
+bought or argued for, only earned through action.
+
+ENEMY — Zealot-Captain Bellik Thorne (no relation to Kaelis Thorn, 2.3
+— a background detail worth a single line of dialogue noting the
+coincidence, purely for texture) | Core trait: was ordinary before the
+temple fell, and isn't anymore | Wants: to punish whoever's responsible,
+even if that's the player | Voice: escalates from reasonable to
+absolute within the same sentence | Secret: was one of the two mourners
+overheard arguing in PRE-ARC Scene A — his radicalization is directly
+traceable, on-screen, if the player paid attention early | Hook: the
+zealot_uprising resolution's on-the-ground face, deliberately humanized
+by the PRE-ARC callback rather than introduced as a stranger.
+
+POST-ARC:
+- A coda scene shows whichever institution (or absence of one) the
+  resolution produced, settling into the world's background texture —
+  new_orthodoxy shown via changed village dialogue variants going
+  forward; zealot_uprising via a harsher, watchful tone in Inquisitor-
+  adjacent scenes; faith_abandoned via simple silence, the ruin
+  un-rebuilt, mentioned rarely and briefly.
+- Bridges to Event 4 (Plague) via a single grim, practical line: whoever
+  is now tending the sick in the Hollow Reaches — clergy, if
+  new_orthodoxy; nobody official, if faith_abandoned — is explicitly
+  named here, so Plague's PRE-ARC can open already knowing who the
+  player will be relying on (or notably NOT relying on) once outbreak
+  begins.
+--------------------------------------------------------------------------
+3.8 EVENT 4 — THE PLAGUE OUT OF THE HOLLOW REACHES
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("A Cough That Doesn't Stop"): a background NPC in any
+  village the player visits shows an early symptom, easy to miss or
+  dismiss. No mechanical weight yet — pure foreshadowing.
+- Scene B ("Old Hendrik's Cough"): if the player has met Old Hendrik
+  (2.3, Civilian mentor, already documented as "dying of something he
+  hasn't told anyone"), this is where his illness is FIRST visibly
+  tied to the coming outbreak rather than left fully mysterious — he
+  still doesn't name it, but the player can now connect the dots
+  themselves once "outbreak" stage begins.
+- Scene C ("Looted Ruin"): the original catalog's stated player-choice
+  trigger — looting a cursed ruin without proper precaution — is staged
+  here explicitly as an optional Hollow Reaches side-scene, so the
+  "time-based OR player choice" trigger from the original entry has a
+  concrete scene behind the player-choice half, not just a flag that
+  fires invisibly.
+
+LORE ROUTE: an apothecary background NPC (Generation Framework: core
+trait #3 "corrects people's grammar mid-crisis," flaw #11 "is hiding an
+injury/illness from people who'd worry") explains, if asked, that this
+specific plague strain has surfaced before, generations back, always
+traced to the same ruin cluster in the Hollow Reaches — connecting this
+event to the same "old magic, old danger" regional theme the World
+Primer (section 1) already assigns to the Hollow Reaches.
+
+LESSON ROUTE: "The Scarce Medicine" — already flagged in the original
+catalog as "a direct, personal-scale Honor System test" (4.3); this
+route makes it concrete. During "quarantine," the player is handed a
+FIXED small quantity of a real cure — enough for one household, not
+the village. The choice of household (a stranger's, an NPC's the
+player has a relationship with, or the household offering the most
+coin) is never moralized by the narration — no NPC tells the player
+which choice was "right" — but reputation.honor, reputation.commonfolk,
+and the specific npc.<id>.trust value of whoever DIDN'T get chosen all
+move accordingly, silently. This is the spine's clearest example of
+letting mechanical consequence carry a lesson with zero exposition.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: time-based (later game years) OR player choice (looting a
+cursed ruin without proper precaution, Scene C above).
+Stages: rumors -> outbreak -> quarantine -> (contained / spreads_to_
+capital / mysteriously_ends).
+  rumors: last full window to gather resources (herbs, coin for a
+    healer, favors from Merchant NPCs) before outbreak makes them
+    scarcer and pricier — a resource-prep stage not present in the
+    original catalog's stage list, added because "quarantine" needing
+    resources the player already has (or doesn't) makes the SCARCE
+    MEDICINE lesson land harder.
+  outbreak: Old Hendrik's illness becomes explicitly plague-linked here
+    (see NPC DEATHS). The apothecary LORE ROUTE NPC becomes reachable.
+  quarantine: the SCARCE MEDICINE lesson fires here.
+  resolution: contained (best outcome, requires meaningful resource
+    investment across rumors+outbreak stages), spreads_to_capital
+    (worse outcome, raises stakes for the Succession Crisis to follow
+    if the king's health becomes a factor — see Event 5's PRE-ARC),
+    mysteriously_ends (a rare, unsettling non-resolution — the plague
+    simply stops, unexplained, which the LORE ROUTE apothecary NPC
+    finds more disturbing than reassuring, a deliberate note of cosmic
+    horror kept small and optional).
+Player intervention: resource management flavor — gathering cures,
+choosing who gets scarce medicine (a direct, personal-scale Honor
+System test, see 4.3).
+NPC impact: Old Hendrik (Civilian mentor) is a strong candidate to die
+here if unaided — his already-planned "dying of something unnamed" arc
+(2.3) can resolve as plague specifically if this event is active.
+Legacy tie-in: none required — this is a good "even without Legacy
+Engine callbacks, the world still moves" event, useful for players on
+their first-ever run.
+
+NPC DEATHS:
+- Old Hendrik — dies during "outbreak" UNLESS the player specifically
+  prioritizes him during the rumors-stage resource gathering AND
+  chooses him as the SCARCE MEDICINE recipient during quarantine (a
+  two-stage commitment, not a single choice) — the highest-cost, most
+  deliberate save-a-Signature-NPC path in the spine so far, matching
+  the original catalog's description of this as "a strong non-lethal
+  use of the 'someone dies' beat that doesn't require combat" if the
+  player DOESN'T save him, and an equally strong "you can change
+  outcomes if you actually invest" beat if they do. If he dies, his
+  smithing/farming teaching arc (2.3) permanently closes — a mechanical
+  loss (a bonus the player will never now receive), not just a
+  narrative one.
+- A named background elder from PRE-ARC Scene A — dies FIXED regardless
+  of player action, specifically to establish early that this plague is
+  real and lethal BEFORE Old Hendrik's fate is put in the player's
+  hands, so his survival/death doesn't read as the game's only
+  demonstration of stakes.
+
+NEW NPCS:
+ALLY — Healer Yssa Coombe | Core trait: exhausted, still shows up every
+day | Wants: enough hands to actually keep pace with the outbreak |
+Voice: gives instructions, not comfort, even when comfort is what's
+needed | Secret: has already lost a previous apprentice to this same
+plague strain years ago, which is why she pushes new helpers so hard |
+Hook: the player's primary quarantine-stage companion; can become a
+recurring healer contact post-event if treated well.
+
+WILDCARD — The Gravedigger's Boy, Fen | Core trait: too young for this
+job, doing it anyway | Wants: enough coin to get his remaining family
+out of the Hollow Reaches entirely | Voice: flat, matter-of-fact about
+death in a way that unsettles adults around him | Secret: has started
+quietly reselling grave-goods from the dead to make ends meet | Hook: a
+morally gray information source (he sees everyone who dies, and
+sometimes what they were carrying) — exposing his grave-robbing is a
+Honor-System choice with an unusually sympathetic "villain."
+
+ENEMY — "Prophet of the Ending" Corvin Ashby (unrelated to Corwin Ashe,
+2.3 — another intentional near-homophone worth a single acknowledging
+line if both are met) | Core trait: found certainty in the outbreak
+that he never had before it | Wants: followers who believe the plague
+is deserved, a punishment | Voice: sermon-cadence, deliberately similar
+to Inquisitor Rane's, a texture echo rather than a coincidence | Secret:
+lost his entire household to the first wave and has never processed it
+as grief, only as theology | Hook: a small-scale, PERSONAL-STAKES
+antagonist distinct from the "war/schism" pattern's larger factional
+enemies — his conflict resolves through pity or dismissal, not combat.
+
+MERCHANT — Quarantine-Warden Bettina Grask | Core trait: enforces the
+rules and hates every minute of it | Wants: the outbreak over so she
+can stop being the person who tells families they can't see their sick
+| Voice: recites procedure like it's the only thing keeping her upright
+| Secret: let her own sister break quarantine once, quietly, and has
+told no one | Hook: controls resource access during "quarantine" —
+befriending her unlocks better access to the scarce medicine pool,
+while reporting her for the sister incident (discoverable) locks it.
+
+POST-ARC:
+- A coda scene shows the affected region recovering (or not, if
+  spreads_to_capital) — mood-text shifts per 4.3's MODERATE
+  consequence pattern, plus, if contained, a specific line of gratitude
+  from whichever NPCs survived quarantine because of the player's
+  choices.
+- If spreads_to_capital, this is where the bridge to Event 5
+  (Succession Crisis) becomes explicit: a line noting the king himself
+  has taken ill, tying a genuinely earned prior-event outcome directly
+  into the next event's trigger conditions rather than leaving
+  Succession's "the king dies" trigger feeling arbitrary.
+--------------------------------------------------------------------------
+3.9 EVENT 5 — THE SUCCESSION CRISIS
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("The King's Health"): a Capital scene, weight and phrasing
+  varying by how Event 4 resolved (per its POST-ARC bridge) — a king
+  visibly weakened by plague reads very differently from a king simply
+  aged into decline.
+- Scene B ("Lady Marrow's Patience Runs Out"): if Lady Ysolde Marrow's
+  standing has been building (tracked via her own dedicated
+  world_flags.marrow_plot_progress, incremented any time the player
+  fails to expose or oppose her across Events 2-4), this scene shows
+  her making her first genuinely public move — a court appearance
+  where she stops being subtle, an escalation the player can now see
+  coming rather than have it dropped on them at Event 5's start.
+- Scene C ("The Dowager Regent's Warning"): the Dowager Regent Elowen
+  (2.3) privately tells a Royal Heir-origin player exactly what's
+  coming and asks, bluntly, which of her own past pragmatic lessons the
+  player actually absorbed — a direct callback to her Mentor arc,
+  paying off whether the player leaned into or resisted her
+  Corruption/Fall-adjacent advice earlier.
+
+LORE ROUTE: Loremaster Fenwal Rys (Notable NPC, section 8.4, Aelendor)
+— reachable only by players who've built any standing with Aelendor
+-linked content — offers an outsider's account of House Aldric's actual
+succession law, including a buried historical precedent that
+technically supports Lady Ysolde Marrow's claim, which no human court
+record currently admits to. Optional, and quietly devastating if the
+player already sided against her without knowing this.
+
+LESSON ROUTE: "Who The Realm Remembers" — during claims_contested, a
+background NPC (built using the SIZES THE PLAYER UP AGAINST A DECEASED
+HERO wildcard-relationship-table entry, 2.4.E) explicitly compares the
+player's reputation to a PAST playthrough's DeceasedHero, if one
+exists, and bases their support or opposition on that comparison rather
+than on anything the CURRENT player has done. The lesson: legacy is
+inherited whether earned or not — a first-time player with no prior
+DeceasedHero simply doesn't trigger this branch, a clean, non-punishing
+way to handle the absence.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: fixed story beat, OR accelerated if Lady Ysolde Marrow's plot
+(2.3, Royal enemy) succeeds.
+Stages: mourning -> claims_contested -> (aldric_continues / marrow_
+ascends / regency_council / civil_war).
+  mourning: a genuine grief beat regardless of the king's popularity —
+    Ser Aldous Fenn (if he survived Event 2) delivers the eulogy, a
+    strong scene if he's alive, a pointed absence if he isn't.
+  claims_contested: the LESSON ROUTE and Scene B's payoff both live
+    here. The player can actively campaign for a specific outcome —
+    Royal Heir-origin players get the deepest branch tree; other
+    origins get a narrower but real set of options via whichever
+    Signature NPCs they've built standing with (Elowen, Fenn, even
+    Marrow herself if the player has kept genuine channels open with
+    her rather than opposing her outright).
+  resolution: aldric_continues (stability, a fairly conservative
+    outcome), marrow_ascends (a full changeover — only reachable if the
+    player has NOT worked against her across the whole spine, an
+    ending that rewards a very specific, patient playstyle rather than
+    punishing it as a "failure"), regency_council (a genuinely
+    collaborative outcome, hardest to engineer, closest to the
+    Diplomacy/Unity route's ideals in section 5), civil_war (worst
+    outcome, triggers if claims_contested drags on too long without
+    the player backing ANY faction decisively — indecision itself is
+    the trigger here, not a wrong choice).
+Player intervention: Royal Heir-origin players are the primary actors
+here — highest-stakes event for that origin specifically.
+NPC impact: nearly every Royal-linked Signature NPC has a stance in
+this event (Ser Aldous Fenn loyalist, Cousin Tobias opportunist,
+Dowager Regent Elowen pragmatist).
+Legacy tie-in: if a past Royal Heir player died without securing
+succession, this event triggers automatically and EARLIER in the next
+Royal-adjacent run.
+
+NPC DEATHS:
+- King Aldric III — FIXED, the event's own trigger condition; always
+  happens one way or another (illness, per Event 4's bridge, or old
+  age if Event 4 resolved as contained). Not treated as a "death to
+  avoid" — his death is the event, the same way the Sun Temple's
+  destruction already established that some world-shaping losses are
+  structural rather than avoidable.
+- Lady Ysolde Marrow — dies ONLY in the civil_war resolution, specifically
+  in a final confrontation the player can choose to attend or not; if
+  the player attends and shows mercy (sparing her despite everything),
+  it opens a small, late, genuinely rare redemption-adjacent scene
+  where she withdraws her claim instead of dying — the hardest single
+  mercy-branch to find in the entire spine, rewarding a player who
+  extends it to someone the game has given them every reason to want
+  dead.
+- Cousin Tobias Aldric — can die in civil_war specifically if the
+  player dismissed his Rival hook (2.3, "escalates to real betrayal if
+  dismissed repeatedly") across earlier chapters; he backs Marrow out
+  of resentment rather than conviction and dies for a cause he never
+  actually believed in, a small, sad, entirely player-caused death.
+
+NEW NPCS:
+ALLY — Regent-Marshal Halvern Cotte | Core trait: institutionalist to a
+fault, believes process outlasts any one ruler | Wants: the transition
+to happen without the army fracturing along faction lines | Voice:
+speaks almost entirely in procedure and precedent | Secret: has already
+quietly drafted contingency orders for EVERY possible resolution,
+including civil_war — unnervingly, methodically prepared | Hook: the
+regency_council resolution's most important architect if the player
+earns his trust.
+
+RIVAL — Lady Ysolde Marrow's own daughter, Corenna Marrow | Core trait:
+believes in her mother's claim more purely, and less strategically,
+than her mother does | Wants: to prove herself capable of the throne
+her mother has spent decades building toward | Voice: earnest in a
+court full of people who've forgotten what earnest sounds like | Secret:
+privately terrified her mother doesn't actually see HER as the heir to
+that claim, just as an instrument of it | Hook: a genuinely sympathetic
+rival who can become an ally if the player treats her as more than an
+extension of her mother — one of the spine's clearest "rivalry resolves
+into respect" opportunities (section 5, LOVE/RIVAL framing).
+
+WILDCARD — The Herald of the Old Rites, Wexler Doone | Core trait:
+insists on ceremonial correctness above all practical concern | Wants:
+the succession to follow the OLD forms, regardless of who that favors |
+Voice: recites archaic ceremonial phrasing unprompted, constantly |
+Secret: privately doesn't care who wins, only that it's done "properly"
+— a wildcard whose unpredictability comes from prioritizing form over
+outcome, a different flavor than the Piebald Fool's otherworldliness |
+Hook: can be a genuine procedural weapon for whichever faction learns
+to use the old ceremonial rules to their advantage — a rules-lawyer
+NPC in a court-politics event, deliberately different texture from
+combat-flavored wildcards elsewhere in the spine.
+
+POST-ARC:
+- A coronation-or-council-seating coda scene, varying by resolution,
+  explicitly naming the new balance of power going forward — including
+  a specific line establishing HOW fractured or unified the realm looks
+  heading into Event 6, since Foreign Invasion's severity explicitly
+  scales on exactly this (per the original catalog's Legacy tie-in
+  note: "severity scales with how FRACTURED the realm currently is").
+- civil_war resolution specifically seeds Event 6's PRE-ARC with a
+  weakened, still-healing military — the invasion's raids stage hits
+  noticeably harder in this branch, made explicit here rather than left
+  as an invisible difficulty modifier.
+--------------------------------------------------------------------------
+3.10 EVENT 6 — FOREIGN INVASION FROM ACROSS THE SALT SEA
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("Strange Sails"): coastal background NPCs report unfamiliar
+  ships on the horizon, dismissed by official channels as merchant
+  traffic — the original catalog's "the world doesn't only respond to
+  you" framing starts here: this scene fires on a timer, not on
+  anything the player did.
+- Scene B ("Unify or Not"): a direct, explicit choice scene where the
+  player can spend social capital built across Events 1, 2, and 5
+  (guild standing from Rebellion, crown standing from War, whichever
+  faction won Succession) to begin pre-positioning a unified response
+  BEFORE raids stage even begins — the mechanical setup for the
+  original catalog's "payoff event that rewards how the player handled
+  everything before it," made into an actual scene instead of an
+  implied late-game bonus.
+
+LORE ROUTE: Harbormaster Sten Quill (Notable NPC, section 8.4, the
+March of Vessair) explains, if sought out, that these raiders don't
+match any previously-catalogued naval power — a deliberately open
+lore thread, meant to leave room for a future expansion (a new
+continent/culture across the Salt Sea) without committing to one now,
+consistent with the document's stated preference for scoped, honest
+gaps over invented lore nobody asked for.
+
+LESSON ROUTE: "The Village That Can't Be Saved" — during beachhead
+stage, the player is given a hard resource-triage choice at a scale
+above anything in the Plague event: two coastal villages are under
+simultaneous threat, and the player's available forces (built from
+however much unifying work was done in PRE-ARC Scene B) can only fully
+defend one. This is deliberately the spine's harshest lesson-route
+instance — there is no hidden third option this time — reinforcing,
+at the highest stakes yet, that the Scarce Medicine lesson from Event 4
+wasn't a one-off, it's how this world actually works.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: very late-game, time-based, mostly independent of player
+choice (a "the world doesn't only respond to you" event, deliberately).
+Stages: raids -> beachhead -> (repelled / partial_occupation / full_
+invasion).
+  raids: PRE-ARC Scene B's unifying work pays off in reduced raid
+    severity if it was done; otherwise, raids hit background coastal
+    NPCs harder, mirrored in later mood-text per 4.3.
+  beachhead: the LESSON ROUTE fires here.
+  resolution: repelled (best outcome, requires both prior unifying work
+    and a decisive beachhead-stage engagement), partial_occupation
+    (regional, ongoing cost — certain coastal areas remain contested
+    background texture for the rest of the run), full_invasion (worst
+    outcome, heavily weighted by how fractured Event 5 left the realm).
+Player intervention: can unify factions from OTHER events (war,
+rebellion) into common cause against the invader — a payoff event that
+rewards how the player handled everything before it.
+NPC impact: potential mass-casualty event for background NPCs
+specifically — good place to show world-state cost via population/mood
+shifts rather than named-character deaths, keeping Signature NPC deaths
+meaningful rather than routine.
+Legacy tie-in: severity scales with how FRACTURED the realm currently is
+(active war + active rebellion + schism all active = weaker resistance,
+worse outcome range available).
+
+NPC DEATHS:
+- Whichever named ally the player did NOT choose to defend in the
+  LESSON ROUTE'S village triage — not a Signature NPC by default, but
+  if the player has specifically routed a Signature or Notable NPC to
+  live in one of the two threatened villages in an earlier chapter
+  (author's discretion per playthrough, a hook rather than a rule),
+  this is where that placement pays off or costs dearly.
+- Regent-Marshal Halvern Cotte (introduced in Event 5, if he survived)
+  — dies FIXED in the full_invasion resolution specifically, his
+  meticulous contingency planning from Event 5 finally exhausted; his
+  death is narrated as the moment the realm's institutional memory
+  itself starts to fail, a thematically loaded loss distinct from a
+  combat death.
+
+NEW NPCS:
+ENEMY — Fleet-Marshal Reyva Ashkindle | Core trait: conquest as
+inheritance, not ambition — she didn't choose this war, her position
+did | Wants: to complete a campaign her own predecessor started and
+died failing | Voice: formal, weary, treats the Realm's defenders with
+open respect rather than contempt | Secret: has been quietly leaving
+supply caches for stranded Realm civilians during raids, against her
+own command's orders | Hook: the invasion's most morally complex
+antagonist — a genuine peace-adjacent branch exists if the player
+reaches her directly during beachhead rather than only fighting her
+forces.
+
+ALLY — Coastal Elder Maren Wick | Core trait: has evacuated this same
+stretch of coast twice before, in a previous generation's conflict |
+Wants: her people to survive with their homes intact this time, not
+just survive | Voice: gives orders like she's done this before, because
+she has | Secret: lost a spouse in one of those previous evacuations
+and has never told anyone the exact circumstances | Hook: the player's
+primary coordination contact during the LESSON ROUTE's village triage —
+her reaction to which village the player saves is one of the spine's
+most emotionally weighted single lines of dialogue.
+
+WILDCARD — "Driftwood" Yannic Corr | Core trait: profits from chaos,
+same family resemblance as Rebellion's Pockets Wrenna Silt, different
+person, different coast | Wants: to be the one person on this coast who
+comes out of the invasion richer than he went in | Voice: haggles even
+during active combat, unnervingly | Secret: is quietly selling
+salvaged invader equipment BACK to the Realm's own quartermasters at
+markup | Hook: a grimly comic pressure valve during the spine's
+grimmest event — sells scavenged gear/information at a price, no
+judgment implied either way.
+
+MERCHANT — Shipwright Torvald Enge | Core trait: measures everything in
+what a ship can survive | Wants: to keep building faster than the
+invaders can sink | Voice: technical, unromantic about the sea despite
+a lifetime on it | Hook: gates access to naval-flavored options during
+raids/beachhead — a resource, not a combatant, whose availability
+scales with how much the player invested in PRE-ARC Scene B's unifying
+work.
+
+POST-ARC:
+- A coda scene surveys the coast after resolution — repelled shows
+  rebuilding with real hope; partial_occupation shows an uneasy new
+  status quo, contested territory becoming background texture for the
+  rest of the run; full_invasion shows the realm at its lowest point
+  yet in the entire spine.
+- This is the spine's most important bridge scene: it explicitly states
+  the realm's CURRENT fracture level (a simple summary of which of
+  Events 1/2/5/6 resolved worst) heading into Event 7, since the Dark
+  Legion's trigger odds and severity are BUILT from exactly this
+  accumulated state per 7.2's cascade logic — the player should be able
+  to see, in plain narration, why the next event is about to happen.
+--------------------------------------------------------------------------
+3.11 EVENT 7 — THE DARK LEGION (cascade)
+--------------------------------------------------------------------------
+PRE-ARC:
+- Scene A ("Omens"): matches the original 7.2 entry's "omens" stage
+  directly — background NPCs report livestock deaths, spoiled wells,
+  wrongness in the weather, deliberately vague and dread-flavored
+  rather than concrete.
+- Scene B ("The Weight of What's Left"): an explicit, narrated
+  accounting of which Signature NPCs survived the spine so far and in
+  what state — this is where Ser Aldous Fenn's fate (Event 2) is
+  checked and, if he died, this is the LAST calm scene before his
+  corrupted echo can appear. The scene itself is quiet, almost a
+  memorial, deliberately positioned as a held breath before the
+  cascade's first stage.
+
+LORE ROUTE: the Piebald Fool (2.3, Wanderer wildcard, already
+established as knowing "things about world_flags-level events before
+they happen") appears here specifically, out of his usual Wanderer
+-adjacent context, to deliver a fragment of warning in his rhyming
+voice — the single clearest payoff of his "the world reacts to the
+player, and something notices" hook, now made literal: something has,
+in fact, noticed.
+
+LESSON ROUTE: "What You Kept Alive" — rather than a new choice, this
+route is entirely retrospective: a scene that surfaces which Signature
+NPC relationships the player maintained across the ENTIRE spine so far,
+and shows those specific relationships becoming the incursion stage's
+available intervention points, while relationships the player let
+lapse are simply absent, without comment. The lesson: the game has been
+banking every relationship choice made since the prologue, and this is
+where the bill comes due — not punitively, just factually.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: cascades from EITHER "War with the Northern Reach" resolving
+as northern_victory/stalemate_treaty (a weakened, war-torn realm looks
+like easy prey) OR "The Rebellion of the Salt Road" resolving as
+regime_change/crushed with high infamy (a fractured realm invites
+outside opportunists). Can also trigger standalone late-game.
+Stages: omens -> incursion -> occupation -> (repelled / bargained_with
+/ realm_falls).
+  omens: PRE-ARC content above; no mechanical stage effects yet.
+  incursion: the LESSON ROUTE'S surfaced relationships become concrete
+    intervention points here — each surviving, maintained Signature NPC
+    offers a specific, unique way to resist, gated on npc.<id>.trust
+    thresholds already earned, not new checks.
+  occupation: point of maximum stakes — background NPC populations
+    visibly shrink in mood/location text (per the original catalog's
+    "mass-casualty" design note extended from Event 6); Signature NPC
+    death checks (below) resolve here specifically.
+  resolution: repelled (hardest outcome to reach, requires meaningful
+    incursion-stage intervention density), bargained_with (a genuine,
+    morally complicated middle outcome — the Legion is contained but
+    not destroyed, at an explicit ongoing cost named in the coda),
+    realm_falls (feeds directly into whether Event 8 becomes reachable
+    at all — see EVENT STAGES note below).
+Player intervention: unifying surviving factions from whichever prior
+event(s) triggered this — the highest payoff for players who kept
+multiple threads alive instead of "winning" any single earlier event
+outright.
+NPC impact: can permanently remove Signature NPCs who were left weak or
+exposed by the triggering event; strongest emotional stakes in the
+cascade specifically because the player will recognize why it happened.
+Legacy tie-in: a past playthrough that died during War or Rebellion
+markedly raises the odds this event fires at all in the next run.
+
+NPC DEATHS:
+- Once-Ser Aldous Fenn — NOT a death, an appearance condition: if the
+  original Ser Aldous Fenn died in Event 2, this corrupted echo becomes
+  an available ENEMY during occupation stage, exactly as the original
+  document's section 8.4 specifies. Defeating him offers a unique,
+  difficult mercy-adjacent option — a moment of the echo's original
+  self briefly surfacing — that, if taken, provides a small honor gain
+  and a specific majorCanonEvents-worthy line acknowledging the
+  original Fenn's memory was honored even in this form. Refusing mercy
+  (a straightforward kill) is equally valid, just colder.
+- Any Signature NPC whose npc.<id>.trust never reached the incursion
+  -stage intervention threshold (per the LESSON ROUTE) is at elevated,
+  though not certain, risk during occupation — the exact mechanism is a
+  weighted check rather than a hard rule, intentionally, so this event
+  doesn't punish any ONE specific relationship choice but rather
+  reflects the player's overall pattern of engagement across the whole
+  spine.
+- A background-NPC-scale death wave during occupation, narrated via
+  location/population text exactly as Event 6 established, kept
+  deliberately un-named for the same reason given there.
+
+NEW NPCS:
+ENEMY — The Herald Unbound — already specified in section 8.4 as "the
+Dark Legion's public 'face,' if it has one"; this entry gives it a
+concrete first appearance: a masked, unplaceable figure who speaks in
+the voice of whichever Signature NPC the player trusted LEAST across
+the spine (a genuinely unsettling, personalized horror beat, mechanically
+just a narrativeVariants swap keyed to the player's lowest-trust
+Signature relationship) | Core trait: wears the realm's own grief back
+at it | Wants: unclear by design, per 8.4.A's note on keeping this
+faction "different in kind" from political enemies | Hook: the
+incursion stage's primary recurring antagonist.
+
+WILDCARD — The Quiet Ones — already specified in 8.4 as "not
+individuals, a recurring unnamed presence"; this entry gives them a
+mechanical hook: they appear silently in the background of occupation
+-stage scenes (a described detail in the narration, never addressed
+directly, never explained) — pure atmosphere, zero mechanical weight,
+existing purely to make the occupation stage feel watched.
+
+ALLY — Resistance-Warden Iska Vell | Core trait: refuses to accept that
+occupation is permanent, even when the evidence says otherwise | Wants:
+to keep a resistance network alive long enough for the tide to turn |
+Voice: gives hope in small, deliberately unglamorous doses — never a
+speech, always a specific, achievable next step | Secret: lost her
+entire prior resistance cell in a previous, smaller uprising years
+before this event, and carries the guilt of being the sole survivor |
+Hook: the incursion/occupation stages' primary organizing ally,
+available regardless of which prior Signature relationships the player
+maintained — a deliberate safety net so no playthrough is left with
+zero intervention points even if the LESSON ROUTE surfaced very little.
+
+POST-ARC:
+- A coda scene assesses the realm's state after resolution —
+  repelled shows genuine, hard-won relief; bargained_with shows an
+  uneasy truce with an explicit, named ongoing cost (a tribute, a
+  ceded territory, a debt); realm_falls shows the Legion's occupation
+  becoming the new, grim status quo.
+- Bridges to Event 8: the Demon Lord only becomes reachable if
+  resolution was realm_falls, exactly as 7.2 specifies — for repelled
+  or bargained_with outcomes, the spine's POST-FINALE section (3.14)
+  becomes reachable directly from HERE instead, with a distinct coda
+  explicitly marking that the realm survived the cascade without ever
+  facing its worst-case ending. This is the spine's only branch point
+  where an entire subsequent event can be skipped outright by having
+  played well, not just reordered.
+--------------------------------------------------------------------------
+3.12 EVENT 8 — THE DEMON LORD (capstone / final world event)
+--------------------------------------------------------------------------
+Reachability reminder: only fires if Event 7 resolved as realm_falls,
+OR if the Sun Temple Schism (Event 3) resolved as zealot_uprising WHILE
+the Dark Legion is already active, exactly as specified in the original
+7.2 entry. This event is designed to be RARE — most playthroughs should
+end via Event 6's or Event 7's own resolutions, or via the POST-FINALE
+directly from Event 7. Treat this event's very existence in a given
+playthrough as itself a signal to the player that things have gone
+about as badly as they can go, narratively speaking.
+
+PRE-ARC:
+- Scene A ("Revealed"): matches the original stage name directly — the
+  first unambiguous confirmation that something beyond the Legion, the
+  war, or any political conflict is now the realm's actual problem. No
+  ambiguity is preserved here on purpose; every prior event has left
+  room for doubt or nuance, and this one deliberately doesn't, to mark
+  the tonal shift into a genuine capstone threat.
+- Scene B ("The Last Names Read Aloud"): a single, quiet scene listing
+  every Signature NPC lost across the whole spine by name, read by
+  whichever ally survived longest and closest to the player (author's
+  discretion per playthrough state) — the spine's most direct payoff of
+  the Legacy Engine's whole premise: the player is about to face the
+  worst version of this world specifically because of an accumulated,
+  visible history of loss, not an abstract "final boss" framing.
+
+LORE ROUTE: intentionally minimal, per 8.4.A's design note that the
+Demon Lord "is deliberately never given a 'first name' treatment" — the
+ONLY lore content here is a single optional scene with Relic-Keeper
+Sorne (introduced in Event 3, if that event fired) revealing that the
+relic they hid back then was never about the temple at all — it was
+always meant for this. A payoff that only exists for players who both
+triggered Event 3 AND found Sorne's optional content, deliberately
+rare and easy to have missed.
+
+LESSON ROUTE: there isn't a separate one here — by this point in the
+spine, EVERY lesson route from Events 1 through 7 has already resolved
+into the player's accumulated reputation, NPC trust, and surviving
+relationships, and gathering_dread stage simply reflects all of it back
+at once, without a new mechanical hook. This is intentional: the
+capstone event isn't meant to teach one more discrete lesson, it's
+meant to be the sum of everything already taught.
+
+EVENT STAGES (expanded from the original catalog):
+Trigger: cascades from "The Dark Legion" resolving as realm_falls, OR
+from "The Sun Temple Schism" resolving as zealot_uprising with the Dark
+Legion already active (two unrelated origins' content converging into
+the worst-case ending).
+Stages: revealed -> gathering_dread -> confrontation -> (the run's
+final ending state — this is designed as a possible CAPSTONE, not a
+routine mid-game event).
+  revealed: PRE-ARC content above.
+  gathering_dread: the accumulated-reflection stage described in
+    LESSON ROUTE above; mechanically, this stage's length and available
+    resources scale directly with how many Signature NPCs and how much
+    reputation the player has left intact — a bad run into this event
+    is not just narratively grim, it's mechanically harder, on purpose.
+  confrontation: whichever Signature NPCs survived the ENTIRE spine
+    (per NPC impact/Legacy tie-in below) are the ones present — no new
+    named allies are introduced this late; the event is built from
+    survivors, not fresh content, matching the original entry's own
+    stated design intent exactly.
+  resolution: this stage IS the playthrough's ending — there is no
+    "outcome flag" the way earlier events have one, because whatever
+    happens here becomes the DeceasedHero record (if the player dies)
+    or the closing Chronicle entry (if they survive), full stop.
+Player intervention: the realm's last-resort event — deliberately rare
+and hard to reach by design, so it stays meaningful.
+NPC impact/Legacy tie-in: whichever Signature NPCs survived every prior
+cascade step are the ones who show up here — this event is built
+entirely out of the wreckage/survivors of everything before it, not new
+content of its own.
+
+NPC DEATHS: no NEW named deaths are specified for this event
+deliberately — every Signature NPC who could plausibly die already had
+their death condition specified in an earlier event (2 through 7). This
+event's entire cast is exactly whoever is left. If the player somehow
+kept every Signature NPC alive across the whole spine (difficult, by
+design, but not blocked), confrontation should read as genuinely full
+-cast — the game rewarding that outcome with presence, not by inventing
+a new death to force here.
+
+NEW NPCS: none, deliberately, matching the original catalog's own
+framing that this event is "built entirely out of the wreckage/
+survivors of everything before it, not new content of its own." The
+Demon Lord itself remains a title/force rather than a character, per
+8.4/8.4.A, and stays that way through this entry as well — do not name
+it in any future revision without revisiting that design note first.
+
+POST-ARC: none in the traditional sense — see 3.14 immediately below.
+Whatever happens in confrontation IS the playthrough's ending; there is
+no further "world absorbing the outcome" scene within the same run,
+since the run itself concludes here (either via character death and a
+DeceasedHero record, or via a survived, played-out ending feeding the
+Chronicle). The NEXT playthrough's world state is where this event's
+consequences actually surface, per the Legacy Engine's existing design.
+
+--------------------------------------------------------------------------
+3.13 MINOR / SIDE WORLD EVENTS
+--------------------------------------------------------------------------
+Kept from the original catalog, with brief PRE/POST hooks added so they
+can slot into the spine wherever a writer wants a smaller beat between
+the major events above, without needing their own full seven-part
+template:
+
+- THE COUNTERFEIT COIN CRISIS: economic event, guild-focused, mostly
+  Civilian/Mercenary content; devalues gold, changes merchant prices
+  world_flags-wide for a stretch. HOOK: fits naturally in Event 1's
+  PRE-ARC window as an additional, optional early sign something's
+  wrong with the guilds beyond just the toll dispute.
+- THE UNDEAD STIRRING AT THE OLD BATTLEFIELD: horror-flavored, ties to
+  ANY prior playthrough's battle deaths — literally can raise a past
+  DeceasedHero as an antagonist if their causeOfDeath was violent.
+  HOOK: strongest placed in Event 2's POST-ARC, on the same battlefield
+  the War with the Northern Reach was fought on, giving the "old battle,
+  new horror" framing a literal, recent battlefield to stir from.
+- THE ROYAL WEDDING (or FUNERAL): a court-politics set-piece event, good
+  "everyone's in one place" scene for cashing in multiple NPC
+  relationships at once. HOOK: a wedding fits naturally in Event 5's
+  PRE-ARC (a political marriage attempting to head off claims_contested
+  before it starts); a funeral IS effectively Event 5's mourning stage
+  already, so don't duplicate — use the wedding variant if this fires
+  standalone.
+- THE COMET / OMEN YEAR: superstition-driven, affects NPC behavior
+  broadly (more fearful, more reckless, more religious) without a hard
+  mechanical outcome — pure atmosphere event, cheap to write, high
+  mood value. HOOK: excellent, low-cost placement directly before
+  Event 7's "omens" stage, reinforcing the dread tonally before the
+  cascade's own PRE-ARC begins.
+- THE MERCENARY COMPANY WAR: two rival mercenary companies (one of them
+  the player's old company, if Mercenary-origin) fight over a contract —
+  small-scale, personal-stakes counterpart to the big Northern Reach
+  war. HOOK: fits as a Mercenary-origin-specific PRE-ARC addition inside
+  Event 2, running parallel to the main war rather than replacing it.
+- THE HARVEST FAILURE: slow-burn economic/survival event, strongest tie
+  to Civilian content, good candidate for testing the Honor System's
+  "who do you help when you can't help everyone" beats (section 4.3).
+  Already the spine's Event 0 — see 3.4.
+--------------------------------------------------------------------------
+3.14 POST-FINALE — AFTER THE LAST WORLD EVENT (DELIBERATELY UNDECIDED)
+--------------------------------------------------------------------------
+Per the project's own scoping instinct (see the SCOPE NOTE in section 0
+and the "first-pass, meant to be argued with" caveats throughout section
+8): nothing below is committed content. This is a brainstorm of future
+directions, kept honestly labeled as such, for whichever event actually
+ends up being "the last one" in a given playthrough — most commonly
+Event 6 (Foreign Invasion) or Event 7 (Dark Legion, if it doesn't
+cascade further), with Event 8 (Demon Lord) as the rare capstone case.
+
+WHY THIS STAYS UNDECIDED ON PURPOSE:
+The Legacy Engine's entire premise is that each playthrough's ending
+feeds the NEXT playthrough's starting world state (DeceasedHero,
+majorCanonEvents, monarchInPower, etc.) — locking in a single
+"what happens after the finale" narrative would work against that
+premise rather than for it. A fixed epilogue says "the story is over."
+This game's structure says "the story becomes the next player's
+starting conditions." The honest move is to let the NEXT playthrough's
+PROLOGUE be the real answer to "what happens after," shaped by whatever
+majorCanonEvents the previous run actually produced — not to write a
+static epilogue chapter that every run funnels toward regardless of how
+it actually played out.
+
+CONCRETE, NON-COMMITTED IDEAS WORTH REVISITING LATER (in no particular
+priority order):
+- A "Regency of Ashes" opening variant: if the previous run ended in
+  realm_falls/Demon-Lord territory, the next playthrough's prologue
+  could open generations later, in a realm still visibly shaped by that
+  collapse — ruined architecture, a changed political map, a new
+  origin's homeland now under different control — rather than a clean
+  reset. Purely conceptual; would need real worldbuilding work before
+  it's more than a placeholder name.
+- A NEW playable origin tied to "survivors of the Legion" specifically
+  (distinct from the Ironjaw Coalition candidate already flagged as
+  most-likely-next in section 8.3) — someone born into a post-
+  occupation world rather than a pre-occupation one. Not scoped, not
+  named, explicitly a "someday" idea.
+- An epilogue-only NPC role: someone who exists specifically to
+  interview the player-as-legend after a capstone-tier ending, closer
+  to a Chronicle/History-screen framing device than a scene with
+  choices — mentioned here only because it's a cheap, low-risk way to
+  give a capstone ending SOME closure without committing to a full new
+  chapter's worth of content.
+- Possible new cascade branches OUT of a repelled/bargained_with Dark
+  Legion resolution (i.e., what the realm looks like a full generation
+  after SURVIVING the cascade, not just after falling to it) — the
+  "good ending, but what then" question is arguably just as unwritten
+  as the bad one, and deserves equal future attention rather than
+  assuming only failure states need follow-up content.
+- Whether the Demon Lord, having stayed deliberately un-named and
+  un-personified per 8.4.A, should ever get a true final confrontation
+  scene with unique prose, or whether its power specifically comes from
+  never fully resolving on-screen — an open design question, not a
+  decision, flagged here so it isn't accidentally decided by default
+  the first time someone drafts confrontation-stage scene JSON.
+
+WHAT NOT TO DO HERE: don't let "vast and undecided" become an excuse to
+never write a real ending for the common cases (repelled, bargained
+_with, most Event 6 resolutions) — those need actual, finished POST-ARC
+content same as every other event above, and mostly already have it
+(3.10, 3.11). This section is specifically about the rare, capstone-tier
+"the realm truly fell" case, and about what comes after survival at
+that scale — not a hall pass to leave ordinary endings unwritten.
+--------------------------------------------------------------------------
+4. THE HONOR / REPUTATION SYSTEM
+--------------------------------------------------------------------------
+
+4.1 WHY MULTIPLE TRACKS, NOT ONE "HONOR METER"
+--------------------------------------------------------------------------
+A single global honor number flattens everything into "good vs evil,"
+which doesn't fit a world with factions, rivalries, and origin-specific
+politics. Instead, track FOUR separate numbers plus PER-NPC relationship
+values:
+
+  reputation.honor       — general "do you keep your word / show mercy"
+                            score. Public-facing, affects how STRANGERS
+                            react to the player on first meeting.
+  reputation.infamy      — separate from honor's inverse — tracks how
+                            FEARED/notorious the player is, which can be
+                            high even alongside high honor (a feared
+                            hero, not just a feared villain).
+  reputation.crown       — standing specifically with House Aldric/the
+                            law.
+  reputation.commonfolk  — standing specifically with ordinary people/
+                            guilds — can openly conflict with
+                            reputation.crown (Robin-Hood-style plays are
+                            possible: high commonfolk, low crown).
+  npc.<id>.trust         — the per-NPC relationship value mentioned in
+                            section 2.2 — personal, not public.
+
+This lets a player be, simultaneously: high commonfolk reputation, low
+crown reputation, high infamy, high honor, AND personally distrusted by
+one specific NPC they betrayed — a much richer state space than one
+number ever could represent, and it maps directly onto the varied NPC
+reactions described throughout section 2.3.
+
+4.2 CONSEQUENCE TRIGGERS (the broad list the user asked for)
+--------------------------------------------------------------------------
+Each trigger below should be implemented as SceneChoice.effects entries
+(the mechanism already exists — see the royal/vampire origin-gated
+choices in prologue.json for the pattern) writing to the reputation
+tracks above.
+
+REFUSING TO HELP AN NPC
+- Minor: small commonfolk/honor dip, NPC remembers (their status_flags
+  gets an "estranged" tag) but doesn't become hostile.
+- Major (refusing a Signature NPC's core arc, e.g. leaving Corwin Ashe's
+  sister search unresolved): permanent relationship lock — NPC never
+  offers their full arc again this playthrough.
+
+KILLING AN NPC
+- Background NPC: small infamy increase, localized commonfolk dip (only
+  NPCs/locations connected to them react).
+- Signature NPC: major infamy increase, that NPC permanently moves to
+  world_flags-tracked "deceased_npcs" (mirroring DeceasedHero's
+  structure) — other NPCs who knew them react in later scenes, and their
+  role (ally/mentor/etc slot) may go permanently unfilled for the rest
+  of the run, a real cost.
+- Killing in self-defense vs. cold-blooded: gate the SEVERITY (not
+  whether it counts at all) on HOW the kill happened — track this via a
+  choice-specific effects flag like "reputation.honor: -2" (mercy
+  available) vs "-8" (execution/ambush) on functionally similar combat
+  outcomes.
+
+BETRAYING AN NPC (promised help, then didn't / sold out their secret /
+switched sides)
+- Distinct from refusing — betrayal requires having FIRST agreed to
+  help. Bigger honor/infamy swing than a simple refusal, and uniquely
+  poisons npc.<id>.trust even for OTHER NPCs who hear about it (a
+  "word travels" mechanic — betraying one Signature NPC should visibly
+  cost trust with NPCs in their same social circle, e.g. betraying
+  Guildmistress Yeva Solt costs standing with Petra Voss too, even
+  though Petra is technically her rival).
+
+NOT HELPING DURING A WORLD EVENT
+- Track separately from individual NPC interactions —
+  reputation.commonfolk and reputation.crown both take a hit if the
+  player is repeatedly absent/inactive during major stages of War/
+  Rebellion/Plague events, scaled to how many "intervention points"
+  (section 3.2) were skipped.
+- This should NOT be a single binary flag — "helped in 2 of 5
+  intervention points" should read narratively as partial, inconsistent
+  involvement, not full credit or full blame.
+
+SIDING WITH A FACTION/NATION
+- Every faction-siding choice should write to BOTH the faction's own
+  approval AND at least one other faction's disapproval — sided with
+  the Northern Reach in the war event should cost reputation.crown
+  specifically, not just grant a generic "you chose a side" flag.
+- Recommend a THIRD tracked value per major conflict beyond the four
+  global ones for exactly this purpose, e.g.
+  world_flags.player_northern_standing, scoped to that one war rather
+  than bloating the four global trackers with dozens of one-off
+  factions.
+
+ADDITIONAL TRIGGERS WORTH TRACKING (the "broader" ask):
+- BREAKING A PROMISE (distinct from betrayal — a promise made casually
+  and simply forgotten/deprioritized, smaller honor cost than active
+  betrayal, but still tracked, since RDR-style systems reward promises
+  MATTERING at all, even small ones).
+- THEFT — stealing from a Signature NPC vs a background one should scale
+  the same way killing does; stealing from a Merchant NPC specifically
+  should affect that merchant's prices/willingness to sell rare goods
+  going forward, a very legible, low-cost-to-implement consequence.
+- MERCY TO AN ENEMY — sparing Thane Dolgrym Ashveil or Inquisitor Rane,
+  for instance, rather than killing them, should be trackable as its own
+  positive honor trigger distinct from "didn't kill someone" being the
+  mere absence of the negative one — mercy should read as an active,
+  rewarded choice, not just a non-penalty.
+- EXPLOITING A VULNERABLE NPC (e.g. using the Plague event's scarce
+  medicine to extort rather than help) — a sharp infamy/honor split:
+  high infamy, low honor, distinct signature from straightforward
+  villainy, since it's coldly transactional rather than violent.
+- KEEPING A SECRET YOU WERE TRUSTED WITH — a positive-only trigger, no
+  real mechanical cost to breaking it in many cases, so this is where
+  you reward RESTRAINT specifically — small trust gains with the NPC
+  whose secret it was, invisible to everyone else, modeling that not
+  every good choice needs to be publicly legible to matter.
+- PUBLIC VS PRIVATE ACTIONS — the same choice (e.g. an execution) should
+  have a bigger reputation swing if it happens in front of witnesses
+  (town square) vs privately (an alley) — recommend a lightweight
+  "witnessed: true/false" tag on relevant SceneChoice.effects blocks
+  rather than a whole new system, since it's really just a multiplier on
+  the existing triggers above.
+
+4.3 SEVERITY TIERS (concrete "what actually changes")
+--------------------------------------------------------------------------
+MINOR consequences (single-digit reputation shifts):
+- An NPC's dialogue tone shifts (warmer/colder greeting text via a
+  narrativeVariants entry keyed to the relevant flag/reputation range).
+- Prices shift slightly at affected merchants.
+- A single new dialogue option appears/disappears next time you meet
+  that NPC.
+
+MODERATE consequences:
+- An NPC's role can shift (an ally becomes a neutral wildcard; a rival
+  becomes a genuine enemy).
+- A whole location's background-NPC population mood shifts (village
+  described as "wary of outsiders" in narrativeVariants text going
+  forward).
+- Certain merchants refuse to sell you specific (not all) goods.
+
+MAJOR consequences:
+- Permanent NPC death or permanent relationship lock (arc closes for
+  the rest of the run).
+- A world event's trigger conditions/stage timing shift (rebellion
+  starts earlier, war outcome range narrows).
+- Certain ENDINGS become locked in or locked OUT entirely — see section
+  5 (Narrative Routes) for how routes gate on accumulated reputation.
+- Legacy Engine impact: extreme reputation states at time of death
+  should feed into the DeceasedHero record itself — e.g. a
+  majorCanonEvents entry like "Ruled through fear, not law" for a
+  high-infamy/low-honor death, giving FUTURE playthroughs' NPCs
+  something specific to react to (an NPC could say "I remember what the
+  last one who wore that face was like" if infamy was extreme).
+
+--------------------------------------------------------------------------
+5. NARRATIVE ROUTES
+--------------------------------------------------------------------------
+Routes are not separate branches of the story tree (remember: this
+project deliberately uses the State-Driven Web approach, not a hardcoded
+exponential tree — see the original build plan). A Route is a PATTERN of
+accumulated reputation/flags/NPC relationships that the story recognizes
+and reacts to, mostly through which ENDING becomes available and how
+late-game NPCs treat the player — not a hard fork early in the story.
+
+LOVE ROUTE
+- Built from sustained npc.<id>.trust with a Rival or Ally-role NPC
+  specifically (Cassian Thorne, Sarel Windholt, Petra Voss, and Delphine
+  Corvassa are all strong candidates given their existing rivalry/ally
+  framing).
+- Mid-route beats: choosing that NPC's wellbeing over a mission objective
+  at least once; defending them publicly during a World Event.
+- Endings: mutual partnership ending (varies dramatically by which NPC —
+  a Vampire romance ending reads very differently than a Civilian one);
+  a tragic ending if the NPC dies to a World Event the player failed to
+  intervene in; a rejection ending if trust was pursued too
+  transactionally (tracked via the "exploiting a vulnerable NPC" trigger
+  crossing over into this NPC specifically).
+
+REDEMPTION ROUTE
+- Built from LOW starting reputation (either the player made early
+  villainous choices, OR inherited infamy from a prior playthrough's
+  DeceasedHero) combined with a sustained pattern of mercy/honor
+  triggers reversing the trend.
+- Mid-route beats: explicitly rejecting a Corruption-route opportunity;
+  a Mentor NPC (Bramwell, Ancient Voss, Elowen) directly acknowledging
+  the change.
+- Endings: full redemption (high honor by end, NPCs explicitly forgive);
+  partial redemption (honor recovered, but a specific Signature NPC never
+  forgives — a bittersweet, and often more interesting, outcome);
+  failed redemption (reversion under pressure during a late World Event).
+
+REVENGE ROUTE
+- Built from a specific triggering wrong (an NPC's betrayal, a World
+  Event casualty) tracked as a dedicated flag, then a sustained pattern
+  of choices prioritizing that target over other objectives.
+- Mid-route beats: passing up unrelated opportunities to stay focused on
+  the target; possible collateral damage to OTHER NPC relationships as a
+  visible cost of tunnel vision.
+- Endings: hollow victory (target defeated, honor/infamy read as
+  "empty" via a specific majorCanonEvents phrasing); redirected ending
+  (revenge target is spared/redirected into the Redemption route
+  instead, for either party); consuming ending (revenge succeeds but
+  costs the player their own Signature relationships along the way).
+
+POWER / CONQUEST ROUTE
+- Strongest for Royal Heir origin, viable for others via the
+  Succession Crisis or War events.
+- Mid-route beats: choosing crown reputation over commonfolk repeatedly;
+  using Quartermaster Cray's double-dealing rather than exposing it;
+  following Dowager Regent Elowen's pragmatic-but-cold advice literally.
+- Endings: consolidated rule (high crown, low commonfolk — a stable but
+  feared reign); benevolent rule (power gained without commonfolk
+  reputation collapsing — hardest ending to reach, requires balancing
+  both trackers); overthrown (power seized without enough crown-track
+  support to hold it).
+
+SACRIFICE ROUTE
+- Not origin-locked; built from a pattern of choices that cost the
+  player PERSONALLY (gold, an item, a relationship, eventually
+  potentially the character's own life via a flagged fatal choice) to
+  benefit others/the world state.
+- Mid-route beats: repeatedly choosing World Event intervention options
+  that carry a personal cost tag over safer alternatives.
+- Endings: the character's death itself can BE the ending here — a
+  isFatal choice taken willingly in a final World Event, with a
+  majorCanonEvents entry reflecting the sacrifice specifically, meant to
+  read as a triumphant rather than tragic DeceasedHero entry — the
+  Legacy Engine should let future NPCs speak of a sacrifice hero with
+  reverence, distinctly from other causes of death.
+
+ISOLATION / EXILE ROUTE
+- Built from a pattern of REFUSING Ally/Mentor relationships, staying
+  transactional with Merchants only, and low engagement with World
+  Events.
+- Mid-route beats: explicitly turning down Mentor guidance more than
+  once; no Signature NPC reaching meaningful trust by mid-game.
+- Endings: the "wanders on" ending — genuinely open-ended, low
+  reputation swings either direction, an intentionally quiet, low-drama
+  conclusion that some players will specifically be pursuing; a "found
+  too late" tragic variant if isolation coincides with a World Event
+  the player could have prevented with allies they didn't have.
+
+CORRUPTION / FALL ROUTE
+- Built from following ethically-compromised Mentor advice (Elowen,
+  Ancient Voss's rejected lessons) combined with rising infamy and
+  falling honor simultaneously.
+- Mid-route beats: exploiting vulnerable NPCs during World Events;
+  betraying a Signature Ally specifically for material/political gain.
+- Endings: total corruption (an antagonist-coded ending, but still
+  playable to its own conclusion, not a game over); a last-minute pull-
+  back into Redemption if a very specific late-game mercy choice is
+  taken; a "consumed by it" ending where the character becomes a FUTURE
+  world event's antagonist — literally feeding a new DeceasedHero-based
+  Undead Uprising or similar event for the next playthrough.
+
+FAITH / ZEALOTRY ROUTE
+- Strongest tie-in to the Sun Temple Schism event; built from consistent
+  religious/ideological choice patterns (siding with new_orthodoxy or
+  zealot_uprising stages specifically).
+- Mid-route beats: prioritizing the Schism's resolution over personal
+  relationships; Inquisitor Rane content is the clearest through-line
+  here regardless of the player's own origin.
+- Endings: founder (a new, lasting religious institution -
+  majorCanonEvents-worthy on its own); martyr (a sacrifice-adjacent
+  fatal ending specific to this route's themes); disillusioned (the
+  route's natural "lost the faith along the way" conclusion, which
+  doesn't have to be tragic — can transition cleanly into Isolation).
+
+DIPLOMACY / UNITY ROUTE
+- The "hardest to fail into accidentally, hardest to achieve on purpose"
+  route by design — requires ACTIVELY balancing multiple faction
+  reputations rather than just avoiding conflict.
+- Mid-route beats: successfully using the Foreign Invasion event's unify
+  -other-factions mechanic (section 3.2); brokering the
+  stalemate_treaty / concessions_won branches of War/Rebellion rather
+  than letting them resolve by force.
+- Endings: a genuine "best outcome for the most people" ending, meant to
+  be the hardest one to reach in the whole route list, since it requires
+  succeeding across MULTIPLE systems (Honor, World Events, and several
+  NPC relationships) simultaneously rather than committing hard to one
+  axis the way every other route does.
+
+--------------------------------------------------------------------------
+6. HOW THIS ALL CONNECTS — A WORKED MINI-EXAMPLE
+--------------------------------------------------------------------------
+To make the abstract systems above concrete, here's how one small arc
+touches every system in this document at once:
+
+A Civilian-origin player befriends Mira Talbot (Signature Ally) early.
+Her Redemption-flavored subplot (she's stealing from a neighbor) resolves
+with the player's help — small honor gain, npc.mira_talbot.trust rises.
+Years later, the Harvest Failure World Event triggers. Mira's farm is
+one of the affected households. Because of the earlier relationship, a
+UNIQUE scene becomes available (gated on npc.mira_talbot.trust >= N)
+letting the player personally intervene for her specifically, beyond the
+event's generic intervention points. Helping her costs the player
+resources they needed elsewhere (a Sacrifice Route beat). Word spreads
+(reputation.commonfolk rises visibly). Later, in a Succession Crisis
+scene, a background NPC (built from the generation framework: core trait
+#7 "apologizes before disagreeing," motivation #13 "earning a place in a
+community that hasn't fully accepted them") recognizes the player's name
+specifically because of the commonfolk reputation gain, and offers help
+they wouldn't have otherwise — a background NPC's behavior changed
+because of a Signature NPC interaction three "chapters" earlier, which
+is the whole point: nothing in this system is meant to work in
+isolation.
+
+--------------------------------------------------------------------------
+7. AUGUST 2026 EXPANSION — ORIGIN STARTING STORIES, CASCADING WORLD
+   EVENTS, EXPANDED NPC ROSTER, RANDOMNESS, AND SCOPE NOTES
+--------------------------------------------------------------------------
+This section was added in response to a round-trip design pass done in
+draw.io (two flowcharts: an origin-branching skeleton and a marked-up
+"world event sequence" showing events chaining into each other). It
+extends, rather than replaces, everything above.
+
+7.1 ORIGIN STARTING STORIES
+--------------------------------------------------------------------------
+Today, only 3 of the 7 origins get anything unique in the prologue
+(Royal Heir and Vampire get extra choices at the caravan fork; Civilian
+and Royal get reworded text at prologue_start / meet_mira). Wanderer,
+Elf, Dwarf, and Mercenary currently see identical generic text
+everywhere. This closes that gap: every origin gets its own OPENING beat
+and one origin-specific HOOK (a complication or choice) before all paths
+rejoin the shared prologue_ruin_encounter -> Chapter 1 flow. Cheapest
+version to build: these are TEXT + CHOICE variants layered onto the
+existing prologue_start/prologue_village scenes (same pattern Royal/
+Vampire already use), not new scene files — same engine, no new code.
+
+  WANDERER — Opening: no ceremony memory, no farm to leave; wakes at a
+  cold campsite along the road, the King's-hero story just another tale
+  heard secondhand from a fellow traveler. Hook: finds an abandoned
+  camp with someone else's gear and a half-finished letter. Choice:
+  take the gear and move on (practical, small Gold gain) vs. try to
+  find whoever left it (costs time, opens an early Ally/Wildcard hook
+  and a small reputation.commonfolk gain).
+
+  CIVILIAN — Opening: the morning of leaving the family farm, same day
+  as the ceremony memory. Hook: a parent or sibling presses the Family
+  Heirloom Ring into their hand with a condition attached — "only sell
+  it if you're truly desperate." Choice: promise to keep it (sets a
+  flag the game can call back to later if the player ever does pawn it)
+  vs. stay noncommittal (no flag, no guilt, no promise to break).
+
+  ROYAL HEIR — Opening: slipping out of the castle unseen, as already
+  established. Hook: a guard on the postern gate recognizes the signet.
+  Choice: bribe them to silence (Gold cost), invoke Aldric authority to
+  order silence (free, but the guard resents it — small crown/commonfolk
+  tradeoff), or confide the real reason for leaving (opens an early
+  Ally hook with that specific guard).
+
+  ELF — Opening: one more long road, indistinguishable in memory from a
+  hundred before it. Hook: a villager mistakes them for someone who
+  passed through generations ago — a debt, a promise, or a wrong the
+  Elf genuinely remembers and the villager only knows as folklore.
+  Choice: correct them (reveal true age/nature — a small trust
+  interaction) or let the mistake stand (keeps them anonymous, small
+  missed-connection cost).
+
+  DWARF — Opening: leaving the mountain halls, a handshake and nothing
+  more as goodbye. Hook: a clan debt-collector (or rival clan member)
+  catches up before they've cleared the foothills, testing whether the
+  Dwarf's word is still good outside the mountain. Choice: pay the debt
+  (Gold cost), work it off on the spot (a Strength/Constitution check,
+  delays departure), or refuse outright (starts the run with a hostile
+  NPC relationship already in place).
+
+  VAMPIRE — Opening: hiding hunger and curse in plain sight, as already
+  established. Hook: the first real test of the hunger — an easy,
+  unnoticed target (a drunk alone on the road) presents itself before
+  the player has even reached the first village. Choice: resist (no
+  mechanical cost, but the game notes it — first data point for a
+  Redemption-flavored route) vs. feed (small Constitution/health
+  benefit, but reputation.commonfolk takes an early, permanent hit if
+  it's ever discovered later).
+
+  EXILED MERCENARY — Opening: hunted by the old company, already
+  established. Hook: a former comrade catches up first — not to kill
+  them, necessarily, just to talk, warn, or size them up. Choice:
+  fight (starts the run already bloodied), flee (costs Gold or gear
+  left behind), or hear them out (opens a recurring rival/ally hook
+  tied to the old company's eventual reappearance, per 2.3's existing
+  Mercenary Signature NPC content).
+
+  CANDIDATE NEW ORIGINS (open question, NOT yet decided — flagged from
+  the "new origin (think another)" nodes in the draw.io draft). Adding
+  an 8th+ origin means also touching archetypes.dart, stat bonuses,
+  starting gear, and eventually content parity across every system in
+  this document — pick at most one or two, don't add all of these:
+    - Beastkin/Therian — raised at the edge of the Hollow Reaches
+    - Reformed Cultist — ties naturally into the Sun Temple Schism event
+    - Court Mage's Apprentice — academic arcane path, distinct from the
+      Elf's "old magic" flavor
+    - Plague-Orphan — survivor of an earlier Plague World Event
+    - Star-Reader — omen-touched, ties into the Comet/Omen Year event
+  Recommendation: don't commit to any of these until the 7 existing
+  origins actually have written scenes behind their new hooks above —
+  adding an 8th origin before that is scope-creep on top of scope-creep.
+
+7.2 CASCADING WORLD EVENTS
+--------------------------------------------------------------------------
+The existing World Event Catalog (3.2) treats each event as mostly
+independent. This adds a CHAINING layer on top — events that resolve
+badly can trigger a bigger event, so an ignored small crisis becomes a
+much bigger one, and the world keeps moving even when the player is
+focused elsewhere. Mechanically: each WorldEvent gains an optional
+`cascadeTriggers` map of {finalOutcome: nextEventId}, checked whenever
+an event resolves. This is additive to the existing WorldEvent/Stages
+model in world_events.dart — no structural rewrite needed.
+
+Two new catalog entries, to support the cascade the draw.io draft
+sketched (war / dragons / dark legion / rebellion / apocalypse / demon
+lord):
+
+  --- THE DARK LEGION ---
+  Trigger: cascades from EITHER "War with the Northern Reach" resolving
+  as northern_victory/stalemate_treaty (a weakened, war-torn realm looks
+  like easy prey) OR "The Rebellion of the Salt Road" resolving as
+  regime_change/crushed with high infamy (a fractured realm invites
+  outside opportunists). Can also trigger standalone late-game.
+  Stages: omens -> incursion -> occupation -> (repelled / bargained_with
+  / realm_falls).
+  Player intervention: unifying surviving factions from whichever prior
+  event(s) triggered this — the highest payoff for players who kept
+  multiple threads alive instead of "winning" any single earlier event
+  outright.
+  NPC impact: can permanently remove Signature NPCs who were left weak
+  or exposed by the triggering event; strongest emotional stakes in the
+  cascade specifically because the player will recognize why it happened.
+  Legacy tie-in: a past playthrough that died during War or Rebellion
+  markedly raises the odds this event fires at all in the next run.
+
+  --- THE DEMON LORD (optional endgame antagonist) ---
+  Trigger: cascades from "The Dark Legion" resolving as realm_falls, OR
+  from "The Sun Temple Schism" resolving as zealot_uprising with the
+  Dark Legion already active (two unrelated origins' content converging
+  into the worst-case ending).
+  Stages: revealed -> gathering_dread -> confrontation -> (the runs's
+  final ending state — this is designed as a possible CAPSTONE, not a
+  routine mid-game event).
+  Player intervention: the realm's last-resort event — deliberately
+  rare and hard to reach by design, so it stays meaningful.
+  NPC impact/Legacy tie-in: whichever Signature NPCs survived every
+  prior cascade step are the ones who show up here — this event is
+  built entirely out of the wreckage/survivors of everything before it,
+  not new content of its own.
+
+"Apocalypse" from the draft is intentionally NOT a separate catalog
+entry — it's the WORST possible outcome label across the whole cascade
+(Dark Legion -> realm_falls, with Demon Lord unresolved), used in
+Chronicle/History screen text rather than as its own event. Keeps the
+cascade legible instead of adding an event that means the same thing as
+"everything else failed."
+
+7.3 EXPANDED NPC ROSTER — NOTABLE NPCs (new mid-tier, above background,
+below Signature)
+--------------------------------------------------------------------------
+Per the "not 42, that's lazy" note: this adds a second named tier
+between the 42 Signature NPCs (2.3) and the procedural background tables
+(2.4), rather than hand-writing 200 full character sheets that would
+mostly be padding (see the original SCOPE NOTE in section 0 — that
+reasoning still holds, this just moves the actual number up honestly).
+Notable NPCs get a name, one line of hook, a region, and a loose origin
+affiliation — enough to drop into a scene as someone real, without the
+full Signature NPC writeup (voice pattern, secret, arc).
+
+4 Notable NPCs per origin (28 total), on top of the 42 Signature NPCs:
+
+WANDERER
+- Corwin Thale — a toll-road hermit who trades directions for stories
+- Sela Marrick — a retired courier who knows every shortcut in the Reach
+- "Nine-Roads" Bettin — a superstitious guide who won't travel at dusk
+- Ashen Podd — a scavenger who resells whatever the player leaves behind
+
+CIVILIAN
+- Dara Fenwick — Mira Talbot's neighbor, first to gossip, first to help
+- Rooke Ambry — the harvest village's blacksmith, deep in debt
+- Wend Cully — a child who idolizes the player after one small kindness
+- Marn Ostley — a tax collector nobody in the village will speak to
+
+ROYAL HEIR
+- Ser Talbot Vane — a minor knight angling for the player's favor
+- Lady Isolt Fenn — a court gossip who trades secrets like currency
+- Steward Adric Coll — runs the castle household, misses nothing
+- Cousin Perrin Aldric — a distant relative with a weak claim and big plans
+
+ELF
+- Ithrenel's Apprentice, Fael — young, impatient with "the old ways"
+- Merrow Ashvale — a hedge-witch who half-remembers the same centuries
+- Doran Quill — a human historian obsessed with interviewing the player
+- Sylvane Reed — a fellow long-lived Elf estranged from Ithrenel Dusk
+
+DWARF
+- Borrin Stonehand — the clan debt-collector from the new Dwarf hook
+- Hesk Ironvale — runs the last forge on the Salt Road that trusts Dwarves
+- Yenna Coalbrook — a tunnel-mapper who knows routes even Dwarves forgot
+- Torbin Graye — exiled from the same clan, for a very different reason
+
+VAMPIRE
+- The Innkeep Who Doesn't Ask — never named on purpose, always available
+- Ilona Marsh — a noble who collects "unusual" acquaintances, knowingly
+- Father Rennick — a priest who suspects and says nothing, for now
+- Cass Dunmore — a smuggler who moves cargo (and secrets) after dark
+
+EXILED MERCENARY
+- Old Bracken — the last honest quartermaster the player's company had
+- Petra Doss — a rival mercenary, professionally respectful, personally cold
+- Guildmaster Ovett — hires mercenaries, doesn't care about their past
+- Wren Aldous — a medic who patched the player up once, for free
+
+Combined with the 42 Signature NPCs, that's 70 hand-authored named
+characters. To get past 200 without padding, extend the Generation
+Framework (2.4) with actual name-pool tables (below) — the tables in
+2.4 already promised 458+ combinations from trait/motivation/flaw/voice
+alone; adding names makes each generated NPC feel like a specific
+person immediately, not "background NPC #114."
+
+TABLE 7.3.A — FIRST NAMES (30; mix freely across genders/origins)
+Rooke, Sela, Dara, Wend, Marn, Corwin, Ashen, Bettin, Talbot, Isolt,
+Adric, Perrin, Fael, Merrow, Doran, Sylvane, Borrin, Hesk, Yenna, Torbin,
+Ilona, Rennick, Cass, Bracken, Petra, Ovett, Wren, Odessa, Quill, Larkin
+
+TABLE 7.3.B — SURNAMES (30)
+Thale, Marrick, Podd, Fenwick, Ambry, Cully, Ostley, Vane, Fenn, Coll,
+Aldric, Ashvale, Quill, Reed, Stonehand, Ironvale, Coalbrook, Graye,
+Marsh, Dunmore, Doss, Aldous, Talbrook, Hollis, Merrit, Wexley, Bramblet,
+Hallow, Sarrow, Kestrel
+
+30 x 30 = 900 non-repeating name combinations alone; crossed with 2.4's
+trait/motivation/flaw/voice tables, the realistic addressable pool for
+"a named NPC who feels specific" is in the low thousands. The honest
+number to put in front of anyone asking "how many NPCs does this game
+have" is: 70 authored + as many procedurally-assembled ones as scenes
+actually need, capped only by writing time, not by the tables running out.
+
+7.4 RANDOMNESS & PROCEDURAL VARIANCE
+--------------------------------------------------------------------------
+Ties into the existing DiceRoller (1d20 + modifier vs DC) rather than
+adding a second random system:
+
+- SCENE TWISTS — a lightweight table (weather, an overheard rumor, a
+  minor NPC's mood) rolled per scene visit to vary flavor text without
+  touching plot state. Cheap, high atmosphere value, never blocks or
+  changes a choice's outcome.
+- WORLD EVENT TRIGGER ROLLS — events with a time-based trigger (Plague,
+  Foreign Invasion) roll a weighted chance per in-game year rather than
+  firing on a fixed year, so two playthroughs with identical choices
+  can still diverge. Weights shift based on WorldHistory state (a
+  fractured realm = higher roll weight for bad events), keeping
+  randomness meaningful rather than pure noise.
+- BACKGROUND NPC ASSEMBLY — every time a scene calls for an unnamed
+  NPC, roll Tables 2.4.A-D + 7.3.A-B instead of hand-picking, so the
+  world doesn't feel authored one villager at a time.
+- LEGACY-WEIGHTED RANDOMNESS — rolls aren't uniform; a past
+  DeceasedHero's causeOfDeath and majorCanonEvents nudge relevant
+  weights (per the Legacy tie-ins already documented throughout section
+  3.2) — "random" here means "random within a world that remembers,"
+  not random in a vacuum.
+
+7.5 SCOPE, SCALE, AND INFLUENCES — a grounded note
+--------------------------------------------------------------------------
+Worth saying plainly, since "even if it takes 1GB" came up: this is a
+text-and-branching-choice game. Every scene, every NPC entry, the whole
+World Event catalog — all of it is structured text/JSON. A genuinely
+vast version of this game (hundreds of scenes, 200+ named NPCs, a dozen
+cascading world events, full Narrative Route coverage) would likely
+total a few megabytes of actual game data, not gigabytes — storage size
+was never really the bottleneck here, WRITING TIME is. That's not a
+reason to shrink the ambition, just a reason to measure "vastness" in
+scene count / NPC count / hours of branching content, not disk space —
+illustrations and audio (both currently unimplemented, per game.txt's
+"What's NOT implemented yet") are the only pieces of this project that
+would ever meaningfully move the storage needle.
+
+On "use many books as reference": the strongest, safest way to do this
+is naming TONAL/STRUCTURAL touchstones rather than pulling specific
+plot beats or prose from any one source — e.g. the gamebook tradition
+(Fighting Fantasy, Choose Your Own Adventure) for the branching-choice
+structure already in place; tabletop RPG lineage (the D&D-style 6-stat
+system already adopted in archetypes.dart) for character build feel;
+epic/political fantasy generally (multi-faction succession crises,
+world events that don't wait for the player) for the World Events
+system's tone. Naming influences like this is fine; reproducing text,
+named characters, or specific plots from any copyrighted book is not,
+and isn't necessary — everything in this document is already original
+to this project.
+
+7.6 A MAP
+--------------------------------------------------------------------------
+A first-pass world map (SVG, downloadable/editable) was generated
+alongside this document, covering the three regions from section 1: the
+Capital & Crownlands, the Hollow Reaches, and the Salt Road, plus the
+Harvest Failure village and the Sun Temple ruin already established in
+existing scene content. Treat it as a starting layout to argue with, the
+same way the draw.io flowcharts were — not a final asset.
+
+--------------------------------------------------------------------------
+8. THE WIDER WORLD — CONTINENTS, KINGDOMS, AND THE FOUR PEOPLES
+--------------------------------------------------------------------------
+Fair callout: everything through section 7 was really one country
+(Aldric's Realm) with a few off-map hints (Northern Reach, Salt Sea).
+This section zooms out to the full world map — other kingdoms for all
+four major peoples (Human/Elf/Dwarf/Orc), the Dark Legion's own
+continent, the Demon continent, and the independent magical powers that
+answer to none of the above. Aldric's Realm is now ONE human kingdom on
+ONE continent, not the whole map.
+
+8.1 WORLD GEOGRAPHY (six landmasses around a central sea)
+--------------------------------------------------------------------------
+- THE HEARTLANDS (human continent) — Aldric's Realm is the largest
+  kingdom here, but not the only one. A second human kingdom, THE
+  MARCH OF VESSAIR, sits on the same continent — rival, not enemy by
+  default; centuries of an uneasy border along the Greywater river.
+  Vessair is ruled by a Merchant-Council rather than a monarchy, giving
+  Civilian/Mercenary-origin players a second political flavor distinct
+  from Aldric's court intrigue.
+- AELENDOR (elf continent, northwest across the Salt Sea) — home
+  continent of the Elves; the Silverleaf Wood (already on the existing
+  map) is a single enclave of Aelendor-born Elves living abroad in
+  Aldric's Realm, not the whole nation. Aelendor itself is ruled by the
+  CONCLAVE OF THE UNBROKEN BOUGH, a rotating council of the oldest
+  living Elves — "rotating" on a timescale of centuries, which is its
+  own dark joke to a long-lived people.
+- KHAZGARD (dwarf continent, south, mountainous/subterranean) — the
+  Deep Halls on the existing map are one clanhold; Khazgard has SEVEN
+  Great Clanholds total, loosely federated under the HIGH FORGE COUNCIL,
+  which meets only when a threat is big enough to require it (most of
+  the time, clans handle their own business — matches the existing
+  Dwarf archetype's "a handshake means more than a smile" flavor).
+- THE ASHREACH (orc continent/lands, southeast) — NOT a single horde;
+  three major Orc nations with real political differences: the
+  IRONJAW COALITION (settled, agrarian, the nation most willing to
+  trade with humans), the SKARR HOST (semi-nomadic, warrior-honor
+  culture, the nation most likely to be flattened into "just raiders"
+  by outsiders who've never met one), and the ASH-BOUND (a smaller,
+  isolationist nation built around a form of ancestor-worship tied to
+  volcanic sites). Deliberately three different political cultures, not
+  one "orc kingdom," for the same reason Aldric's Realm isn't the only
+  human nation.
+- THE BLIGHTED EXPANSE (Dark Legion's home continent, far south) —
+  where the Dark Legion (section 7.2) actually comes FROM when it
+  cascades into the Heartlands; not a kingdom in any normal sense, more
+  a corrupted territory that used to be something else (deliberately
+  left vague — a good hook for a future "what was this place before"
+  Elf/Dwarf lore quest, since both peoples are old enough to remember).
+- THE ABYSSAL RIFT (Demon continent) — doesn't sit on the normal map at
+  all; a landmass that only fully "arrives" (becomes reachable/visible)
+  once the Demon Lord event (7.2) is active. Before that, it's rumor,
+  omens, and the Comet/Omen Year event's flavor text — keeps it feeling
+  like an genuine endgame reveal rather than a location the player could
+  wander into early and break pacing.
+
+8.2 POWERFUL MAGES & INDEPENDENT FORCES (answer to no crown)
+--------------------------------------------------------------------------
+- THE CONVOCATION OF AETH — the closest thing the world has to a
+  supreme magical authority; a neutral order (accepts Human, Elf, Dwarf,
+  and Orc members alike) headquartered on a floating spire-city above
+  the central sea, visible from all six continents on a clear day
+  (great "everyone looks up" world-flavor beat). Officially neutral in
+  every political conflict in this document; unofficially, individual
+  Convocation mages absolutely take sides, which is where most mage-NPC
+  content should live rather than "the Convocation" as a monolith.
+- THE SUNKEN CHOIR — a heretical offshoot of the old Sun Temple faith
+  (ties directly to world_flags.sun_temple_destroyed and the Sun Temple
+  Schism event, 3.2) that believes the temple's destruction was
+  necessary, not tragic — a small, dangerous, ideologically coherent
+  antagonist faction, distinct from the Dark Legion (political/
+  religious threat vs. existential/military one).
+- THE FREE COMPANIES — not one org, the umbrella term for independent
+  mercenary companies (including the player's old company, if
+  Mercenary-origin) who work for whichever of the above kingdoms pays
+  best; the natural home for cross-nation Mercenary content since they
+  aren't bound to any single kingdom's politics.
+- LOOSE THREAD (intentional): who or what founded the Convocation, and
+  why it's neutral by CHOICE rather than by weakness, is left open — a
+  good candidate for a late-game Elf/Dwarf lore quest given both
+  peoples are old enough to have been there.
+
+8.3 A NOTE ON ORCS AS A PLAYABLE ORIGIN
+--------------------------------------------------------------------------
+Since Orcs now have real political weight in the world (8.1), add ORC to
+the candidate-new-origins list from 7.1 — and specifically, an origin
+tied to the IRONJAW COALITION (the nation most likely to actually leave
+home and travel among humans) reads as the most natural fourth-race
+playable origin if/when a new origin actually gets built, ahead of the
+five origin candidates already listed in 7.1. Still not committed — same
+"don't add an origin before the existing 7 have their new hooks written"
+caveat from 7.1 applies.
+
+8.4 EXPANDED NPC ROSTER — ROUND 2 (the other 400+)
+--------------------------------------------------------------------------
+Same honesty as section 7.3: this is a NAMED-CAST expansion plus a much
+bigger procedural pool, not 400 individually hand-crafted character
+sheets — that path produces padding, not a full world (see the original
+SCOPE NOTE in section 0). What actually gets you a world that feels
+inhabited by 400+ distinct people:
+
+NEW NAMED NOTABLE NPCs — 8 per new nation/faction (64 more, on top of
+the 42 Signature + 28 Notable from section 7.3 = 134 hand-authored total):
+
+THE MARCH OF VESSAIR (human, merchant-council)
+- Councilor Bryn Ostley — youngest voice on the council, wants reform
+- Factor Delwen Rasp — controls half the grain trade, trusts no one
+- "Coin" Petra Vallance — a fixer who solves problems the council won't
+- Harbormaster Sten Quill — knows every ship, asks about none of them
+- Councilor Iris Bramblet — old money, older grudges against Aldric
+- Auditor Cassin Hollis — the one incorruptible council employee
+- Widow Renne Aldous — funds half the city's charities, quietly
+- "Ledger" Toma Wexley — a debt-collector who never raises his voice
+
+AELENDOR (elf continent, the Unbroken Bough)
+- Elder-Speaker Thessandra Vael — Conclave's current rotating voice
+- Kestrel Aemoth — young enough to be impatient with the Conclave itself
+- Loremaster Fenwal Rys — keeps the continent's actual written history
+- Sentinel Orwen Tal — guards the crossing-point to the Heartlands
+- Wren Aelisse — a Convocation-trained Elf mage, torn between the two
+- Grieving-Bough Yseult — mourns losses on a centuries-long timescale
+- Pathfinder Corin Aesh — one of the few Elves who actually enjoys travel
+- Old Vessik — doesn't use a full name anymore, oldest living Elf
+
+KHAZGARD (dwarf continent, Seven Clanholds)
+- High Forgemaster Dagna Ironvale — chairs the Council only when forced
+- Clan-Second Brenna Stonehand — Borrin's (7.3) cousin, different clan
+- Tunnelwright Ossin Coalbrook — maps the routes between all 7 clanholds
+- Oathkeeper Tomlin Graye — enforces inter-clan debts, feared and trusted
+- Smith-Marshal Yorin Ashvale — supplies the Free Companies (8.2), pricey
+- Deepward Sella Hollow — watches the tunnels toward the Blighted Expanse
+- Clanless Perrik — exiled from all seven, wanders the surface instead
+- Elder Vona Ironbrook — remembers a war Khazgard doesn't discuss
+
+THE ASHREACH (three orc nations)
+- Coalition-Speaker Ghurak Ironjaw — Ironjaw Coalition's human-facing envoy
+- Trade-Warden Neska Ashgul — runs Ironjaw's caravans into the Heartlands
+- Host-Chief Vorrga Skarr — Skarr Host, honor-bound, not the villain
+- Bloodkin Tarrash — Skarr Host's best duelist, looking for a worthy match
+- Ash-Warden Kessik — Ash-Bound, tends the volcanic ancestor-shrines
+- Voice-of-Embers Nurra — Ash-Bound's closest thing to a diplomat
+- "Grey" Dorrun — an Ironjaw orc who left to join a Free Company (8.2)
+- Skarrmark Ulda — a Skarr Host scout who's crossed into every other nation
+
+THE BLIGHTED EXPANSE / DARK LEGION (fewer names on purpose — see 8.4.A)
+- The Herald Unbound — the Dark Legion's public "face," if it has one
+- Once-Ser Aldous Fenn — a corrupted echo, ONLY if the original Ser
+  Aldous Fenn (2.3, Royal ally) died in the War/Dark Legion cascade —
+  a direct, painful Legacy Engine callback rather than a new character
+- The Quiet Ones — not individuals, a recurring unnamed presence
+
+THE ABYSSAL RIFT / DEMON CONTINENT (fewest names on purpose — see 8.4.A)
+- The Demon Lord — deliberately never given a "first name" treatment;
+  stays a title/force per 7.2's design intent
+- The Broken Choir — corrupted remnant tied to the Sunken Choir (8.2),
+  a direct payoff if that faction's content was ever engaged with
+
+8.4.A WHY THE LAST TWO LISTS ARE SHORT (design note, not an oversight)
+--------------------------------------------------------------------------
+The Dark Legion and Demon continents get deliberately FEWER named
+characters than everywhere else. An antagonist faction with 8 named,
+fully-personified members reads as "a kingdom, but evil" — it flattens
+the threat. Keeping these two mostly title/role-based (the Herald, the
+Quiet Ones) and reserving named specificity for LEGACY CALLBACKS
+(corrupted echoes of NPCs the player already knew) keeps the existential
+threats feeling different in kind from the political ones, not just
+reskinned.
+
+TABLE 8.4.B — RACE-SPECIFIC NAME POOLS (for the Generation Framework,
+2.4 + 7.3, extended per-race so procedural NPCs from each continent
+sound like they belong there)
+
+  Human (Vessair/Heartlands) — 20 first: Bryn, Delwen, Petra, Sten,
+  Iris, Cassin, Renne, Toma, Corin, Isolde, Merrit, Dain, Osra, Falk,
+  Quen, Brannon, Sabine, Loran, Edda, Wystan
+  Human surnames — 20: Ostley, Rasp, Vallance, Quill, Bramblet, Hollis,
+  Aldous, Wexley, Marrow, Fenn, Coll, Graye, Ambry, Cully, Doss, Vane,
+  Reed, Kestrel, Sarrow, Merrit
+
+  Elf (Aelendor) — 20 first: Thessandra, Kestrel, Fenwal, Orwen, Wren,
+  Yseult, Corin, Vessik, Ithrenel, Merrow, Fael, Sylvane, Aemoth, Lirien,
+  Thalorin, Naeris, Elowyn, Caelith, Rowanel, Ysendra
+  Elf surnames/epithets — 20: Vael, Aemoth, Rys, Tal, Aelisse,
+  Grieving-Bough, Aesh, Dusk, Ashvale, Reed, Silverleaf, Duskwhisper,
+  Moonward, Farseer, Windward, Longmemory, Starbound, Nightglass,
+  Dawnwoven, Stillwater
+
+  Dwarf (Khazgard) — 20 first: Dagna, Brenna, Ossin, Tomlin, Yorin,
+  Sella, Perrik, Vona, Borrin, Hesk, Yenna, Torbin, Grum, Halda, Brokk,
+  Sunna, Dorin, Katla, Rurik, Mira
+  Dwarf surnames — 20: Ironvale, Stonehand, Coalbrook, Graye, Ashvale,
+  Hollow, Ironbrook, Deepdelve, Stormanvil, Cragmar, Emberforge,
+  Goldvein, Runehammer, Frostbeard, Grimhold, Oreheart, Thundervault,
+  Stonewright, Ashenforge, Deephollow
+
+  Orc (the Ashreach, all three nations) — 20 first: Ghurak, Neska,
+  Vorrga, Tarrash, Kessik, Nurra, Dorrun, Ulda, Grosh, Vakka, Thurga,
+  Mordak, Yenna, Krull, Ashka, Doruk, Vesha, Ragnok, Thalka, Bruum
+  Orc surnames/clan-marks — 20: Ironjaw, Ashgul, Skarr, Ash-Bound,
+  Emberkin, Stonefang, Bloodkin, Duskrunner, Ironhide, Grimtusk,
+  Warbrand, Ashwalker, Cinderkin, Deepvein, Thornhide, Skullmark,
+  Redclaw, Nightfang, Ironroot, Emberfang
+
+Combinatorics recap: 20x20 per race x 4 races = 1,600 non-repeating
+race-appropriate name combinations, before even touching the trait/
+motivation/flaw/voice tables from 2.4 (which alone were rated at 458+).
+Realistic total addressable NPC pool across every table in this
+document: comfortably in the thousands. Hand-authored named cast after
+this pass: 134 (42 Signature + 28 + 64 Notable). That's the honest
+number — everything past it is "as many as scenes actually need,"
+generated on demand from tables that won't run out, not a hard-capped
+list of 400 nobody will remember past the first read-through.
+
+8.5 A NOTE ON THE MAP
+--------------------------------------------------------------------------
+The world map was redrawn from a single-country layout to a six-
+continent world map matching this section: the Heartlands (Aldric's
+Realm + Vessair), Aelendor, Khazgard, the Ashreach, the Blighted
+Expanse, and the Abyssal Rift, plus the Convocation's floating spire
+over the central sea. Same caveat as before — first-pass layout, meant
+to be argued with, not a final asset.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

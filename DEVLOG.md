@@ -9,60 +9,65 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
-## Session 20 — Distinct origin prologues and Arc I intent
+## Session 18 — Choice-reaction rule + fixing the "skipping" bug
 
-**Problem:** Seven origin labels were visually distinct but most entered the
-same roadside scene immediately. That flattened different lives into the same
-opening and made the first arc feel like a generic preamble.
+**Problem:** The user reported that reading the game felt like "skipping"
+and left them lost, and specifically asked for reactions to choices —
+what happens next, a convo, when you pick one — not a general pacing
+pass. Given the existing "novel pacing" authoring rules already emphasize
+slow scenes and breathing room, this was a targeted bug report, not a
+request to slow the game down further.
 
-**Solution:**
-- Added playable Orc of the Ashbound Clans and Demon-Bound origins, with
-  starting tags, trade-off stats, inventory, and placeholder portraits.
-- Added `origin_prologues.json`, then rerouted every non-royal origin through
-  a different sequence before the shared Salt Road. These routes have
-  deliberately different lengths: family debt for Civilian, boundary memory
-  for Elf, forge duty for Dwarf, hunger restraint for Vampire, a former company
-  for Mercenary, clan witness and a border dispute for Orc, and chosen identity
-  plus a stopped summoning for Demon-Bound. Royal retains its existing longer
-  family-history route.
-- New choices use the intent → immediate reaction → consequence fields rather
-  than silently teleporting past the player’s action.
-- Defined the campaign promise in the narrative graph: Arc I introduces the
-  world, people, and mechanics through personal stakes; Arc II turns toward
-  deep lore and the approaching catastrophe.
-
-**Follow-up:** the new Orc and Demon-Bound prologue flags are persistent
-personal history, but they still need post-Arc-I NPC route acts that read them.
-
---------------------------------------------------------------------------
-## Session 19 — Two-scale narrative graph
-
-**Problem:** The story graph already linked scenes correctly, but it did not
-explicitly distinguish world-event arcs from the many common-event reading
-beats needed inside each arc.
+**Root cause (found in the actual JSON, not the prose style):** Several
+branch points had many different choices — 8 or 9 in two cases,
+representing entirely different origins/actions — all landing on the
+IDENTICAL next scene, whose narrative reacted to nothing specific about
+what was chosen. Separately, three stat checks (Hendrik's wheel,
+Mira's fence, and implicitly the elf/dwarf/vampire granary routes) had
+success and failure pointed at the same next scene, so failing read
+exactly like succeeding. Both are the same bug: a choice with zero felt
+consequence before the story moves on - which is precisely what "feels
+like skipping" from the reader's side, regardless of how much lore or
+slow-burn characterization surrounds it.
 
 **Solution:**
-- Added optional `arcId`, `arcTitle`, and `nodeType` metadata to scene nodes.
-- Marked each major event opening as a world node; SceneScreen presents a
-  quiet arc title card when one is entered.
-- Added the narrative graph model and the 10+ common-event arc target so future
-  content grows as context → reaction → consequence, not a chain of skips.
+- `npc_dialogue_and_routes.txt` — added rule 9 (non-negotiable, same tier
+  as the existing 8 pacing rules) naming this exact failure mode, with a
+  concrete mechanism (`world_flags.<key>` per choice + a `narrativeVariant`
+  per value on the convergence scene) and a concrete self-test ("cover the
+  choice list, read only the next paragraph - can you tell which choice
+  was picked?"). Also added a matching item to the scene-writing checklist.
+  This is the part that matters most long-term: it's now a documented,
+  checkable rule any future authoring session (mine or otherwise) is
+  expected to follow, not a one-off fix that regresses the next time
+  someone adds a branchy scene.
+- Fixed the actual content in the part of the game every player reads
+  first:
+  - `prologue.json` - split the wheel-repair check into
+    `prologue_hendrik_wheel_fixed` / `_failed`.
+  - `chapter1_harvest.json` - split the fence-repair check
+    (`chapter1_harvest_fence_fixed` / `_failed`); split all three
+    stat-checked origin routes at the granary scene into distinct
+    success/fail scenes (6 new scenes total: elf/dwarf/vampire x 2); and
+    rewrote `chapter1_harvest_mira_check`'s single generic line into 12
+    `narrativeVariants` keyed on a new `world_flags.harvest_response`
+    value, one per granary choice, so all nine choices there now get
+    their own reacting text.
+  - `event1_rebellion.json` - same treatment for `event1_toll_trouble`'s
+    eight choices: added `world_flags.toll_response` per choice, rewrote
+    `event1_closed_doors` with 8 matching variants.
+- Verified referential integrity across all 15 scene files after editing:
+  140 total scenes (up from 130), zero dangling references, zero
+  duplicate scene ids.
 
---------------------------------------------------------------------------
-## Session 18 — Choice continuity and immediate reactions
-
-**Problem:** Choices jumped directly to the next plot node. Players could not
-always tell what immediate action they were taking, how NPCs received it, or
-why the next scene followed, making the story feel skipped and confusing.
-
-**Solution:**
-- Extended scene choices with optional `preview`, `aftermath`, and
-  `aftermathFailure` text. The preview appears before selection; the aftermath
-  is frozen into the previous log entry after it.
-- Added a temporary neutral aftermath for legacy content so every choice now
-  has a visible bridge while scene files are migrated gradually.
-- Added the Intent → Response → Consequence authoring rule and supplied
-  authored examples for Aldous, Mira, and Yeva's active route decisions.
+**Deliberately left undone:** Events 2-8 and the Royal/Aldous/
+Salt-Road-culture route files were NOT re-audited against the new rule
+this session - only the opening arc (prologue through Event 1) got the
+fix, since that's what every player reads first and where a "totally
+lost" reaction would land hardest. If the skipping feeling persists past
+Event 1, the same audit (grep for choices sharing an `outcomeSuccessNode`,
+check whether the target scene's text actually distinguishes them) is the
+next step, not a new mechanism - the tooling and the rule already exist.
 
 --------------------------------------------------------------------------
 ## Session 17 — Old Hendrik aftermath, Mira's farm letters, Salt Road check-in

@@ -1,9 +1,6 @@
 [
   {
     "sceneId": "chapter1_harvest_intro",
-    "arcId": "arc0_harvest_failure",
-    "arcTitle": "Arc I · The Harvest Failure",
-    "nodeType": "world",
     "illustrationId": null,
     "narrative": "The door groans open onto open air and late-afternoon light. Beyond it, a dirt path winds down out of the ruins toward a cluster of farms and a low stone wall - a village, smaller than the one you left behind.\n\nEven from here, something looks wrong. Fields that should be green this time of year are patched with yellow, like a fever sweating through the ground itself.",
     "choices": [
@@ -39,10 +36,9 @@
         "label": "Help her wrestle the post into place (Strength check)",
         "requiredAttribute": "strength",
         "difficultyClass": 11,
-        "outcomeSuccessNode": "chapter1_harvest_mira_secret",
-        "outcomeFailNode": "chapter1_harvest_mira_secret",
+        "outcomeSuccessNode": "chapter1_harvest_fence_fixed",
+        "outcomeFailNode": "chapter1_harvest_fence_failed",
         "effects": {
-          "npc.mira_talbot.trust": 1,
           "run_history": "Helped Mira Talbot mend a fence"
         }
       },
@@ -55,6 +51,18 @@
         }
       }
     ]
+  },
+  {
+    "sceneId": "chapter1_harvest_fence_fixed",
+    "illustrationId": null,
+    "narrative": "Between the two of you, the post goes in clean on the second heave, packed earth tamped tight around its base. Mira tests it with a shove that would have dropped it an hour ago. It doesn't move.\n\nShe doesn't thank you in words. She just stops fighting the fence and looks at you properly for the first time - like the post was never really the thing she needed help with, and you passing this small test means she can stop pretending it was.\n\n@Mira: Huh. All right. You can stay long enough to hear the actual problem, then.",
+    "choices": [{"id":"fence_fixed_continue","label":"Ask her what the actual problem is","outcomeSuccessNode":"chapter1_harvest_mira_secret","effects":{"npc.mira_talbot.trust":2,"run_history":"Properly mended Mira Talbot's fence"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_fence_failed",
+    "illustrationId": null,
+    "narrative": "The post slips sideways on your second heave and lands harder than either of you meant, taking a chunk of the rail with it. Mira watches it fall with the flat expression of someone recalculating how much worse her afternoon just got.\n\n@Mira: Right. Not a farm hand, then. Fine. Sit down before you break something that costs more than a fence.\n\nShe doesn't say it unkindly. She also doesn't offer to try again.",
+    "choices": [{"id":"fence_failed_continue","label":"Sit, and ask her what's really wrong","outcomeSuccessNode":"chapter1_harvest_mira_secret","effects":{"run_history":"Made Mira Talbot's fence worse trying to help"}}]
   },
   {
     "sceneId": "chapter1_harvest_mira_secret",
@@ -125,6 +133,7 @@
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
           "gold": -15,
+          "world_flags.harvest_response": "gold",
           "reputation.commonfolk": 3,
           "reputation.honor": 1,
           "run_history": "Gave gold to the village during the Harvest Failure"
@@ -135,6 +144,7 @@
         "label": "This isn't your fight - walk on",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
+          "world_flags.harvest_response": "ignored",
           "reputation.commonfolk": -2,
           "run_history": "Did not help the village during the Harvest Failure"
         }
@@ -145,6 +155,7 @@
         "condition": "origin.wanderer == true",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
+          "world_flags.harvest_response": "wanderer_road",
           "reputation.commonfolk": 2,
           "run_history": "Marked a safe hunger-road for village families"
         }
@@ -155,6 +166,7 @@
         "condition": "origin.civilian == true",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
+          "world_flags.harvest_response": "civilian_ration",
           "reputation.commonfolk": 3,
           "reputation.honor": 1,
           "run_history": "Organized the village's rationing during the Harvest Failure"
@@ -166,6 +178,7 @@
         "condition": "origin.royal == true",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
+          "world_flags.harvest_response": "royal_seal",
           "reputation.crown": 2,
           "reputation.commonfolk": 1,
           "run_history": "Requisitioned crown grain for the starving village"
@@ -177,10 +190,9 @@
         "condition": "origin.elf == true",
         "requiredAttribute": "wisdom",
         "difficultyClass": 11,
-        "outcomeSuccessNode": "chapter1_harvest_mira_check",
-        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "outcomeSuccessNode": "chapter1_harvest_elf_ward_success",
+        "outcomeFailNode": "chapter1_harvest_elf_ward_fail",
         "effects": {
-          "reputation.commonfolk": 2,
           "run_history": "Attempted an old ward against the valley blight"
         }
       },
@@ -190,10 +202,9 @@
         "condition": "origin.dwarf == true",
         "requiredAttribute": "strength",
         "difficultyClass": 11,
-        "outcomeSuccessNode": "chapter1_harvest_mira_check",
-        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "outcomeSuccessNode": "chapter1_harvest_dwarf_mill_success",
+        "outcomeFailNode": "chapter1_harvest_dwarf_mill_fail",
         "effects": {
-          "reputation.commonfolk": 2,
           "run_history": "Repaired the village mill during the Harvest Failure"
         }
       },
@@ -203,12 +214,10 @@
         "condition": "origin.vampire == true",
         "requiredAttribute": "charisma",
         "difficultyClass": 10,
-        "outcomeSuccessNode": "chapter1_harvest_mira_check",
-        "outcomeFailNode": "chapter1_harvest_mira_check",
+        "outcomeSuccessNode": "chapter1_harvest_vampire_compel_success",
+        "outcomeFailNode": "chapter1_harvest_vampire_compel_fail",
         "effects": {
-          "reputation.commonfolk": 1,
-          "reputation.infamy": 1,
-          "run_history": "Used unnatural charm to force open a grain hoard"
+          "run_history": "Attempted to compel a grain hoarder to open his stores"
         }
       },
       {
@@ -217,6 +226,7 @@
         "condition": "origin.mercenary == true",
         "outcomeSuccessNode": "chapter1_harvest_mira_check",
         "effects": {
+          "world_flags.harvest_response": "mercenary_guard",
           "reputation.commonfolk": 1,
           "reputation.infamy": 1,
           "run_history": "Guarded the village granary through a hungry night"
@@ -225,9 +235,59 @@
     ]
   },
   {
+    "sceneId": "chapter1_harvest_elf_ward_success",
+    "illustrationId": null,
+    "narrative": "The old rite comes back to you like a half-remembered song - you draw the ward-lines your people used a hundred blights ago, and the soil beneath them cools, visibly, like a fever breaking under a cold cloth. The farmers watching don't fully understand what they've seen. They understand enough to go quiet.\n\nAn old woman touches the warded earth with two fingers, then touches her own chest, an old gesture you haven't seen a human make in decades.",
+    "choices": [{"id":"elf_ward_success_continue","label":"Leave the ward to hold what it can","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"elf_ward_success","reputation.commonfolk":2,"run_history":"Successfully warded the village fields against the blight"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_elf_ward_fail",
+    "illustrationId": null,
+    "narrative": "The rite resists you - too many centuries between the last time it was taught properly and this attempt, patched together from fragments. The ward-lines flare once, weakly, and fade before they finish forming. The soil stays exactly as sick as it was.\n\nA farmer who'd been watching with real hope looks away first, embarrassed for you both. You've cost them nothing but time, but time is the one thing this valley doesn't have to spare.",
+    "choices": [{"id":"elf_ward_fail_continue","label":"Leave before the failed ritual becomes the story they tell","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"elf_ward_fail","run_history":"Failed to ward the village fields against the blight"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_dwarf_mill_success",
+    "illustrationId": null,
+    "narrative": "The crack in the mill's grinding wheel is old and stubborn, but so are you. It takes an hour of careful work with tools that weren't quite meant for this stone, and then the wheel turns true again, grinding what little grain remains without wasting a scrap of it to the crack's uneven bite.\n\nThe miller runs his palm along the repaired seam like he's checking it's real. @Miller: That's a season's worth of spoilage, stopped. I don't know how to thank a stranger for that kind of thing.",
+    "choices": [{"id":"dwarf_mill_success_continue","label":"Tell him the thanks isn't necessary","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"dwarf_mill_success","reputation.commonfolk":2,"run_history":"Successfully repaired the village mill"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_dwarf_mill_fail",
+    "illustrationId": null,
+    "narrative": "The crack runs deeper than it looked, and your third strike splits it clean through instead of closing it. The wheel judders to a stop, worse off than when you started. The miller doesn't shout. He just sits down heavily on an overturned bucket and stares at what's left of his livelihood.\n\n@Miller: Well. Guess we grind what we can by hand, then. Guess we find out how much that even is.",
+    "choices": [{"id":"dwarf_mill_fail_continue","label":"Leave the miller to the wreckage you made worse","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"dwarf_mill_fail","reputation.commonfolk":-1,"run_history":"Broke the village mill further while trying to repair it"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_vampire_compel_success",
+    "illustrationId": null,
+    "narrative": "The hoarder's eyes go distant and pliable the moment you catch them, and hold. He unlocks his private stores himself, hands steady, voice flat, and doesn't remember afterward that he ever wanted to keep them locked. By the time the compulsion fades, the grain is already being carried out in sacks, and there's no version of events left for him to object to.\n\nNo one in the village will ever know exactly what happened in that storeroom. You will.",
+    "choices": [{"id":"vampire_compel_success_continue","label":"Let the grain move without your name attached to it","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"vampire_compel_success","reputation.commonfolk":1,"reputation.infamy":1,"run_history":"Compelled a hoarder into opening his private grain stores"}}]
+  },
+  {
+    "sceneId": "chapter1_harvest_vampire_compel_fail",
+    "illustrationId": null,
+    "narrative": "He shakes off the pull faster than you expected - some people just do, for reasons that have nothing to do with willpower and everything to do with luck - and what's left in his eyes when the moment passes isn't confusion. It's recognition. He knows exactly what you just tried to do to him.\n\n@Hoarder: Get out of my sight before I tell every soul in this village what you are.\n\nHe doesn't open the stores. He barricades them further, and he remembers your face.",
+    "choices": [{"id":"vampire_compel_fail_continue","label":"Leave before he makes good on the threat","outcomeSuccessNode":"chapter1_harvest_mira_check","effects":{"world_flags.harvest_response":"vampire_compel_fail","reputation.infamy":2,"run_history":"Failed to compel a hoarder and was recognized for what you are"}}]
+  },
+  {
     "sceneId": "chapter1_harvest_mira_check",
     "illustrationId": null,
     "narrative": "Word moves fast in a village this size - about the granary, about you, about who showed up and who didn't.",
+    "narrativeVariants": {
+      "flags.harvest_response == 'gold'": "Word moves fast in a village this size, and it moves fastest about coin. By evening, three separate people have thanked you for gold you gave privately - the granary-keeper wasn't quiet about where the extra came from, whatever you intended.",
+      "flags.harvest_response == 'ignored'": "You don't stay to watch the line at the granary. Somewhere behind you, it's still moving, still quiet, still counting on more than there is. Word moves fast in a village this size - and what it says about the stranger who walked past is not kind, and not wrong.",
+      "flags.harvest_response == 'wanderer_road'": "The families you rerouted are already gone by evening, following the safer path you marked, carrying what little they could. Word moves fast in a village this size - not about you specifically, since you're already three roads gone yourself, but about the stranger who left a map instead of a lecture.",
+      "flags.harvest_response == 'civilian_ration'": "The ration you organized holds through the evening without a single fight over portions - a small miracle, in a village this frightened. Word moves fast in a village this size, and what it says is that someone finally treated the hunger like a problem to solve together, not alone.",
+      "flags.harvest_response == 'royal_seal'": "The crown grain arrives by cart before nightfall, requisitioned on your word alone. Word moves fast in a village this size, and it carries two different reactions at once - relief at full sacks, and a wariness at exactly how easily a stranger commanded them to arrive.",
+      "flags.harvest_response == 'elf_ward_success'": "The warded fields are the only ones in the valley that don't look worse by evening. Word moves fast in a village this size, and what it says is careful, half-frightened, half-grateful - the old stories about your people were apparently not only stories.",
+      "flags.harvest_response == 'elf_ward_fail'": "The failed ritual is already a story by evening, softened in the retelling the way failures often are, into something almost kind: a stranger tried the old magic and the old magic didn't answer. Word moves fast in a village this size. This time, it moves gently, which somehow makes it worse.",
+      "flags.harvest_response == 'dwarf_mill_success'": "The mill's steady grinding carries across the whole village by evening - a sound so ordinary that no one but you and the miller understand it almost stopped for good today. Word moves fast in a village this size, and tonight it sounds like a wheel turning that shouldn't be.",
+      "flags.harvest_response == 'dwarf_mill_fail'": "The mill stays silent through the evening, and everyone in earshot understands exactly what that silence costs before anyone explains it to them. Word moves fast in a village this size, and what it says tonight is that a stranger meant well and made things worse, which people remember longer than either half of that sentence alone.",
+      "flags.harvest_response == 'vampire_compel_success'": "The hoarder's stores are already half-distributed by evening, and nobody in the line asks too closely how a man that stubborn changed his mind so fast. Word moves fast in a village this size. This particular word, mercifully, doesn't move at all - because nobody has the right words for what they didn't see.",
+      "flags.harvest_response == 'vampire_compel_fail'": "You leave before dark, and you're right to. Word moves fast in a village this size, and the word tonight has a shape to it - not your name yet, but a description close enough that your name won't be far behind it.",
+      "flags.harvest_response == 'mercenary_guard'": "The granary stands untouched through the night, which in a hungry village is its own kind of small, exhausted miracle. Word moves fast in a village this size, and tonight it sounds like relief with an edge still in it - grateful for the guard, uneasy about how readily you expected trouble."
+    },
     "choices": [
       {
         "id": "find_mira_special",

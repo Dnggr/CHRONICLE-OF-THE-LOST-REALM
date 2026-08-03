@@ -32,26 +32,34 @@ NON-NEGOTIABLE PACING RULES
    opportunity. The player should feel what they gave up, not only what gained.
 8. Never force a player to read a lore dump to proceed. Curiosity opens lore;
    urgency advances the plot; both remain valid play styles.
-9. A choice is never a teleport. Before it, state the immediate kind of action
-   the player is taking without spoiling the whole branch: speak, leave,
-   threaten, bargain, investigate, or fight. After it, show one concrete
-   reaction before the next scene begins: a face changing, a room falling
-   quiet, a hand reaching for a weapon, someone repeating the player's words,
-   or a physical consequence of the action.
-10. Every consequential choice must carry three beats: INTENT (what the player
-    understands they are attempting), RESPONSE (what happens in the immediate
-    second after), and CONSEQUENCE (what the next scene inherits). Do not make
-    the player infer all three from a scene-id jump.
-11. Dialogue must be an exchange, not a delivery system. Let the player ask,
-    refuse, misunderstand, interrupt, or answer badly. An NPC should react to
-    that exact answer with a changed tone, body language, or later memory.
-12. Every scene needs a physical anchor before abstract stakes: where people
-    sit, what their hands are doing, who is watching, what can be heard or
-    smelled, and what changes in the room when a choice is made.
-13. Legacy scene choices without authored response text use the engine's
-    neutral bridge line temporarily. Every rewritten or new choice MUST add
-    `preview` and `aftermath` fields in scene JSON; stat checks should also add
-    `aftermathFailure` when failure changes the immediate moment.
+9. CHOICE REACTIONS ARE MANDATORY, NOT OPTIONAL. Added after a user report
+   that reading the game felt like "skipping" and left them lost — the cause
+   was found in the actual scene JSON, not a vague pacing problem: choices
+   that represented different actions, different origins, or different stat
+   -check outcomes were landing on the exact same next narrative with zero
+   acknowledgment of what the player had actually just done. That is a bug,
+   every time it happens, not an acceptable shortcut. Concretely:
+   - If a stat check's success and its failure route to the same
+     outcomeSuccessNode/outcomeFailNode, split them. A failed attempt must
+     read differently from a skipped attempt, which must read differently
+     from a clean success — even if the difference is one sentence.
+   - If three or more choices converge on one hub scene (common at a
+     chapter's gathering point), the hub's OPENING lines must react to what
+     was actually done, not describe the same transition regardless of which
+     choice was picked. Have each choice's effects set a shared
+     `world_flags.<key>` to a distinct value, then give the hub scene a
+     `narrativeVariant` for every value. A single generic paragraph standing
+     in for a dozen different actions is exactly the bug this rule exists to
+     stop.
+   - The reaction does not need its own full scene or a dialogue exchange —
+     one specific sentence, in the very next thing the player reads, is
+     enough. It just has to exist, and it has to be about THIS choice, not
+     filler ("word moves fast," "the road continues") that could follow any
+     choice equally.
+   - Self-test before shipping a branching scene: cover the choice list and
+     read only the next paragraph the player would see. If you can't tell
+     which choice was picked from that paragraph alone, the reaction is
+     missing — go back and write it before moving on.
 
 10,000-PAGE PRODUCTION STRUCTURE
 --------------------------------
@@ -194,6 +202,9 @@ Before adding scene JSON, answer:
 - What feeling should remain after the choice?
 - What later scene can call back to one image, line, or promise here?
 - Which route is being slowly nourished, threatened, or complicated?
+- Do any two choices here land on the same next scene with nothing in that
+  scene distinguishing them? If yes, that violates rule 9 above — fix it
+  before moving on, not in a later pass.
 
 Use `npc.<id>.trust`, `npc.<id>.status`, reputation tracks, and world flags
 only after the prose makes the change emotionally legible. Mechanics record

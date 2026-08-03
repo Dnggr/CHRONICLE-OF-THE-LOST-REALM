@@ -147,38 +147,42 @@ summaries, not private or verbatim chat transcripts.
 - Ran a full referential-integrity check across all 15 scene files after
   editing (130 scenes, no dangling references, no duplicate scene ids) since
   this session edited existing files rather than only adding new ones.
+## 2026-08-03 — Choice-reaction rule + fixing the "skipping" bug in the opening arc
 
-## 2026-08-03 — Choice continuity rule
-
-- The user found the story confusing because choices jumped straight into the
-  next plot node. New writing must show intent before selection, an immediate
-  visible response afterward, and a consequence inherited by the next scene.
-- Added engine/UI fields for choice previews and aftermaths. Legacy choices
-  show a neutral bridge until migrated; newly authored or rewritten choices
-  must include bespoke `preview` and `aftermath` text.
-
-## 2026-08-03 — Two-scale narrative graph
-
-- Adopted the requested world-event / common-event structure. World nodes now
-  carry optional arc metadata and present quiet title cards; common nodes remain
-  the reading-heavy conversation, lore, reaction, and relationship beats.
-- Added `docs/narrative_graph_model.md`, defining the 10+ common-event target,
-  JSON metadata, and the required context → intent → response → consequence
-  rhythm for each arc.
-
-## 2026-08-03 — Nine distinct origin on-ramps and arc intent
-
-- The campaign must not give every origin the same introduction. Each origin
-  now takes a route of deliberately different length before joining the common
-  Salt Road thread and the first world event, Harvest Failure.
-- Added Orc of the Ashbound Clans and Demon-Bound as playable origins. Orc
-  content centers clan witness, mutual responsibility, and border prejudice;
-  Demon-Bound content centers chosen identity and agency rather than treating
-  infernal heritage as automatic villainy.
-- Arc I is explicitly the reading-first introduction to the realm, characters,
-  choices, and mechanics. Arc II should turn toward older lore and the
-  impending doom through consequences and discoveries. Added 18 scenes in
-  `assets/scenes/origin_prologues.json`; updated `prologue.json`,
-  `archetypes.dart`, `portraits.dart`, `scene_repository.dart`, README, and
-  narrative planning docs. Future work: give the new origins recurring NPC
-  routes that pay off their prologue flags.
+- The user reported that reading the game felt like "skipping" and left them
+  lost, and asked specifically for reactions to choices (what happens next,
+  in-world, immediately after picking one) rather than a vague pacing pass.
+- Root cause found in the actual scene JSON, not the prose style: several
+  branch points had many different choices — sometimes 8 or 9, representing
+  different origins or entirely different actions — all landing on the exact
+  same next scene with one generic line that reacted to nothing specific.
+  Separately, three stat checks had their success and failure outcomes
+  pointed at the identical next scene, so failing read exactly like
+  succeeding. Both are the same underlying bug: a choice with no felt
+  consequence before the story moves on.
+- Added a new non-negotiable rule (rule 9) to `npc_dialogue_and_routes.txt`,
+  plus a checklist item, specifically naming this failure mode and requiring
+  every stat check to split success/failure and every multi-choice
+  convergence point to react to a `world_flags.<key>` value set per choice —
+  with a concrete self-test ("cover the choice list, read only the next
+  paragraph — can you tell which choice was picked?").
+- Fixed it in the part of the game every player reads first:
+  - `prologue.json`: split the Hendrik wheel-repair check into
+    `prologue_hendrik_wheel_fixed` / `_failed`, each with its own reaction
+    before rejoining the same conversation.
+  - `chapter1_harvest.json`: split the Mira fence-repair check the same way
+    (`chapter1_harvest_fence_fixed` / `_failed`); split all three stat-checked
+    origin routes at the granary scene (elf ward, dwarf mill, vampire
+    compulsion) into distinct success/fail scenes; and rewrote
+    `chapter1_harvest_mira_check` from one generic line into 12
+    `narrativeVariants`, one per `world_flags.harvest_response` value, so
+    every one of the granary scene's nine choices gets its own reacting text
+    before the story converges.
+  - `event1_rebellion.json`: same treatment for `event1_toll_trouble`'s eight
+    choices — added `world_flags.toll_response` per choice and rewrote
+    `event1_closed_doors` with 8 matching variants.
+- Did NOT audit Events 2–8 or the Royal/Aldous/Salt-Road-culture route files
+  for the same pattern this session — the rule now exists to catch it going
+  forward, but the existing files there haven't been re-read against it yet.
+  That audit is the natural next step if the "skipping" feeling persists past
+  the opening arc.

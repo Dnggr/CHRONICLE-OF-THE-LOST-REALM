@@ -16,6 +16,15 @@ import '../../models/character_state.dart';
 /// the picker would feel decorative. SOLUTION: look up
 /// character.portraitId in the Portraits registry and render its
 /// icon/color instead of a letter.
+///
+/// PROBLEM (UI pass, this session): health and gold just snapped to
+/// their new value the instant a choice applied an effect - easy to
+/// miss entirely if you weren't already looking at the top bar, and
+/// out of step with the rest of the pass's "make it relaxing to read"
+/// goal. SOLUTION: both readouts now animate through the change
+/// (a short count/crossfade) via AnimatedSwitcher + TweenAnimationBuilder,
+/// so a gold cost or a wound registers as something that visibly
+/// happened rather than a static number that was just... different now.
 class StatBar extends StatelessWidget {
   final CharacterState character;
 
@@ -69,17 +78,54 @@ class StatBar extends StatelessWidget {
                   children: [
                     Icon(Icons.favorite, size: 14, color: Colors.red[700]),
                     const SizedBox(width: 4),
-                    Text('${character.healthCurrent}/${character.healthMax}'),
+                    _AnimatedReadout(
+                      text: '${character.healthCurrent}/${character.healthMax}',
+                    ),
                     const SizedBox(width: 12),
                     const Icon(Icons.circle, size: 12, color: Colors.amber),
                     const SizedBox(width: 4),
-                    Text('${character.gold}'),
+                    _AnimatedReadout(text: '${character.gold}'),
                   ],
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A small readout (health, gold) that crossfades + rises into its new
+/// value instead of snapping. Keyed by the text itself so
+/// AnimatedSwitcher only plays the transition when the value actually
+/// changes, not on every unrelated rebuild of StatBar.
+class _AnimatedReadout extends StatelessWidget {
+  final String text;
+
+  const _AnimatedReadout({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.3),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: Text(
+        text,
+        key: ValueKey(text),
+        style:
+            GoogleFonts.merriweather(fontSize: 13, fontWeight: FontWeight.w600),
       ),
     );
   }

@@ -53,6 +53,16 @@ class GameController extends ChangeNotifier {
   /// True from the first tap until the choice has been saved and the next
   /// scene is ready. It prevents two fast taps from applying the same
   /// effects twice or navigating two branches at once.
+  ///
+  /// PROBLEM (UI pass, this session): SceneScreen now also uses this
+  /// flag to decide when to show a brief "you picked this one" confirm
+  /// state on the tapped button before the block collapses into the
+  /// recap line - see ChoiceButton and SceneScreen for the UI half of
+  /// this. That only works if [SceneLogEntry.chosenLabel] is already
+  /// set the FIRST time the UI rebuilds after a tap, and if that
+  /// confirm state stays on screen long enough to actually read as a
+  /// beat rather than a flicker. Both of those are handled in
+  /// [selectChoice] below.
   bool isSelectingChoice = false;
 
   GameController({
@@ -122,6 +132,12 @@ class GameController extends ChangeNotifier {
   /// evaluates true (this is where origin-gated choices, like a Royal
   /// Heir being recognized by guards, get hidden from everyone else).
   /// Always describes [currentScene] - i.e. the LATEST sceneLog entry.
+  ///
+  /// NOTE: the UI no longer reads this directly to render buttons (see
+  /// SceneLogEntry.choices for why) - it's kept as the engine-side
+  /// source of truth for validating a tap in [selectChoice] below, and
+  /// as what gets snapshotted into each new log entry the moment it's
+  /// created.
   List<SceneChoice> get availableChoices {
     final scene = currentScene;
     if (scene == null) return const [];
@@ -132,7 +148,8 @@ class GameController extends ChangeNotifier {
 
   /// Appends [currentScene] to the scroll as a fresh, not-yet-answered
   /// entry. Must be called AFTER `character` and `currentScene` are both
-  /// set to their new values (relies on `_resolvedCurrentNarrative`).
+  /// set to their new values (relies on `_resolvedCurrentNarrative` and
+  /// `availableChoices`).
   void _appendCurrentSceneToLog() {
     final scene = currentScene;
     if (scene == null) return;
@@ -140,6 +157,10 @@ class GameController extends ChangeNotifier {
       sceneId: scene.sceneId,
       narrative: _resolvedCurrentNarrative,
       illustrationId: scene.illustrationId,
+      // Frozen the instant this entry is created - see the PROBLEM/
+      // SOLUTION note on SceneLogEntry.choices for why this can't just
+      // be read live off `availableChoices` later.
+      choices: availableChoices,
     ));
   }
 
@@ -214,6 +235,17 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Minimum time the "you picked this one" confirm state (see
+  /// ChoiceButton.isChosen/isDimmed) stays on screen before the block
+  /// collapses into the recap line - regardless of how fast the actual
+  /// save/scene-load work below finishes. Without this, a fast device
+  /// (or an already-warm Hive box) could resolve the whole thing in a
+  /// handful of milliseconds, which reads as a flicker instead of a
+  /// deliberate beat. Race it against the real work (see `Future.wait`
+  /// below) so a SLOW device never waits any longer than it already
+  /// would have.
+  static const _minConfirmFeedback = Duration(milliseconds: 260);
+
   Future<void> selectChoice(SceneChoice choice) async {
     final activeCharacter = character;
     if (activeCharacter == null || isSelectingChoice) return;
@@ -229,22 +261,29 @@ class GameController extends ChangeNotifier {
     if (goldDelta is num && activeCharacter.gold + goldDelta.toInt() < 0) {
       return;
     }
+
+    // PROBLEM (UI pass, this session): this used to be set AFTER the
+    // first notifyListeners() below, so the very first frame SceneScreen
+    // drew after a tap had no idea which of possibly several buttons
+    // had just been pressed - every button simply went disabled at
+    // once. SOLUTION: write chosenLabel to the log entry FIRST, so the
+    // first rebuild already knows the answer and can highlight that
+    // exact button instead of graying out the whole list uniformly.
+    if (sceneLog.isNotEmpty) {
+      sceneLog.last.chosenLabel = choice.label;
+    }
+
     // PROBLEM: ChoiceButton remained tappable while async save/scene work
     // was underway. A rapid double tap could apply gold/reputation effects
     // twice or race two scene transitions. SOLUTION: one controller-owned
     // interaction lock protects every choice, independent of UI timing.
     isSelectingChoice = true;
     notifyListeners();
+
+    final minFeedback = Future<void>.delayed(_minConfirmFeedback);
+
     try {
       lastCheckResult = null;
-
-      // Freeze the entry the player just acted on with the label they
-      // picked, BEFORE we know whether this leads to a stat check, a
-      // fatal outcome, or a normal transition - the log should record
-      // what was chosen regardless of what happens next.
-      if (sceneLog.isNotEmpty) {
-        sceneLog.last.chosenLabel = choice.label;
-      }
 
       // Apply immediate effects (world flags, run history entries) first.
       // PROBLEM: SceneChoice.effects previously only understood
@@ -296,6 +335,7 @@ class GameController extends ChangeNotifier {
       });
 
       if (choice.isFatal) {
+        await minFeedback;
         await _handleDeath(choice.fatalCause ?? 'Unknown cause');
         return;
       }
@@ -324,7 +364,15 @@ class GameController extends ChangeNotifier {
 
       activeCharacter.currentSceneId = nextSceneId;
       _loadCurrentScene();
-      await SaveManager.saveRun(activeCharacter);
+
+      // Real work + the minimum confirm-feedback beat run concurrently -
+      // whichever takes longer decides when we move on. A slow device
+      // never waits extra; a fast one still shows the confirm state
+      // long enough to register.
+      await Future.wait([
+        SaveManager.saveRun(activeCharacter),
+        minFeedback,
+      ]);
 
       if (activeCharacter.isDead) {
         await _handleDeath(
@@ -338,7 +386,10 @@ class GameController extends ChangeNotifier {
       // Only append the next block to the scroll once we know the
       // character survived the transition - a fatal outcome hands off to
       // DeathScreen instead (see _handleDeath), which replaces the whole
-      // screen rather than appending to it.
+      // screen rather than appending to it. This is also the moment the
+      // just-answered entry stops being "latest", which is what tells
+      // SceneScreen to collapse its confirm state into the recap line -
+      // see `_LogEntryView`'s `showingRecap` in scene_screen.dart.
       _appendCurrentSceneToLog();
       notifyListeners();
     } finally {

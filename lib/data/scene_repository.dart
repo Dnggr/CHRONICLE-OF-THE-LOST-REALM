@@ -11,7 +11,17 @@ class SceneRepository {
 
   static const List<String> _sceneFiles = [
     'assets/scenes/prologue.json',
-    'assets/scenes/origin_prologues.json',
+    // PROBLEM: origin intros were a single scene each, far short of the
+    // rule-10 density floor (15-20 real choice points before the first
+    // common event). SOLUTION: Wanderer is the first origin rebuilt to
+    // that standard - its own file, loaded alongside prologue.json, with
+    // prologue_start routing straight into it instead of the old
+    // single-scene prologue_wanderer_intro (removed). The other six
+    // origins still use their single-scene intros in prologue.json and
+    // are next in line for the same treatment - see
+    // npc_dialogue_and_routes.txt's CURRENT PLAYABLE SEQUENCE note.
+    'assets/scenes/wanderer_intro.json',
+    'assets/scenes/wanderer_event_corwins_sister.json',
     'assets/scenes/royal_heir_route.json',
     'assets/scenes/royal_aldous_route.json',
     'assets/scenes/mira_talbot_route.json',

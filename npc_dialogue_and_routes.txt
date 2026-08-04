@@ -61,6 +61,52 @@ NON-NEGOTIABLE PACING RULES
      which choice was picked from that paragraph alone, the reaction is
      missing — go back and write it before moving on.
 
+10. MINIMUM CONTENT DENSITY - PRIORITY RULE. Added after the user watched a
+    playthrough skip from one meaningful choice almost straight into a
+    world-shaping event, with barely anything real between them, and said
+    plainly: we are not being lazy, we are building a legacy. This sets the
+    MINIMUM shape every origin's campaign must take before it counts as done:
+
+      Origin intro                -> 15-20 real choice points before the
+                                      first common event.
+      Between common events        -> 20-30 real choice points.
+      Leading into a world event   -> 50+ connected quests/common events
+                                      that are THEMATICALLY RELATED to that
+                                      specific world event (not generic
+                                      filler slotted in to hit a number)
+                                      before the world event resolves.
+      After a world event          -> keep building the same way toward the
+                                      next one, all the way to the last
+                                      world event. The campaign does not
+                                      thin out as it goes on.
+
+    A "choice point" is a scene with 2+ real options (including a stat check
+    split per rule 9). A single-Continue scene that exists purely for
+    pacing/breathing room (rule 6) is still valuable and still belongs in
+    the mix, but does not count toward this total on its own.
+
+    What this density is FOR, not just a number to hit:
+      - build emotion and anticipation before a big swing lands
+      - seed lore the player discovers rather than being told
+      - give every recurring NPC a real background, not a one-line dossier
+      - show culture (how people here actually talk, eat, grieve, celebrate,
+        argue) instead of asserting it exists in a summary paragraph
+      - let a small early choice teach a lesson the player recognizes,
+        unprompted, when a much bigger choice echoes it later
+
+    This is a floor, not permission to pad. Every one of these choice
+    points still answers to the SCENE-BY-SCENE WRITING CHECKLIST below, and
+    every one still obeys rule 9 - volume without a specific reaction is the
+    exact failure rule 9 exists to stop, just spread across more scenes
+    instead of concentrated in one. When many choices are close variations
+    on the same tactic (tone, internal reflection, minor tradecraft) rather
+    than genuinely different actions, it's acceptable to converge them on
+    one shared next scene AS LONG AS that scene carries a distinct
+    `narrativeVariant` per choice - full new scenes are for outcomes that
+    actually diverge (a stat check's success/fail, a different NPC met, a
+    different world state produced), not required for every single choice
+    regardless of how small the difference is.
+
 10,000-PAGE PRODUCTION STRUCTURE
 --------------------------------
 Do not try to write 10,000 pages as one linear script. Build a reusable novel
@@ -79,8 +125,20 @@ through one bloated mandatory path. Keep a route matrix as content grows:
 
 CURRENT PLAYABLE SEQUENCE
 -------------------------
-Origin opening -> Old Hendrik roadside scene -> caravan/ruin -> Harvest
-Failure -> Mira Talbot -> Salt Road Rebellion -> Event 2 warning.
+Shared spine (all origins): Old Hendrik roadside scene -> caravan/ruin ->
+Harvest Failure -> Mira Talbot -> Salt Road Rebellion -> Event 2 warning.
+
+Origin-specific openings are being rebuilt one at a time per rule 10's
+density floor, starting with Wanderer (see `wanderer_intro.json` and the
+WANDERER NPC DOSSIERS section below) - a full 15-choice-point chain
+building toward Corwin Ashe's missing-sister search. That search,
+`wanderer_event_corwins_sister.json`, is now COMPLETE end to end: 27
+scenes, 11 real choice points, three distinct approach paths, five named
+endings - short of rule 10's 20-30 floor for a common event, but a real,
+closed arc rather than a placeholder. The other six origins (Civilian,
+Royal Heir, Elf, Dwarf, Vampire, Mercenary) still use a single-scene intro
+and are next in line for the same treatment as Wanderer's - do not assume
+they've been expanded just because Wanderer has.
 
 Old Hendrik is intentionally introduced before Mira. He gives the player a
 human reason to care about the Talbot farm before the game asks for help. His
@@ -192,6 +250,201 @@ Dialogue seed:
   already told three people and all of them promised they cannot read.
 Author rule: every Tamsin rumor requires one verifiable fact and one uncertain
 claim. Do not reveal which is which immediately.
+
+WANDERER NPC DOSSIERS — INTRO CHAIN (wanderer_intro.json)
+-----------------------------------------------------------
+Written for the rule-10 Wanderer overhaul. All six are the existing
+Signature NPCs from `lib/data/npcs.dart` (origin `wanderer`) except Osric,
+a backstory figure referenced but never previously named.
+
+OSRIC | Backstory (deceased before the game begins) | Wanderer-linked
+First impression: never on-page - known only through the button the player
+carries and the lesson they can't stop repeating in his voice.
+Public want (in life): to make sure the player survived a road that had
+already taken people he loved.
+Private wound: never given a page of his own on purpose - he exists to be
+carried, not resolved. Do not write a flashback scene that "explains" him
+fully; the player's uncertainty about him (loyalty or cowardice, love or
+guilt) is the point and should stay live the whole game.
+Voice (as remembered, never as dialogue tags): short, unsentimental
+instructions dressed as observations.
+Route hooks: Isolation (he is the reason solitude feels safe), Redemption
+(finally deciding what keeping the button means).
+Author rule: Osric never appears as a ghost, vision, or literal flashback
+scene with his own @Osric: lines. He is remembered, quoted secondhand,
+never staged. If a future author is tempted to give him a full scene,
+that's a sign the story has drifted from "the road that made you a
+Wanderer" toward a different, more literal kind of story.
+
+DENN HALLOWAY | Rival | Wanderer-linked
+First impression: challenges the player to something before introducing
+himself - a race, a bet, a dare with real stakes.
+Public want: to be remembered as the greatest road-walker the Realm has
+ever produced.
+Private wound: deeply lonely; rivalry is the only shape of closeness he
+knows how to offer or accept without flinching.
+Voice: turns everything into a wager, even sincerity ("Bet you didn't
+expect me to mean that").
+Feeling progression:
+  irritation -> reluctant respect -> genuine rivalry -> the choice to keep
+  competing forever or let him actually be a friend, which he will not ask
+  for directly.
+Route hooks: Rivalry resolving into Love or true Friendship (rare,
+requires the player to break the competition pattern first), Isolation if
+always beaten and never engaged with as a person.
+Dialogue seed:
+  @Denn: Losing to a stranger's one thing. Losing to a stranger who didn't
+  even know we were racing - that one's going to itch for a while.
+Author rule: Denn must lose sometimes without becoming bitter, and win
+sometimes without gloating past the point of fun. He is competitive, not
+cruel - if he starts reading as cruel, the voice has drifted.
+
+OLD FERRICK | Merchant | Wanderer-linked
+First impression: perched on a cart loaded past reason, doing visible math
+on the value of whoever's approaching.
+Public want: enough coin to stop moving and open one real, permanent shop.
+Private wound: has been running the same trust-then-vanish con so long he's
+half-convinced himself it's a fair trade for what he offers.
+Voice: prices everything, including conversation ("that'll cost you a
+story, not just coin").
+Feeling progression:
+  transactional curiosity -> either genuine trade (if the player doesn't
+  take the bait) or betrayal (if they trust him with something he can
+  carry off) -> a standing reputation that follows him into later scenes.
+Route hooks: minor Redemption (rare, if confronted and chooses honesty over
+the pattern), otherwise a recurring cautionary/comic figure, not a deep
+route on his own.
+Dialogue seed:
+  @Ferrick: Everything on this cart has a price. Some of it isn't coin.
+Author rule: never let Ferrick's theft be the ONLY outcome available to a
+player who engages with him - a player who buys properly and doesn't offer
+temptation should get a completely honest transaction, every time.
+
+THE TOLLKEEPER | Enemy | Wanderer-linked
+First impression: dressed too well for a bandit, speaks too formally to be
+anything else, blocking a road that was free yesterday.
+Public want: total, unchallenged control of a stretch of the Old Salt Road.
+Private wound: a fired Crownlands tax officer, replicating unofficially
+and worse the exact system that discarded him.
+Voice: formal, archaic phrasing even mid-threat; treats extortion like a
+transaction owed to him personally.
+Feeling progression:
+  performative politeness -> real threat once refused -> (if defeated)
+  either death, a spared/humiliated standing enemy, or a rare grudging
+  respect if the player out-argues rather than out-fights him.
+Route hooks: Revenge (his, against the crown, if explored further), Power
+(the player's, if they take over his racket instead of ending it -
+unexplored, flag as a future hook), Mercy as its own tracked honor trigger.
+Dialogue seed:
+  @Tollkeeper: Passage is ten silver. Refusal is also an option, of course.
+  Every option is an option, until it isn't.
+Author rule: a Royal Heir player must get a variant that references his
+firing specifically - this is one of the few NPCs whose grievance is
+directly, personally about House Aldric, not abstract class resentment.
+
+SAOIRSE BELLWETHER | Mentor | Wanderer-linked
+First impression: doesn't introduce herself - answers a question the
+player hadn't finished asking yet.
+Public want: to find out, honestly, whether this Wanderer is different
+from the ones who eventually gave up the road.
+Private wound: was once a Royal Heir's bodyguard and left that life; the
+specifics of why are deliberately withheld past "I chose this instead."
+Voice: answers questions with harder questions; teaches by making the
+player notice something themselves rather than being told.
+Feeling progression:
+  tested -> grudging usefulness proven -> real teaching -> a bond the
+  player can lean on later, but that she will not chase if ignored.
+Route hooks: Mentor, cross-origin hook for Royal Heir players (she reacts
+to that origin distinctly - see her dossier note on Aldous/court
+recognition, a thread for a future author to pick up).
+Dialogue seed:
+  @Saoirse: I didn't ask if you were scared. I asked what you did next.
+  Those are different questions and only one of them is useful to me.
+Author rule: Saoirse's lessons must be incomplete on purpose (same
+constraint as Hendrik) - she is teaching survival, not delivering the
+correct answer to the game.
+
+CORWIN ASHE | Ally | Wanderer-linked
+First impression: methodical, unhurried, checking a worn map by firelight
+like he's done it a thousand times without once finding what he's looking
+for.
+Public want: find the sister he lost track of three winters ago.
+Private wound (RESOLVED - see below): stayed silent while their parents
+arranged Elsa's marriage to a man twice her age over a debt. She left the
+same season the wedding would have happened and never told him where -
+deliberately, changing her name, specifically so he couldn't find her. He
+suspects this himself only partway through the search; the player can
+press him toward the full truth or let him arrive at it on his own pace.
+Voice: never uses a metaphor when a plain sentence will do; flattens his
+own feelings into logistics ("she'd have gone north, probably, if she went
+anywhere at all").
+Feeling progression:
+  practical stranger -> traveling companion -> real vulnerability once the
+  trail reveals she hid on purpose -> one of several earned resolutions
+  (see below) that permanently shapes whether he stays withdrawn, finds
+  peace, or is left in messier, more human uncertainty for the rest of
+  the run.
+Route hooks: the Wanderer's first common event IS his search, and it is
+now FULLY BUILT end to end - see `wanderer_event_corwins_sister.json`
+(27 scenes, 11 real choice points). Three distinct approach paths at the
+bakery (confirm with Elsa first / bring Corwin immediately / watch before
+deciding) lead to five different named endings
+(`world_flags.corwin_sister_resolution`: earned_reunion, privacy_protected,
+told_directly, messy_corwin_defended/elsa_defended/neutral, watched_told,
+watched_let_go) - genuinely different outcomes, not one ending with cosmetic
+variation. Also seeds Sacrifice (the search costs real time/resources) and
+Redemption (if the player initially refuses him and later returns - this
+specific branch is NOT yet built; the current file assumes the player
+commits at `wanderer_intro_15`).
+Dialogue seed:
+  @Corwin: She'd have gone north, probably, if she went anywhere at all.
+  I've been saying "probably" for three winters. I'm aware of how that
+  sounds.
+Author rule: never let Corwin find his sister alive through convenient
+coincidence. If she's found, the scene must have been earned across
+several prior choices, not handed over as a reward beat.
+
+ELSA (goes by "Essa") | Corwin's sister, introduced in wanderer_event_corwins_sister.json
+First impression: flour to her elbows, running a small Millhaven bakery,
+entirely at home - nothing about her reads like someone who's spent three
+years hiding.
+Public want: to be somewhere no one, including her own brother, gets to
+decide things for her anymore.
+Private wound: was nearly married off to a man twice her age over a family
+debt; Corwin knew and stayed silent. She doesn't hate him for it, which is
+almost worse than if she did - she's just done letting his love make her
+choices for her.
+Voice: direct, a little wry, unsentimental about her own history in a way
+that reads as hard-won rather than cold ("people who rename themselves
+usually have their reasons").
+Author rule: Elsa is never simply relieved to be found. Every ending
+available to the player treats her reaction as something she gets to
+determine, not something the search's success or failure decides for her -
+this is the entire point of her arc and should not be softened in future
+content that touches her.
+
+THE PIEBALD FOOL | Wildcard | Wanderer-linked
+First impression: appears where the road bends out of sight of everything
+else, always mid-sentence, as if the conversation had already started.
+Public want: unclear, possibly not a want in any sense the player can
+transact with.
+Private wound: none written - deliberately kept unknowable. Do not resolve
+this NPC's mystery in a future arc without a very strong reason; the
+not-knowing is the function.
+Voice: rhymes, sometimes mid-word; answers only the question the player
+should have asked, not the one they did.
+Feeling progression: none in the conventional sense - this NPC does not
+build linear trust. Each encounter stands alone, atmospheric, occasionally
+prophetic in hindsight once a world event the Fool alluded to actually
+happens.
+Route hooks: none directly - a texture/foreshadowing device, not a
+relationship route.
+Dialogue seed:
+  @Piebald Fool: Ask the road what it's carried, not where it's going -
+  the road never lies about the first one.
+Author rule: the Fool must never give the player mechanically actionable
+information (no "go here, do this"). Everything said should read as
+significant only in retrospect.
 
 SCENE-BY-SCENE WRITING CHECKLIST
 --------------------------------

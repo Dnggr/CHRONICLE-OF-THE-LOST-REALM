@@ -120,7 +120,25 @@ class NarrativeText extends StatelessWidget {
         })(),
         if (illustrationId != null) ...[
           const SizedBox(height: 16),
-          _Illustration(illustrationId: illustrationId!),
+          // PROBLEM (UI pass, this session): every text line in a fresh
+          // block eased in via _RevealLine, but the illustration next to
+          // them just popped in at full opacity - inconsistent with the
+          // rest of the "relaxing to read" reveal. SOLUTION: reuse the
+          // same [animate] flag this widget already receives, so the
+          // image only fades in when it's part of a genuinely new block
+          // (never replays for already-read entries on rebuild).
+          animate
+              ? TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 420),
+                  curve: Curves.easeOut,
+                  builder: (context, value, child) => Opacity(
+                    opacity: value,
+                    child: child,
+                  ),
+                  child: _Illustration(illustrationId: illustrationId!),
+                )
+              : _Illustration(illustrationId: illustrationId!),
           const SizedBox(height: 16),
         ],
       ],
@@ -136,7 +154,8 @@ class NarrativeText extends StatelessWidget {
     var cursor = 0;
     for (final match in _emphasisPattern.allMatches(source)) {
       if (match.start > cursor) {
-        spans.add(TextSpan(text: source.substring(cursor, match.start), style: baseStyle));
+        spans.add(TextSpan(
+            text: source.substring(cursor, match.start), style: baseStyle));
       }
       spans.add(TextSpan(
         text: match.group(1),
@@ -155,6 +174,24 @@ class NarrativeText extends StatelessWidget {
 /// typewriter: the latter would briefly mis-parse `@Name:` dialogue markup
 /// while only half a speaker tag had appeared. Expanding complete lines keeps
 /// screenplay dialogue formatted correctly throughout the animation.
+///
+/// PROBLEM (UI pass, this session): this is the actual root cause of the
+/// "clicking choices sucks" complaint. `onProgress` (SceneScreen's
+/// `_followNarrativeReveal`, which keeps the scroll position pinned to
+/// the growing bottom edge) was wired to `AnimationController.addListener`
+/// - which fires on EVERY animation tick, not once per line. A single
+/// 260ms reveal at 60fps calls it roughly 15 times, and every one of
+/// those calls used to trigger `ScrollController.jumpTo` (see
+/// SceneScreen), i.e. a hard, instant re-snap of the scroll position -
+/// once per frame, per line, stacked across every line in the new
+/// block. That's what actually "sucked": the reading area visibly
+/// juddered instead of smoothly following the text as it appeared.
+/// SOLUTION: switch from `addListener` (every tick) to
+/// `addStatusListener` firing only on `AnimationStatus.completed` (once
+/// per line, right as that line finishes revealing). Paired with
+/// SceneScreen switching its follow-scroll from `jumpTo` to a short
+/// `animateTo`, the scroll now eases along with the text instead of
+/// snapping repeatedly underneath it.
 class _RevealLine extends StatefulWidget {
   final Duration delay;
   final VoidCallback? onProgress;
@@ -180,7 +217,15 @@ class _RevealLineState extends State<_RevealLine>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 260),
-    )..addListener(widget.onProgress ?? () {});
+    )..addStatusListener((status) {
+        // Fires once, right as this specific line finishes revealing -
+        // NOT on every intermediate frame. See the class doc above for
+        // why the old per-frame version was the actual source of the
+        // "clicking a choice feels janky" complaint.
+        if (status == AnimationStatus.completed) {
+          widget.onProgress?.call();
+        }
+      });
     _startAfterDelay();
   }
 
@@ -197,7 +242,8 @@ class _RevealLineState extends State<_RevealLine>
 
   @override
   Widget build(BuildContext context) {
-    final curved = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    final curved =
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     return SizeTransition(
       sizeFactor: curved,
       axisAlignment: -1,

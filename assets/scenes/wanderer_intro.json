@@ -1,0 +1,811 @@
+[
+  {
+    "sceneId": "wanderer_intro_01",
+    "illustrationId": null,
+    "narrative": "You learned the road does not ask who your parents were. It asks who keeps walking after the fire goes out, after the last innkeeper says no, after a friend takes the easier path without you.\n\nYou still carry a button from the coat of Osric, who taught you that lesson. The metal has been rubbed smooth by bad weather and worse nights. You have never decided whether keeping it is loyalty or cowardice.\n\nAt the edge of another nameless village, a yellowed field catches your eye. You know the look of a place beginning to run out of chances - but that is tomorrow's problem. Tonight there is only the road, and the button, and the old habit of deciding, again, what to do with both.",
+    "choices": [
+      {
+        "id": "osric_touch_button",
+        "label": "Touch the button for luck, like you always do",
+        "outcomeSuccessNode": "wanderer_intro_02",
+        "effects": {
+          "world_flags.osric_memory": "touch_button",
+          "run_history": "Touched Osric's button for luck, out of habit"
+        }
+      },
+      {
+        "id": "osric_push_away",
+        "label": "Push the memory down - the past doesn't walk with you",
+        "outcomeSuccessNode": "wanderer_intro_02",
+        "effects": {
+          "world_flags.osric_memory": "push_away",
+          "run_history": "Pushed the memory of Osric aside"
+        }
+      },
+      {
+        "id": "osric_wonder",
+        "label": "Wonder, not for the first time, if Osric would recognize who you've become",
+        "outcomeSuccessNode": "wanderer_intro_02",
+        "effects": {
+          "world_flags.osric_memory": "wonder",
+          "run_history": "Wondered whether Osric would recognize you now"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_02",
+    "illustrationId": null,
+    "narrative": "A shape peels off the treeline ahead of you at a dead run, laughing before you can even ask why.\n\n@Denn: Last one to the market well buys the first round! Not that you agreed to this. Doesn't matter. You're in it now.\n\nHe's already ten strides ahead and not looking back to see if you're following.",
+    "narrativeVariants": {
+      "flags.osric_memory == 'touch_button'": "A shape peels off the treeline ahead of you at a dead run, laughing before you can even ask why. Your hand is still half-raised from touching the button at your collar.\n\n@Denn: Last one to the market well buys the first round! Not that you agreed to this. Doesn't matter. You're in it now.\n\nHe's already ten strides ahead and not looking back to see if you're following.",
+      "flags.osric_memory == 'push_away'": "A shape peels off the treeline ahead of you at a dead run, laughing before you can even ask why - a welcome enough interruption to whatever you were trying not to think about.\n\n@Denn: Last one to the market well buys the first round! Not that you agreed to this. Doesn't matter. You're in it now.\n\nHe's already ten strides ahead and not looking back to see if you're following.",
+      "flags.osric_memory == 'wonder'": "A shape peels off the treeline ahead of you at a dead run, laughing before you can even ask why, scattering the question you'd been turning over before you'd finished turning it.\n\n@Denn: Last one to the market well buys the first round! Not that you agreed to this. Doesn't matter. You're in it now.\n\nHe's already ten strides ahead and not looking back to see if you're following."
+    },
+    "choices": [
+      {
+        "id": "denn_accept_race",
+        "label": "Take the challenge and run (Dexterity check)",
+        "requiredAttribute": "dexterity",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "wanderer_denn_race_won",
+        "outcomeFailNode": "wanderer_denn_race_lost",
+        "effects": {
+          "run_history": "Raced Denn Halloway to the market well"
+        }
+      },
+      {
+        "id": "denn_decline_banter",
+        "label": "Laugh, decline, and shout something back instead",
+        "outcomeSuccessNode": "wanderer_denn_banter",
+        "effects": {
+          "run_history": "Traded banter with Denn Halloway instead of racing"
+        }
+      },
+      {
+        "id": "denn_ignore",
+        "label": "Keep your own pace and let him go",
+        "outcomeSuccessNode": "wanderer_denn_ignored",
+        "effects": {
+          "run_history": "Let Denn Halloway race off alone"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_denn_race_won",
+    "illustrationId": null,
+    "narrative": "You beat him by a stride, maybe less, and he collapses against the well laughing too hard to be a good loser about it.\n\n@Denn: Nobody's done that in - actually, nobody's done that. Ever. I need a name to put on the loss so I can plan my revenge properly.\n\nHe means it as a joke. He also means it completely.",
+    "choices": [
+      {
+        "id": "denn_race_won_continue",
+        "label": "Give him your name, and brace for the revenge",
+        "outcomeSuccessNode": "wanderer_intro_03",
+        "effects": {
+          "npc.denn_halloway.trust": 2,
+          "run_history": "Beat Denn Halloway in a footrace"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_denn_race_lost",
+    "illustrationId": null,
+    "narrative": "He beats you to the well by enough distance that there's no pretending otherwise, and turns around grinning, not even winded.\n\n@Denn: Gracious in defeat. I respect that. Wish I saw it more often, honestly - most people just accuse me of cheating, which, to be fair, I have done, but not this time.\n\nHe offers a hand up you didn't strictly need but take anyway.",
+    "choices": [
+      {
+        "id": "denn_race_lost_continue",
+        "label": "Take the hand, and the loss, with good humor",
+        "outcomeSuccessNode": "wanderer_intro_03",
+        "effects": {
+          "npc.denn_halloway.trust": 1,
+          "run_history": "Lost a footrace to Denn Halloway, graciously"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_denn_banter",
+    "illustrationId": null,
+    "narrative": "@You: Buy your own first round. I didn't agree to anything.\n\n@Denn: Nobody ever does! That's what makes it a challenge and not a contract. Suit yourself, stranger - the offer stands whenever you change your mind.\n\nHe peels off toward the well anyway, in no real hurry now that there's no one to race.",
+    "choices": [
+      {
+        "id": "denn_banter_continue",
+        "label": "Watch him go, mildly entertained",
+        "outcomeSuccessNode": "wanderer_intro_03",
+        "effects": {
+          "npc.denn_halloway.trust": 1,
+          "run_history": "Declined Denn Halloway's race but traded banter"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_denn_ignored",
+    "illustrationId": null,
+    "narrative": "You keep walking at your own pace. He glances back once, mid-stride, and something in his face flickers - not hurt exactly, more like a bet he'd made with himself and just lost.\n\nHe doesn't slow down to argue about it. By the time you reach the well yourself, he's long gone.",
+    "choices": [
+      {
+        "id": "denn_ignored_continue",
+        "label": "Continue toward the village at your own pace",
+        "outcomeSuccessNode": "wanderer_intro_03",
+        "effects": {
+          "run_history": "Ignored Denn Halloway's challenge entirely"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_03",
+    "illustrationId": "outskirt_village",
+    "narrative": "The village comes into view past a rise in the road, and with it the field you noticed from a distance - worse up close. Whole rows of what should be waist-high by now barely clear your ankle, yellowed at the tip like something's been drinking the color out of them from the inside.\n\nA farmer stands at the field's edge, not working it, just looking at it the way you look at a wound you're not ready to touch yet.",
+    "choices": [
+      {
+        "id": "field_read_soil",
+        "label": "Crouch and read what the soil is actually telling you (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "wanderer_field_read_success",
+        "outcomeFailNode": "wanderer_field_read_fail",
+        "effects": {
+          "run_history": "Tried to read the cause of the failing field"
+        }
+      },
+      {
+        "id": "field_keep_walking",
+        "label": "This isn't your field, and there's a village to reach - keep walking",
+        "outcomeSuccessNode": "wanderer_intro_04",
+        "effects": {
+          "run_history": "Walked past the failing field without stopping"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_field_read_success",
+    "illustrationId": null,
+    "narrative": "It's not blight, not exactly - the soil's gone thin and starved, over-planted one season too many by people with no season to spare for letting it rest. You could tell the farmer that. You're not sure it would help him do anything differently, given what's coming either way.\n\nHe notices you crouched over his ruined rows and doesn't ask what you found. Just nods once, like confirming something he already suspected and didn't want confirmed.",
+    "choices": [
+      {
+        "id": "field_read_success_continue",
+        "label": "Straighten up, and carry the knowledge with you into the village",
+        "outcomeSuccessNode": "wanderer_intro_04",
+        "effects": {
+          "world_flags.harvest_cause_known": true,
+          "run_history": "Correctly read the cause of the failing field"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_field_read_fail",
+    "illustrationId": null,
+    "narrative": "You crouch, dig your fingers into the dirt, and come away with nothing more useful than dirty hands and a farmer watching you with the particular patience of someone who's seen a dozen strangers do exactly this and offer exactly nothing afterward.\n\n@Farmer: You're not the first to poke at it. Won't be the last, either. Dirt keeps its own counsel.",
+    "choices": [
+      {
+        "id": "field_read_fail_continue",
+        "label": "Wipe your hands and continue toward the village",
+        "outcomeSuccessNode": "wanderer_intro_04",
+        "effects": {
+          "run_history": "Failed to determine why the field was failing"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_04",
+    "illustrationId": null,
+    "narrative": "Something is sitting cross-legged on the fence post at the village edge that you'd swear wasn't there a moment ago - patched clothes in no pattern that matches any village you've passed through, mismatched boots, a grin that arrives before any reason for one.\n\n@Piebald Fool: -so I told the crow, the road never lies about the first thing it carried, only the last. You weren't listening. Were you listening?\n\nIt's unclear whether the conversation started before you arrived, or whether it started the moment you did.",
+    "choices": [
+      {
+        "id": "fool_ask_direct",
+        "label": "Ask him directly what he means",
+        "outcomeSuccessNode": "wanderer_intro_05",
+        "effects": {
+          "world_flags.fool_encounter": "asked",
+          "run_history": "Asked the Piebald Fool a direct question"
+        }
+      },
+      {
+        "id": "fool_let_talk",
+        "label": "Let him keep talking without interrupting",
+        "outcomeSuccessNode": "wanderer_intro_05",
+        "effects": {
+          "world_flags.fool_encounter": "listened",
+          "run_history": "Listened to the Piebald Fool without interrupting"
+        }
+      },
+      {
+        "id": "fool_walk_past",
+        "label": "Walk past without engaging at all",
+        "outcomeSuccessNode": "wanderer_intro_05",
+        "effects": {
+          "world_flags.fool_encounter": "avoided",
+          "run_history": "Walked past the Piebald Fool without engaging"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_05",
+    "illustrationId": null,
+    "narrative": "The market square, such as it is, holds a handful of stalls selling less than they should this time of year. A vendor wrestles with a collapsing awning pole. Two old women trade what might be gossip and might be a coded argument they've been having for decades. You could be part of any of it, or none of it.",
+    "narrativeVariants": {
+      "flags.fool_encounter == 'asked'": "The market square, such as it is, holds a handful of stalls selling less than they should this time of year. You're still turning the Fool's non-answer over in your head - _the road never lies about the first thing it carried_ - when a vendor wrestles with a collapsing awning pole nearby, entirely uninterested in your philosophical crisis.",
+      "flags.fool_encounter == 'listened'": "The market square, such as it is, holds a handful of stalls selling less than they should this time of year. Whatever the Fool was actually saying, you suspect you'll understand it later, the way you always seem to with people like that - in hindsight, uselessly. A vendor wrestles with a collapsing awning pole nearby.",
+      "flags.fool_encounter == 'avoided'": "The market square, such as it is, holds a handful of stalls selling less than they should this time of year. You don't look back to see if the Fool is still watching. A vendor wrestles with a collapsing awning pole nearby, blessedly, aggressively normal."
+    },
+    "choices": [
+      {
+        "id": "market_help_vendor",
+        "label": "Help the vendor wrestle the awning pole upright",
+        "outcomeSuccessNode": "wanderer_intro_06",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "run_history": "Helped a market vendor with a collapsing awning"
+        }
+      },
+      {
+        "id": "market_trade_gossip",
+        "label": "Trade road news for local gossip with the old women",
+        "outcomeSuccessNode": "wanderer_intro_06",
+        "effects": {
+          "world_flags.village_gossip_known": true,
+          "run_history": "Traded gossip with village elders"
+        }
+      },
+      {
+        "id": "market_observe",
+        "label": "Keep to yourself and just watch the square",
+        "outcomeSuccessNode": "wanderer_intro_06",
+        "effects": {
+          "run_history": "Observed the village market without engaging"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_06",
+    "illustrationId": "old_ferrick_stall",
+    "narrative": "A cart loaded with more goods than should physically fit sits pulled off at the square's edge. A wiry old man perches on the tailgate, watching you approach with the frank appraisal of someone doing math.\n\n@Ferrick: That's a few days of dust on you. Costs nothing to look. Costs a story or a coin to leave with something.\n\nHe pats the tailgate beside him. _Everything on this cart has a price. Some of it isn't coin._",
+    "choices": [
+      {
+        "id": "ferrick_buy",
+        "label": "Buy a good whetstone properly (-5 Gold)",
+        "outcomeSuccessNode": "wanderer_ferrick_bought",
+        "effects": {
+          "gold": -5,
+          "run_history": "Bought a whetstone from Old Ferrick"
+        }
+      },
+      {
+        "id": "ferrick_leave_pouch",
+        "label": "Leave your coin pouch with him \"for safekeeping\" while you look around",
+        "outcomeSuccessNode": "wanderer_ferrick_betrayed"
+      },
+      {
+        "id": "ferrick_decline",
+        "label": "Politely decline and keep walking",
+        "outcomeSuccessNode": "wanderer_ferrick_declined"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_ferrick_bought",
+    "illustrationId": null,
+    "narrative": "He counts the coin twice, out of habit rather than distrust, and hands over a whetstone worn smooth with use - his own, probably, or close enough to it that the difference doesn't matter.\n\n@Ferrick: Good edge on that. Keep it dry and it'll outlast you. Most things do, if you take care of them, which is more than most people manage.",
+    "choices": [
+      {
+        "id": "ferrick_bought_continue",
+        "label": "Pocket the whetstone and continue",
+        "outcomeSuccessNode": "wanderer_intro_07",
+        "effects": {
+          "inventory_add": "Traveler's Whetstone",
+          "npc.old_ferrick.trust": 1,
+          "run_history": "Made an honest trade with Old Ferrick"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_ferrick_betrayed",
+    "illustrationId": null,
+    "narrative": "By the time you turn back for your pouch, the cart is exactly where you left it. Ferrick is not. Neither, you realize a moment later, is your coin.\n\nA boy minding a nearby goat shrugs when you ask. @Boy: He does that. Every few months, somebody new. He'll be three towns over by supper.",
+    "choices": [
+      {
+        "id": "ferrick_betrayed_continue",
+        "label": "Continue into the village, lighter of pocket and pride",
+        "outcomeSuccessNode": "wanderer_intro_07",
+        "effects": {
+          "gold": -15,
+          "npc.old_ferrick.trust": -3,
+          "npc.old_ferrick.status": "distrusted",
+          "run_history": "Was robbed by Old Ferrick after trusting him with your coin"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_ferrick_declined",
+    "illustrationId": null,
+    "narrative": "@Ferrick: Suit yourself. Offer doesn't expire - I'll be here, or somewhere very like here, whenever you change your mind.\n\nHe doesn't seem offended. He's already appraising the next person down the road before you've fully turned away.",
+    "choices": [
+      {
+        "id": "ferrick_declined_continue",
+        "label": "Continue into the village",
+        "outcomeSuccessNode": "wanderer_intro_07",
+        "effects": {
+          "run_history": "Declined to trade with Old Ferrick"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_07",
+    "illustrationId": null,
+    "narrative": "A handful of other travelers have claimed a corner of the square for the night, a small fire, a pot that smells like more thought went into stretching it than flavoring it. One of them notices you hovering at the edge of the firelight and shifts over without being asked - the oldest rule of the road, older than any kingdom's law: you make room, and you are owed room in turn, and neither debt is ever spoken aloud.",
+    "choices": [
+      {
+        "id": "road_share_food",
+        "label": "Add what little you have to the pot, scarce as it is",
+        "outcomeSuccessNode": "wanderer_intro_08",
+        "effects": {
+          "world_flags.road_law_response": "shared",
+          "reputation.honor": 1,
+          "run_history": "Shared scarce rations with strangers on the road"
+        }
+      },
+      {
+        "id": "road_keep_rations",
+        "label": "Keep your rations to yourself - you don't know these people",
+        "outcomeSuccessNode": "wanderer_intro_08",
+        "effects": {
+          "world_flags.road_law_response": "kept",
+          "run_history": "Kept your rations to yourself around strangers"
+        }
+      },
+      {
+        "id": "road_trade_story",
+        "label": "Trade a story for a share of the meal instead of coin or food",
+        "outcomeSuccessNode": "wanderer_intro_08",
+        "effects": {
+          "world_flags.road_law_response": "story",
+          "run_history": "Traded a story for a meal on the road"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_08",
+    "illustrationId": null,
+    "narrative": "Talk around the fire turns, as road talk does, to what's ahead rather than what's behind. Someone mentions a stretch past the treeline where a self-appointed \"tollkeeper\" has taken to charging travelers for the privilege of a road that used to be free.",
+    "narrativeVariants": {
+      "flags.road_law_response == 'shared'": "Talk around the fire turns, as road talk does, to what's ahead rather than what's behind - and having shared the pot, you're included in it properly now, not just tolerated at its edge. Someone mentions a stretch past the treeline where a self-appointed \"tollkeeper\" has taken to charging travelers for the privilege of a road that used to be free.",
+      "flags.road_law_response == 'kept'": "Talk around the fire turns, as road talk does, to what's ahead rather than what's behind, mostly among the others - you're listening from a slight remove, the room they made for you a little narrower now. Someone mentions a stretch past the treeline where a self-appointed \"tollkeeper\" has taken to charging travelers for the privilege of a road that used to be free.",
+      "flags.road_law_response == 'story'": "Talk around the fire turns, as road talk does, to what's ahead rather than what's behind - your story bought you real welcome, the kind that outlasts one meal. Someone mentions a stretch past the treeline where a self-appointed \"tollkeeper\" has taken to charging travelers for the privilege of a road that used to be free."
+    },
+    "choices": [
+      {
+        "id": "toll_ask_details",
+        "label": "Ask exactly what he charges, and what happens if you refuse",
+        "outcomeSuccessNode": "wanderer_intro_09",
+        "effects": {
+          "world_flags.toll_forewarned": true,
+          "run_history": "Asked travelers for details about the road toll"
+        }
+      },
+      {
+        "id": "toll_dismiss",
+        "label": "Dismiss it as exaggerated road talk",
+        "outcomeSuccessNode": "wanderer_intro_09",
+        "effects": {
+          "run_history": "Dismissed warnings about the road toll"
+        }
+      },
+      {
+        "id": "toll_reroute",
+        "label": "Quietly decide to find a way around it instead",
+        "outcomeSuccessNode": "wanderer_intro_09",
+        "effects": {
+          "world_flags.toll_avoid_planned": true,
+          "run_history": "Planned to avoid the toll road entirely"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_09",
+    "illustrationId": "tollkeeper_roadblock",
+    "narrative": "The treeline the travelers mentioned narrows the road ahead into something a person could block without much effort. Sure enough, a figure steps out - dressed too well for a bandit, speaking too formally to be anything else.\n\n@Tollkeeper: You are, I regret to inform you, standing upon a toll road. Passage is ten silver. Refusal is also an option, of course. Every option is an option, until it isn't.",
+    "narrativeVariants": {
+      "origin.royal == true": "The treeline the travelers mentioned narrows the road ahead into something a person could block without much effort. Sure enough, a figure steps out - and something in his expression shifts the moment he sees your bearing, recognition curdling into something colder.\n\n@Tollkeeper: House Aldric. Of course. I once collected taxes in your father's name, you know, before your father's court decided my methods were beneath the crown's dignity. How amusing, to collect from you instead now. Passage is ten silver. Or something more interesting than silver, given who you are."
+    },
+    "choices": [
+      {
+        "id": "toll_pay_token",
+        "label": "Pay the toll without argument (-10 Gold)",
+        "outcomeSuccessNode": "wanderer_toll_paid",
+        "effects": {
+          "gold": -10,
+          "run_history": "Paid the Tollkeeper without argument"
+        }
+      },
+      {
+        "id": "toll_talk_down",
+        "label": "Try to talk him out of it (Charisma check)",
+        "requiredAttribute": "charisma",
+        "difficultyClass": 12,
+        "outcomeSuccessNode": "wanderer_toll_talked",
+        "outcomeFailNode": "wanderer_toll_refused_tense",
+        "effects": {
+          "run_history": "Tried to talk the Tollkeeper out of his toll"
+        }
+      },
+      {
+        "id": "toll_refuse",
+        "label": "Refuse outright and stand your ground",
+        "outcomeSuccessNode": "wanderer_toll_refused_tense",
+        "effects": {
+          "run_history": "Refused the Tollkeeper's demand outright"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_toll_paid",
+    "illustrationId": null,
+    "narrative": "He counts the coin with theatrical care, bows very slightly, and steps aside.\n\n@Tollkeeper: A pleasure doing business with someone who understands how roads work. I do hope we meet again under less transactional circumstances. I doubt it, but I hope it.",
+    "choices": [
+      {
+        "id": "toll_paid_continue",
+        "label": "Continue past him, ten silver lighter",
+        "outcomeSuccessNode": "wanderer_intro_10",
+        "effects": {
+          "run_history": "Passed the Tollkeeper peacefully"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_toll_talked",
+    "illustrationId": null,
+    "narrative": "Something in what you say actually lands - or maybe he's just curious what a person who argues instead of paying or fighting looks like. He waves you past with visible reluctance.\n\n@Tollkeeper: Don't make a habit of talking your way past things that would rather be paid or fought. I'm told it gets people killed eventually, being that convincing.",
+    "choices": [
+      {
+        "id": "toll_talked_continue",
+        "label": "Continue past him, toll waived",
+        "outcomeSuccessNode": "wanderer_intro_10",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Talked the Tollkeeper into waiving his toll"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_toll_refused_tense",
+    "illustrationId": null,
+    "narrative": "He doesn't draw a weapon. He doesn't need to - he simply doesn't move, and the road behind him stays exactly as blocked as it was, and the two of you stand there long enough for the standoff itself to become the whole conversation.\n\n@Tollkeeper: You can stand there as long as you like. I have considerably more patience for this than you do. I recommend making your peace with that before the light goes.\n\nEventually, it's you who breaks first - not from fear, just from the plain arithmetic of a road you actually need to be on.",
+    "choices": [
+      {
+        "id": "toll_refused_continue",
+        "label": "Pay what he wants after all, and remember his face",
+        "outcomeSuccessNode": "wanderer_intro_10",
+        "effects": {
+          "gold": -10,
+          "reputation.infamy": 1,
+          "run_history": "Was forced to pay the Tollkeeper after refusing him first"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_10",
+    "illustrationId": null,
+    "narrative": "The road opens up again past the treeline, and for a while there's nothing to do but walk it. The light goes gold, then grey, then the particular blue that means the day is deciding to be done with you whether you're ready or not.\n\nYou've had worse days on this road. You've had better ones too, though fewer than you'd like.",
+    "choices": [
+      {
+        "id": "breathing_continue",
+        "label": "Keep walking as the light fades",
+        "outcomeSuccessNode": "wanderer_intro_11"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_11",
+    "illustrationId": null,
+    "narrative": "A woman is sitting very still at the next crossroads marker, in the way of someone who has been waiting exactly as long as she intended to and not a moment longer.\n\n@Saoirse: You've been walking since before the light went. Most people stop when they're tired. Why haven't you?\n\nShe doesn't introduce herself. She doesn't need to yet - the question matters more than her name does, for now.",
+    "choices": [
+      {
+        "id": "saoirse_answer_honest",
+        "label": "Answer honestly, even the parts that don't flatter you",
+        "outcomeSuccessNode": "wanderer_intro_12",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Answered Saoirse Bellwether honestly"
+        }
+      },
+      {
+        "id": "saoirse_deflect",
+        "label": "Deflect with a joke instead of an answer",
+        "outcomeSuccessNode": "wanderer_intro_12",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 0,
+          "run_history": "Deflected Saoirse Bellwether's question with a joke"
+        }
+      },
+      {
+        "id": "saoirse_turn_question",
+        "label": "Turn the question back on her instead",
+        "outcomeSuccessNode": "wanderer_intro_12",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Turned Saoirse Bellwether's own question back on her"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_12",
+    "illustrationId": null,
+    "narrative": "@Saoirse: All right. You'll do. Sit - not to rest, to learn something. Most people walking a road this long never bother learning to read it. That's how it eats them.\n\nShe points out signs in the treeline, the dirt, the particular quality of silence that means something is wrong before you can say what.",
+    "choices": [
+      {
+        "id": "saoirse_learn_properly",
+        "label": "Sit, and actually learn it properly, however long it takes (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 11,
+        "outcomeSuccessNode": "wanderer_saoirse_lesson_good",
+        "outcomeFailNode": "wanderer_saoirse_lesson_rushed",
+        "effects": {
+          "run_history": "Sat with Saoirse Bellwether to learn to read the road"
+        }
+      },
+      {
+        "id": "saoirse_impatient",
+        "label": "Nod along, impatient to keep moving",
+        "outcomeSuccessNode": "wanderer_saoirse_lesson_rushed",
+        "effects": {
+          "run_history": "Rushed through Saoirse Bellwether's lesson"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_lesson_good",
+    "illustrationId": null,
+    "narrative": "It takes longer than you expected, and she makes you repeat things twice, three times, until reading the signs stops being something she's telling you and starts being something you'd notice on your own.\n\n@Saoirse: There. Now you'll see it coming, half the time, instead of finding out the way most people do - after.\n\nShe says it like a small thing. It doesn't feel like a small thing.",
+    "choices": [
+      {
+        "id": "lesson_good_continue",
+        "label": "Thank her, and mean it",
+        "outcomeSuccessNode": "wanderer_intro_13",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "world_flags.road_sense_learned": true,
+          "run_history": "Properly learned to read danger on the road from Saoirse"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_lesson_rushed",
+    "illustrationId": null,
+    "narrative": "You nod along at the right moments, but half of it slides past you, and she notices - of course she notices, that's the entire point of her.\n\n@Saoirse: You're not listening. That's your business, not mine. Just don't come find me later surprised by something I already showed you once.\n\nShe doesn't repeat herself.",
+    "choices": [
+      {
+        "id": "lesson_rushed_continue",
+        "label": "Move on, lesson only half-learned",
+        "outcomeSuccessNode": "wanderer_intro_13",
+        "effects": {
+          "npc.saoirse_bellwether.trust": -1,
+          "run_history": "Failed to properly absorb Saoirse's lesson"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_13",
+    "illustrationId": null,
+    "narrative": "Saoirse makes camp without asking if you're staying, which is its own kind of invitation. Around a low fire, she trades stories with a couple of other road-worn travelers who drift in and out of the light - the kind of company that forms for one night and dissolves by morning, no obligation either way.\n\nSomeone asks what story you want to hear.",
+    "choices": [
+      {
+        "id": "lore_sun_temple",
+        "label": "Ask about the Sun Temple ruin everyone goes quiet about",
+        "outcomeSuccessNode": "wanderer_lore_suntemple",
+        "effects": {
+          "run_history": "Asked around the campfire about the Sun Temple"
+        }
+      },
+      {
+        "id": "lore_old_king",
+        "label": "Ask what really happened to the old king before Aldric's line",
+        "outcomeSuccessNode": "wanderer_lore_king",
+        "effects": {
+          "run_history": "Asked around the campfire about the old king"
+        }
+      },
+      {
+        "id": "lore_monster",
+        "label": "Ask if the rumors about something in the Hollow Reaches are true",
+        "outcomeSuccessNode": "wanderer_lore_monster",
+        "effects": {
+          "run_history": "Asked around the campfire about the Hollow Reaches rumors"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_lore_suntemple",
+    "illustrationId": null,
+    "narrative": "One of the travelers goes quiet for a moment before answering, the way people do when a story used to be sacred and isn't anymore.\n\n@Traveler: Used to be you could see its towers from three villages over. Then one hero or another - stories don't agree which, don't agree why - burned it to the ground. Nobody agrees on that either: was it wrath, or was it mercy, put to the wrong use. My grandmother wouldn't say the hero's name out loud. Said naming it gave it more power than it already had.",
+    "choices": [
+      {
+        "id": "lore_suntemple_continue",
+        "label": "Let the fire crackle a while before anyone speaks again",
+        "outcomeSuccessNode": "wanderer_intro_14",
+        "effects": {
+          "world_flags.lore_sun_temple_known": true
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_lore_king",
+    "illustrationId": null,
+    "narrative": "@Traveler: Officially? Died peacefully, passed the crown to House Aldric's founder, everyone wept, very tidy. Unofficially, my grandfather's grandfather used to say the old king simply stopped being convenient to keep around, and House Aldric was very convenient indeed at exactly the right moment.\n\nSaoirse doesn't confirm or deny it. She just watches you take the story in, like she's testing which parts you believe.",
+    "choices": [
+      {
+        "id": "lore_king_continue",
+        "label": "File the story away, unverified and unforgotten",
+        "outcomeSuccessNode": "wanderer_intro_14",
+        "effects": {
+          "world_flags.lore_old_king_known": true
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_lore_monster",
+    "illustrationId": null,
+    "narrative": "@Traveler: True enough that shepherds up past Skell Ridge have stopped grazing the high pastures. True enough that two of them aren't shepherding anything anymore, on account of not being alive to. Whether it's a dragon like the old stories or something that just wants people to think it's a dragon - that part, nobody's gotten close enough to confirm.\n\nSaoirse's expression doesn't change, but something behind it does, briefly.",
+    "choices": [
+      {
+        "id": "lore_monster_continue",
+        "label": "Note the name Skell Ridge, just in case",
+        "outcomeSuccessNode": "wanderer_intro_14",
+        "effects": {
+          "world_flags.lore_dragon_rumor_known": true
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_14",
+    "illustrationId": null,
+    "narrative": "Come morning, the other travelers have scattered, but one figure remains at the cold fire pit, methodically checking a map worn soft at every fold - checking it the unhurried way of someone who's done it a thousand times without once finding what he's looking for.\n\n@Corwin: Morning. Didn't mean to still be here. Map's not going to change if I stare at it, but I keep staring at it anyway.",
+    "choices": [
+      {
+        "id": "corwin_ask",
+        "label": "Ask what he's looking for",
+        "outcomeSuccessNode": "wanderer_intro_15",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Asked Corwin Ashe what he was searching for"
+        }
+      },
+      {
+        "id": "corwin_leave_be",
+        "label": "Leave him to it - not every stranger's business is yours",
+        "outcomeSuccessNode": "wanderer_intro_15",
+        "effects": {
+          "run_history": "Left Corwin Ashe to his map without asking"
+        }
+      },
+      {
+        "id": "corwin_offer_blind",
+        "label": "Offer to help, sight unseen, before you even know what it is",
+        "outcomeSuccessNode": "wanderer_intro_15",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Offered to help Corwin Ashe before knowing what he needed"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_15",
+    "illustrationId": null,
+    "narrative": "@Corwin: My sister. Lost track of her three winters back. She'd have gone north, probably, if she went anywhere at all. I've been saying \"probably\" for three winters. I'm aware of how that sounds.\n\nHe says it flat, methodical, the way he says everything - like feeling it directly would cost more than he has left to spend.",
+    "choices": [
+      {
+        "id": "corwin_commit",
+        "label": "Tell him you'll help him look, for as long as it takes",
+        "outcomeSuccessNode": "wanderer_corwin_commit"
+      },
+      {
+        "id": "corwin_decline_for_now",
+        "label": "Say you can't right now, but wish him real luck",
+        "outcomeSuccessNode": "wanderer_corwin_decline"
+      },
+      {
+        "id": "corwin_skeptical",
+        "label": "Gently suggest three winters is a long time to keep looking",
+        "outcomeSuccessNode": "wanderer_corwin_skeptical"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_commit",
+    "illustrationId": null,
+    "narrative": "Something in his face moves for the first time since you started talking to him - not hope exactly, he's too careful for that, but something adjacent to it.\n\n@Corwin: I won't pretend I wasn't hoping someone would say that eventually. Fair warning: I'm not good company when the trail goes cold, and it goes cold a lot.",
+    "choices": [
+      {
+        "id": "corwin_commit_continue",
+        "label": "Tell him you're coming anyway",
+        "outcomeSuccessNode": "wanderer_intro_16",
+        "effects": {
+          "npc.corwin_ashe.trust": 3,
+          "world_flags.corwin_committed": true,
+          "run_history": "Committed to helping Corwin Ashe search for his sister"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_decline",
+    "illustrationId": null,
+    "narrative": "@Corwin: Didn't expect otherwise, honestly. Most people can't spare three winters for someone else's maybe. I'll manage. I've managed this long.\n\nHe folds the map away carefully, like it costs him something small every time he does it.",
+    "choices": [
+      {
+        "id": "corwin_decline_continue",
+        "label": "Wish him well, and continue your own road",
+        "outcomeSuccessNode": "wanderer_intro_16",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Declined to join Corwin Ashe's search for now"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_skeptical",
+    "illustrationId": null,
+    "narrative": "His jaw tightens, just slightly - the first crack you've seen in the careful flatness.\n\n@Corwin: You're not the first to say it. You won't be the last. I've had that conversation with myself more times than you'd believe, and I'm still here, still looking. So I'd appreciate it if you'd let me have this one.",
+    "choices": [
+      {
+        "id": "corwin_skeptical_continue",
+        "label": "Back off, and let him have it",
+        "outcomeSuccessNode": "wanderer_intro_16",
+        "effects": {
+          "npc.corwin_ashe.trust": -2,
+          "run_history": "Questioned whether Corwin Ashe's sister could still be found"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_intro_16",
+    "illustrationId": null,
+    "narrative": "The road forks here, more or less - not literally, but in every way that matters. One path stays with Corwin and whatever his search costs. The other keeps moving toward whatever this particular village's trouble turns out to be, the yellowed field and all it implies.",
+    "choices": [
+      {
+        "id": "bridge_travel_with_corwin",
+        "label": "Travel with Corwin - his search starts now",
+        "condition": "flags.corwin_committed == true",
+        "outcomeSuccessNode": "wanderer_event_corwins_sister_01",
+        "effects": {
+          "run_history": "Set out with Corwin Ashe to search for his sister"
+        }
+      },
+      {
+        "id": "bridge_continue_alone",
+        "label": "Continue on alone, and keep an eye out as you go",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Continued on alone, past the fork in the road"
+        }
+      }
+    ]
+  }
+]

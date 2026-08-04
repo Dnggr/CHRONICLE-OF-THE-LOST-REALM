@@ -186,3 +186,60 @@ summaries, not private or verbatim chat transcripts.
   forward, but the existing files there haven't been re-read against it yet.
   That audit is the natural next step if the "skipping" feeling persists past
   the opening arc.
+
+## 2026-08-03 — Content density rule + full Wanderer intro overhaul
+
+- The user pointed at a specific screenshot of a generic auto-inserted
+  reaction line and named it as what "skipping" means, then set an
+  explicit content-density floor: 15-20 choice points before an origin's
+  first common event, 20-30 between common events, 50+ connected pieces
+  leading into a world event. Asked to start with the Wanderer origin.
+- Searched this session's copy of the codebase for the exact placeholder
+  string shown in the screenshot and did not find it - flagged as
+  possibly from a further-diverged live copy rather than guessed at.
+- Added rule 10 (MINIMUM CONTENT DENSITY) to `npc_dialogue_and_routes.txt`
+  with the user's exact numbers, a precise definition of "choice point,"
+  and what the density is for (so it can't be satisfied by padding).
+- Rebuilt the Wanderer origin's intro from one scene into `wanderer_intro.json`
+  - 36 scenes, 15 real choice points, right at rule 10's floor. Introduces
+  all 6 existing Wanderer Signature NPCs (Denn Halloway, Old Ferrick, The
+  Tollkeeper, Saoirse Bellwether, Corwin Ashe, the Piebald Fool) plus a new
+  backstory-only figure, Osric. Documented all of them as full NPC dossiers
+  matching the existing format.
+- Started `wanderer_event_corwins_sister.json` (the Wanderer's first common
+  event, Corwin's search for his sister Elsa) - 6 scenes, a real opening,
+  explicitly short of the 20-30 choice-point floor and labeled as such
+  rather than left as a silent gap.
+- Wired both into `SceneRepository`, repointed the Wanderer's entry point
+  in `prologue.json`, removed the superseded single-scene intro. Verified
+  referential integrity across all 17 scene files afterward: 181 scenes,
+  zero dangling references.
+- Explicitly NOT done: the other six origins' intros, and the rest of
+  Corwin's search. Both noted as the clear next steps, not silently
+  skipped.
+
+## 2026-08-03 — Corwin's search, completed end to end
+
+- User said the Wanderer overhaul was "much better" and asked to continue.
+  Chose to finish Corwin's search fully rather than leave it at its Session
+  19 placeholder and start a second origin - completing one thing felt more
+  aligned with rule 10's spirit than starting a second half-finished thing.
+- Built out a river crossing, a fishing-village lead, and a reveal that
+  Elsa deliberately hid her trail (changed her name) rather than simply
+  getting lost - then Millhaven, where the real reason emerges: an arranged
+  marriage Corwin knew about and didn't stop.
+- Three genuinely different approach paths at the moment they find her
+  (confirm with Elsa first / bring Corwin immediately / watch before
+  deciding), leading to 5 distinct named endings with real trust
+  consequences, not one ending dressed up multiple ways.
+- Corrected the Corwin dossier, written before this content existed, which
+  had speculated Elsa might be found dead - rewrote it to match what was
+  actually built (she's alive, hiding on purpose) rather than leave stale
+  speculative notes next to the real, finished story. Added an Elsa dossier.
+- Final count: 27 scenes, 11 real choice points for this one common event -
+  under rule 10's 20-30 floor, logged honestly as such rather than padded.
+- Verified referential integrity across all 17 scene files: 202 total
+  scenes, zero dangling references, zero duplicates.
+- Left undone: a Redemption branch for players who initially decline
+  Corwin's search, and the other six origins' intros - both noted as next
+  steps, not silently skipped.

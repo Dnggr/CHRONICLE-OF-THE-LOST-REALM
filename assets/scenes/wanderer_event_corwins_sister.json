@@ -1,0 +1,636 @@
+[
+  {
+    "sceneId": "wanderer_event_corwins_sister_01",
+    "illustrationId": null,
+    "narrative": "Traveling with Corwin turns out to mean something specific: up before light, a pace that doesn't vary whether the road is easy or brutal, and a silence that isn't unfriendly so much as fully occupied elsewhere.\n\n@Corwin: Her name's Elsa. I should have led with that. Three winters of saying \"my sister\" to strangers and I forget people need a name to actually look for someone.\n\nHe unrolls the map again, more out of habit now than hope of new information.\n\n@Corwin: We can chase rumors - there's always rumors, half of them nonsense. We can check the waypoint villages methodically, which is slower and has actually found things before. Or we retrace exactly the route she'd have taken, mile for mile, which I've done twice already and will apparently do a third time if you're willing.",
+    "choices": [
+      {
+        "id": "corwin_method_rumors",
+        "label": "Chase the rumors first - faster, riskier",
+        "outcomeSuccessNode": "wanderer_corwin_rumors",
+        "effects": {
+          "world_flags.corwin_search_method": "rumors",
+          "run_history": "Chose to chase rumors in the search for Elsa"
+        }
+      },
+      {
+        "id": "corwin_method_waypoints",
+        "label": "Check the waypoint villages methodically",
+        "outcomeSuccessNode": "wanderer_corwin_waypoints",
+        "effects": {
+          "world_flags.corwin_search_method": "waypoints",
+          "run_history": "Chose to methodically check waypoint villages"
+        }
+      },
+      {
+        "id": "corwin_method_retrace",
+        "label": "Retrace her exact route with him, a third time",
+        "outcomeSuccessNode": "wanderer_corwin_retrace",
+        "effects": {
+          "world_flags.corwin_search_method": "retrace",
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Agreed to retrace Elsa's route with Corwin a third time"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_rumors",
+    "illustrationId": null,
+    "narrative": "The first rumor leads nowhere - a woman matching Elsa's description who turns out to be someone else entirely, apologetic and confused by the sudden attention. Corwin thanks her too formally and doesn't say much for the rest of the day.\n\n@Corwin: Happens more than you'd think. People hear \"missing woman, brown hair, about this tall\" and it's half the villages in the Realm.",
+    "choices": [
+      {
+        "id": "rumors_continue",
+        "label": "Keep going anyway - one dead end isn't the search",
+        "outcomeSuccessNode": "wanderer_event_corwins_sister_02",
+        "effects": {
+          "run_history": "Followed a false rumor about Elsa to a dead end"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_waypoints",
+    "illustrationId": null,
+    "narrative": "The first waypoint village yields nothing new, but the innkeeper remembers a woman asking after river routes north, three winters back, and describes her well enough that Corwin goes very still listening to it.\n\n@Corwin: That's her. That's - that's the first real thing anyone's told me in eight months.\n\nHis hands aren't quite steady when he thanks the innkeeper.",
+    "choices": [
+      {
+        "id": "waypoints_continue",
+        "label": "Let him have the moment before moving on",
+        "outcomeSuccessNode": "wanderer_event_corwins_sister_02",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "world_flags.corwin_lead_river_north": true,
+          "run_history": "Found a real lead: Elsa asked about river routes north"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_corwin_retrace",
+    "illustrationId": null,
+    "narrative": "Walking the same road a third time with him is stranger than you expected - he narrates it under his breath without seeming to notice he's doing it, _she'd have stopped here, she always stopped here, the water's good_, like the route itself has become a kind of prayer.\n\nYou don't interrupt. Some things are more useful witnessed than helped.",
+    "choices": [
+      {
+        "id": "retrace_continue",
+        "label": "Walk it with him, all the way to its end",
+        "outcomeSuccessNode": "wanderer_event_corwins_sister_02",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "run_history": "Walked Elsa's exact route with Corwin, in full"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_event_corwins_sister_02",
+    "illustrationId": null,
+    "narrative": "Camp that night is quieter than the ones before it - not worse, just heavier, the way a search feels different once it has produced something, even something small. Corwin sits a little apart from the fire, turning the day's information over like a coin he doesn't yet trust to spend.\n\nThis is where the search actually is right now: not resolved, not abandoned, just genuinely, unglamorously still going.",
+    "choices": [
+      {
+        "id": "interlude_continue",
+        "label": "Let the fire burn down and the night pass",
+        "outcomeSuccessNode": "wanderer_event_corwins_sister_03"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_event_corwins_sister_03",
+    "illustrationId": null,
+    "narrative": "Whatever method got you here, every thread agrees on the same direction now: a fishing village downriver, where more than one traveler has mentioned a woman who matched Elsa's description passing through, heading further north still. Corwin doesn't sleep well that night. Neither, in solidarity or just from the tension of it, do you.",
+    "choices": [
+      {
+        "id": "corwin_toward_river_village",
+        "label": "Set out for the river village at first light",
+        "outcomeSuccessNode": "corwin_river_crossing",
+        "effects": {
+          "run_history": "Followed the trail toward a river village north"
+        }
+      }
+    ],
+    "narrativeVariants": {
+      "flags.corwin_lead_river_north == true": "The waypoint lead already pointed you here, and now every other thread agrees: a fishing village downriver, where more than one traveler has mentioned a woman who matched Elsa's description passing through, heading further north still. Corwin's hands aren't quite steady tonight, and he doesn't pretend otherwise."
+    }
+  },
+  {
+    "sceneId": "corwin_river_crossing",
+    "illustrationId": null,
+    "narrative": "The river's higher than it should be this time of year, the ford Corwin remembers from his last pass now waist-deep and moving fast enough to matter. He's already wading in before you can suggest finding another way.\n\n@Corwin: It's fine. I've crossed worse. Probably.",
+    "choices": [
+      {
+        "id": "river_cross_strength",
+        "label": "Brace against the current and get you both across safely (Strength check)",
+        "requiredAttribute": "strength",
+        "difficultyClass": 12,
+        "outcomeSuccessNode": "corwin_river_crossed_safe",
+        "outcomeFailNode": "corwin_river_crossed_rough",
+        "effects": {
+          "run_history": "Helped Corwin cross a dangerous river ford"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_river_crossed_safe",
+    "illustrationId": null,
+    "narrative": "You get him across without either of you losing footing, cold and soaked but upright. He wrings out his coat and doesn't thank you directly - just falls into step beside you like the crossing was never in question, which is as close to gratitude as he tends to get.",
+    "choices": [
+      {
+        "id": "river_safe_continue",
+        "label": "Continue north, dripping but intact",
+        "outcomeSuccessNode": "corwin_fishing_village",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Crossed the river safely with Corwin"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_river_crossed_rough",
+    "illustrationId": null,
+    "narrative": "The current takes you both off your feet halfway across, and it's a scramble more than a crossing by the time you both drag yourselves out the far side, bruised, gear half-soaked, dignity fully soaked.\n\n@Corwin: Well. We're across. That's - that's the important part.\n\nHe says it through chattering teeth, still checking his map is dry before checking anything else.",
+    "choices": [
+      {
+        "id": "river_rough_continue",
+        "label": "Wring out what you can and press on",
+        "outcomeSuccessNode": "corwin_fishing_village",
+        "effects": {
+          "run_history": "Made a rough, undignified crossing of the river with Corwin"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_fishing_village",
+    "illustrationId": null,
+    "narrative": "The village is small, salt-worn, the kind of place that measures time in tides rather than seasons. Boats out, boats in, and not much room in between for strangers asking about a woman three winters gone.",
+    "choices": [
+      {
+        "id": "village_ask_directly",
+        "label": "Ask around directly, plainly, no dressing it up",
+        "outcomeSuccessNode": "corwin_millhaven_reveal",
+        "effects": {
+          "world_flags.village_approach": "direct",
+          "run_history": "Asked the fishing village directly about Elsa"
+        }
+      },
+      {
+        "id": "village_observe_first",
+        "label": "Watch a while before approaching anyone",
+        "outcomeSuccessNode": "corwin_millhaven_reveal",
+        "effects": {
+          "world_flags.village_approach": "observed",
+          "run_history": "Watched the fishing village before asking questions"
+        }
+      },
+      {
+        "id": "village_trade_work",
+        "label": "Offer a hand mending nets in exchange for local knowledge",
+        "outcomeSuccessNode": "corwin_millhaven_reveal",
+        "effects": {
+          "world_flags.village_approach": "traded",
+          "reputation.commonfolk": 1,
+          "run_history": "Traded labor for information in the fishing village"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_millhaven_reveal",
+    "illustrationId": null,
+    "narrative": "An old net-mender remembers her clearly enough once you describe her - not because she was memorable exactly, but because she asked careful, specific questions about a town called Millhaven, inland, and because she asked under a name that wasn't her own.\n\n@Net-mender: Called herself Essa, when she bought passage upriver. Didn't correct anyone who assumed it was short for something. People who rename themselves usually have their reasons, and it's usually not my business to ask what.\n\nCorwin goes very still.\n\n@Corwin: She - she changed her name. That's not someone who got lost. That's someone who left on purpose and didn't want to be followed.",
+    "narrativeVariants": {
+      "flags.village_approach == 'traded'": "The nets are half-mended and your back aches before the old woman working beside you mentions, almost offhand, a traveler three winters back who asked careful questions about a town called Millhaven, inland - under a name that wasn't her own.\n\n@Net-mender: Called herself Essa. Didn't correct anyone who assumed it was short for something. People who rename themselves usually have their reasons.\n\nCorwin, listening from a few feet away, goes very still.\n\n@Corwin: She changed her name. That's not someone who got lost. That's someone who left on purpose and didn't want to be followed."
+    },
+    "choices": [
+      {
+        "id": "reveal_continue",
+        "label": "Let that sit with him a moment before responding",
+        "outcomeSuccessNode": "corwin_millhaven_travel",
+        "effects": {
+          "world_flags.corwin_knows_elsa_hid": true,
+          "run_history": "Learned Elsa deliberately changed her name and hid her trail"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_millhaven_travel",
+    "illustrationId": null,
+    "narrative": "The road to Millhaven is quiet in a way that has nothing to do with the terrain. Corwin walks faster than usual, like outrunning the thought might work where three winters of searching hasn't.",
+    "choices": [
+      {
+        "id": "travel_comfort",
+        "label": "Tell him a hidden trail doesn't mean she didn't love him",
+        "outcomeSuccessNode": "corwin_millhaven_arrival",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "world_flags.corwin_support": "comfort",
+          "run_history": "Comforted Corwin after learning Elsa hid her trail"
+        }
+      },
+      {
+        "id": "travel_space",
+        "label": "Give him room to sit with it without filling the silence",
+        "outcomeSuccessNode": "corwin_millhaven_arrival",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "world_flags.corwin_support": "space",
+          "run_history": "Gave Corwin space to process the revelation"
+        }
+      },
+      {
+        "id": "travel_hard_questions",
+        "label": "Ask him plainly if he has any idea why she'd have hidden from him specifically",
+        "outcomeSuccessNode": "corwin_millhaven_arrival",
+        "effects": {
+          "world_flags.corwin_support": "pressed",
+          "run_history": "Pressed Corwin on why Elsa might have hidden from him"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_millhaven_arrival",
+    "illustrationId": null,
+    "narrative": "Millhaven is bigger than the fishing village, prosperous enough in a modest way, mill-wheel turning steady at its center like a heartbeat the whole town's learned to live around.",
+    "narrativeVariants": {
+      "flags.corwin_support == 'comfort'": "Millhaven is bigger than the fishing village, prosperous enough in a modest way. Corwin's steadier for your words on the road, or steady enough to function, which may be the most honest kind of steady he has right now.",
+      "flags.corwin_support == 'pressed'": "Millhaven is bigger than the fishing village, prosperous enough in a modest way. Corwin still hasn't answered your question from the road, and the silence has followed you both the whole way here."
+    },
+    "choices": [
+      {
+        "id": "millhaven_innkeeper",
+        "label": "Start at the inn - innkeepers know everyone eventually",
+        "outcomeSuccessNode": "corwin_the_truth",
+        "effects": {
+          "run_history": "Asked Millhaven's innkeeper about a woman named Essa"
+        }
+      },
+      {
+        "id": "millhaven_guild",
+        "label": "Check the local trade guild registries for the name Essa",
+        "outcomeSuccessNode": "corwin_the_truth",
+        "effects": {
+          "run_history": "Searched Millhaven's guild registries for the name Essa"
+        }
+      },
+      {
+        "id": "millhaven_square",
+        "label": "Watch the town square - familiar faces don't stay hidden in crowds forever",
+        "outcomeSuccessNode": "corwin_the_truth",
+        "effects": {
+          "run_history": "Watched Millhaven's town square for a familiar face"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_the_truth",
+    "illustrationId": null,
+    "narrative": "It's the innkeeper, in the end - or the guild clerk, or your own patience in the square, whichever road brought you here - who happens to mention that a woman answering to Essa runs a small bakery near the mill now, has for close to three years. Before you can go to her, Corwin stops you.\n\n@Corwin: Before we do this. There's something you should probably know. Our parents had arranged a marriage for her, back home. To a man twice her age, for reasons that had everything to do with a debt and nothing to do with her. I knew. I didn't stop it. I told myself it wasn't my place, that our parents knew best, that she'd be provided for. She never forgave me for that, near as I can tell, since she left the same season the wedding would have happened - and never told me where.",
+    "choices": [
+      {
+        "id": "truth_press",
+        "label": "Ask him directly - did he ever actually try to stop it?",
+        "outcomeSuccessNode": "corwin_bakery_found",
+        "effects": {
+          "npc.corwin_ashe.trust": -1,
+          "world_flags.corwin_truth_response": "pressed",
+          "run_history": "Pressed Corwin on whether he tried to stop Elsa's arranged marriage"
+        }
+      },
+      {
+        "id": "truth_gentle",
+        "label": "Let him tell it at his own pace, without pushing",
+        "outcomeSuccessNode": "corwin_bakery_found",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "world_flags.corwin_truth_response": "gentle",
+          "run_history": "Let Corwin explain the truth about Elsa at his own pace"
+        }
+      },
+      {
+        "id": "truth_suspected",
+        "label": "Tell him gently you'd already guessed something like this",
+        "outcomeSuccessNode": "corwin_bakery_found",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "world_flags.corwin_truth_response": "suspected",
+          "run_history": "Told Corwin you'd already suspected the truth about Elsa"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_bakery_found",
+    "illustrationId": null,
+    "narrative": "The bakery is easy to find once you know to look - small, well-kept, a woman with flour to her elbows and Corwin's exact way of going still when startled, laughing with a customer over the counter. It's her. There's no version of this that isn't her.\n\nCorwin hasn't moved. He's waiting - for you, for himself, for something.",
+    "choices": [
+      {
+        "id": "bakery_confirm_alone",
+        "label": "Go in alone first and confirm it's really her before Corwin sees anything",
+        "outcomeSuccessNode": "corwin_talk_to_elsa",
+        "effects": {
+          "world_flags.corwin_sister_path": "confirm_first",
+          "run_history": "Approached Elsa alone first, before involving Corwin"
+        }
+      },
+      {
+        "id": "bakery_bring_corwin",
+        "label": "Bring Corwin straight in - three winters is long enough to wait",
+        "outcomeSuccessNode": "corwin_immediate_reunion",
+        "effects": {
+          "world_flags.corwin_sister_path": "bring_corwin",
+          "run_history": "Brought Corwin directly to confront Elsa immediately"
+        }
+      },
+      {
+        "id": "bakery_watch_first",
+        "label": "Watch from across the street a while before either of you decides anything",
+        "outcomeSuccessNode": "corwin_watch_elsa",
+        "effects": {
+          "world_flags.corwin_sister_path": "watch_first",
+          "run_history": "Watched Elsa's new life from a distance before deciding what to do"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_talk_to_elsa",
+    "illustrationId": null,
+    "narrative": "You leave Corwin at the corner, jaw tight but obedient, and step into the bakery alone. Up close there's no doubt left at all - she has his exact way of measuring a stranger before deciding whether they're worth a smile.\n\n@Elsa: Can I help you find something? - and then, reading your face a half-second too slowly to stop it changing - You're not here for bread.",
+    "choices": [
+      {
+        "id": "elsa_approach_gentle",
+        "label": "Be gentle - tell her you're a friend of Corwin's, nothing more yet",
+        "outcomeSuccessNode": "elsa_reveals",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Approached Elsa gently, as a friend of Corwin's"
+        }
+      },
+      {
+        "id": "elsa_approach_direct",
+        "label": "Be direct - tell her plainly that Corwin's been searching for three years",
+        "outcomeSuccessNode": "elsa_reveals",
+        "effects": {
+          "run_history": "Told Elsa directly that Corwin had been searching for years"
+        }
+      },
+      {
+        "id": "elsa_approach_hisname",
+        "label": "Just say his name, and watch what it does to her face",
+        "outcomeSuccessNode": "elsa_reveals",
+        "effects": {
+          "run_history": "Said only Corwin's name and watched Elsa's reaction"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "elsa_reveals",
+    "illustrationId": null,
+    "narrative": "Whatever you say, her hands go still on the counter, flour and all.\n\n@Elsa: Three years. I suppose that tracks - he'd have looked, wouldn't he. He always did think looking after me was the same thing as actually listening to me.\n\nShe doesn't sound angry, exactly. More like someone setting down a weight she's carried so long she'd half-forgotten it was heavy.\n\n@Elsa: He knew about the marriage. He didn't stop it. I needed to be somewhere he couldn't decide things for me anymore, even with the best intentions in the world. Especially with the best intentions in the world, honestly - those are so much harder to argue with.",
+    "choices": [
+      {
+        "id": "elsa_reveals_continue",
+        "label": "Let her finish, and ask what she actually wants now",
+        "outcomeSuccessNode": "corwin_elsa_choice",
+        "effects": {
+          "world_flags.elsa_side_heard": true,
+          "run_history": "Heard Elsa's full account of why she left"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_elsa_choice",
+    "illustrationId": null,
+    "narrative": "@Elsa: So. Now you know both sides of it. What happens next is genuinely up to you, which is more say than anyone's given me in this in a long while - so don't waste it deciding for me the way he did.",
+    "choices": [
+      {
+        "id": "elsa_choice_let_decide",
+        "label": "Tell her the truth is hers to act on, not yours - go tell Corwin she'll decide",
+        "outcomeSuccessNode": "ending_reunion_earned",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "world_flags.corwin_sister_resolution": "earned_reunion",
+          "reputation.honor": 2,
+          "run_history": "Let Elsa decide for herself whether to see Corwin"
+        }
+      },
+      {
+        "id": "elsa_choice_protect",
+        "label": "Promise her you'll tell Corwin the trail went cold, and mean it",
+        "outcomeSuccessNode": "ending_privacy_protected",
+        "effects": {
+          "npc.corwin_ashe.trust": -2,
+          "world_flags.corwin_sister_resolution": "privacy_protected",
+          "reputation.honor": 1,
+          "run_history": "Chose to protect Elsa's privacy and lied to Corwin about the search"
+        }
+      },
+      {
+        "id": "elsa_choice_tell_corwin",
+        "label": "Go get Corwin yourself - he deserves to hear this directly, right now",
+        "outcomeSuccessNode": "ending_told_directly",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "world_flags.corwin_sister_resolution": "told_directly",
+          "run_history": "Brought Corwin to Elsa without asking her first"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_reunion_earned",
+    "illustrationId": null,
+    "narrative": "You tell Corwin only that you found her, that she's well, and that the rest isn't yours to hand him - it has to come from her, on her terms, whenever she's ready to give it. He doesn't argue. For possibly the first time in three winters, he doesn't try to control how this goes.\n\nThree days later, sitting outside the bakery at dawn, she comes to find you both herself. What she and Corwin say to each other isn't something you're owed a part of. But you watch him walk out an hour later looking like a man who's finally set something down that he's been carrying since before you ever met him.\n\n@Corwin: She's not coming back with us. That's - that's fine. That's actually fine. She wanted me to know that. That's more than I had yesterday.",
+    "choices": [
+      {
+        "id": "reunion_earned_continue",
+        "label": "Continue the road with a lighter Corwin beside you",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "npc.corwin_ashe.trust": 3,
+          "run_history": "Witnessed Corwin and Elsa's reconciliation, on her terms"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_privacy_protected",
+    "illustrationId": null,
+    "narrative": "You tell Corwin the trail went cold in Millhaven - a dead end, like all the others, worse luck than usual. He takes it hard, harder than the others somehow, like some part of him had let himself hope this time.\n\nYou carry the truth alone from here. It's not a comfortable weight. It's also, you're fairly sure, the right one - Elsa didn't ask to be found, and being found by someone who loves you isn't automatically a kindness, whatever the person doing the finding believes about their own intentions.\n\n@Corwin: Guess we keep looking, then. Or - guess I keep looking. You've done more than enough already.",
+    "choices": [
+      {
+        "id": "privacy_protected_continue",
+        "label": "Let him believe it, and carry the truth alone",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "world_flags.corwin_still_searching": true,
+          "reputation.honor": 1,
+          "run_history": "Let Corwin believe the search was still unfinished, to protect Elsa"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_told_directly",
+    "illustrationId": null,
+    "narrative": "You bring Corwin in without warning either of them properly, and it goes exactly as raggedly as an unprepared reunion after three years and a hidden marriage tends to go - too many words at once, some of them unkind, all of them honest. It's not the clean reconciliation you might have hoped for. It's real, though, messy and loud and entirely theirs.\n\nBy the time it settles, something between them has at least been said out loud that wasn't for three years. Whether that's enough is a question that belongs to the two of them now, not to you.",
+    "choices": [
+      {
+        "id": "told_directly_continue",
+        "label": "Step back and let them work out what comes next",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Brought Corwin and Elsa together without warning, for better and worse"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_immediate_reunion",
+    "illustrationId": null,
+    "narrative": "You don't wait. You walk Corwin straight through the bakery door, and there's no gentle version of what happens next - Elsa's face goes through disbelief, fury, and something like grief in the space of about two seconds, and Corwin, who has rehearsed this moment for three winters, forgets every word of it the instant he actually sees her.\n\n@Elsa: You have got to be joking. THREE YEARS, and you just - you just walk in?\n\n@Corwin: Elsa - I didn't - I just wanted to know you were safe -\n\n@Elsa: You wanted to know I was where YOU could find me. Those aren't the same thing, and you have never once understood that they aren't the same thing.",
+    "choices": [
+      {
+        "id": "reunion_support_corwin",
+        "label": "Step in on Corwin's side - he's spent years searching out of love, not control",
+        "outcomeSuccessNode": "ending_reunion_messy",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "world_flags.corwin_sister_resolution": "messy_corwin_defended",
+          "run_history": "Defended Corwin during his raw, unprepared reunion with Elsa"
+        }
+      },
+      {
+        "id": "reunion_support_elsa",
+        "label": "Step in on Elsa's side - she gets to be angry about this",
+        "outcomeSuccessNode": "ending_reunion_messy",
+        "effects": {
+          "npc.corwin_ashe.trust": -1,
+          "world_flags.corwin_sister_resolution": "messy_elsa_defended",
+          "run_history": "Defended Elsa's anger during the unprepared reunion"
+        }
+      },
+      {
+        "id": "reunion_stay_out",
+        "label": "Stay out of it entirely - this isn't yours to referee",
+        "outcomeSuccessNode": "ending_reunion_messy",
+        "effects": {
+          "world_flags.corwin_sister_resolution": "messy_neutral",
+          "run_history": "Stayed out of Corwin and Elsa's raw reunion entirely"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_reunion_messy",
+    "illustrationId": null,
+    "narrative": "There's no clean end to a conversation like that one. Eventually the shouting burns itself out into something quieter and sadder, and Elsa asks, finally, for time - not forgiveness, not yet, maybe not ever, just time and the room to decide on her own what happens from here.\n\nCorwin gives it to her. It's possibly the first thing he's given her, in this whole search, that she actually asked for.\n\n@Corwin: That wasn't - that wasn't how I pictured it. I pictured it going a lot of ways. Not that one.",
+    "choices": [
+      {
+        "id": "reunion_messy_continue",
+        "label": "Walk the road with him afterward, letting him sit with how it went",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Continued on with Corwin after the unprepared reunion with Elsa"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_watch_elsa",
+    "illustrationId": null,
+    "narrative": "You and Corwin watch from across the street for the better part of an hour. She laughs easily with customers. Someone calls her name - her new name - like it's simply her name, no hesitation in it at all. She looks, from here, entirely, unmistakably at home.\n\n@Corwin: She looks happy. I don't - I don't know what to do with how much that both helps and doesn't help at all.",
+    "choices": [
+      {
+        "id": "watch_see_happy",
+        "label": "Point out gently that her happiness might be the whole answer he needs",
+        "outcomeSuccessNode": "corwin_watch_decision",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "run_history": "Suggested to Corwin that Elsa's happiness was itself an answer"
+        }
+      },
+      {
+        "id": "watch_approach_friends",
+        "label": "Approach someone who knows her first, carefully, to learn more before deciding",
+        "outcomeSuccessNode": "corwin_watch_decision",
+        "effects": {
+          "run_history": "Carefully approached Elsa's friends to learn more before deciding anything"
+        }
+      },
+      {
+        "id": "watch_leave_undecided",
+        "label": "Suggest you both leave for now and think, rather than decide on the spot",
+        "outcomeSuccessNode": "corwin_watch_decision",
+        "effects": {
+          "run_history": "Left Millhaven undecided rather than act immediately"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "corwin_watch_decision",
+    "illustrationId": null,
+    "narrative": "@Corwin: I keep going back and forth. She's clearly built something real here. Showing up might undo that, just by existing near it. Not showing up means I found her and said nothing, which feels like its own kind of betrayal, just a quieter one.\n\nHe looks at you like the decision genuinely isn't only his to make anymore - which, three winters and a river crossing later, it probably isn't.",
+    "choices": [
+      {
+        "id": "watch_decide_tell",
+        "label": "Tell him he should at least let her know he stopped looking, gently, from a distance",
+        "outcomeSuccessNode": "ending_watched_told",
+        "effects": {
+          "npc.corwin_ashe.trust": 1,
+          "world_flags.corwin_sister_resolution": "watched_told",
+          "run_history": "Encouraged Corwin to gently let Elsa know he'd found her and stopped looking"
+        }
+      },
+      {
+        "id": "watch_decide_let_go",
+        "label": "Tell him some searches end by choosing to stop, not by finding an answer",
+        "outcomeSuccessNode": "ending_watched_let_go",
+        "effects": {
+          "npc.corwin_ashe.trust": 2,
+          "reputation.honor": 1,
+          "world_flags.corwin_sister_resolution": "watched_let_go",
+          "run_history": "Convinced Corwin to end the search by choosing to let go"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_watched_told",
+    "illustrationId": null,
+    "narrative": "Corwin writes a short letter instead of walking in - no demands in it, no explanation of the years, just enough to say I know where you are now, and I'm not going to make that your problem. He leaves it with the net-mender back in the fishing village to pass along eventually, rather than deliver it himself.\n\n@Corwin: If she wants to answer, she knows where the road usually finds me. If she doesn't, I think - I think I can actually live with that now. Which is new.",
+    "choices": [
+      {
+        "id": "watched_told_continue",
+        "label": "Continue the road with him, the search finally, quietly closed",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Left Elsa a gentle letter and continued on with Corwin"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_watched_let_go",
+    "illustrationId": null,
+    "narrative": "You watch Corwin fold the map away for what feels like the first time in three years without immediately smoothing it back out to look again. He doesn't go to the bakery. He doesn't write a letter. He just turns, finally, back toward the road, carrying the not-knowing instead of fighting it.\n\n@Corwin: Three years, I think, is exactly as long as I needed to spend looking. However that sounds. I found out what I actually needed to know - that she's alive, and safe, and happier without my help than she'd have been with it. That's not nothing. I used to think it was nothing. It isn't.",
+    "choices": [
+      {
+        "id": "watched_let_go_continue",
+        "label": "Walk beside him, the search over on his own terms",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Helped Corwin choose to let go of the search entirely, on his own terms"
+        }
+      }
+    ]
+  }
+]

@@ -87,6 +87,17 @@ class _ThemedApp extends StatelessWidget {
 /// History/Settings are reached from there (or from SceneScreen's
 /// bottom nav) via Navigator.push, layered on top of whichever root
 /// screen this switch statement picked.
+///
+/// PROBLEM (UI pass, this session): switching between MainMenu,
+/// CharacterCreation, and Playing used to be a raw `switch` feeding
+/// straight into `Consumer`'s builder - the instant `controller.screen`
+/// changed, the ENTIRE widget subtree was torn down and replaced in the
+/// same frame. Every other change in this pass was about smoothing
+/// transitions; this was the one place that still just cut, hard, every
+/// time (new game, death, going home mid-run).
+/// SOLUTION: wrap the switch's result in an AnimatedSwitcher keyed by
+/// `controller.screen`, cross-fading between whichever two screens are
+/// involved instead of popping between them.
 class _AppRoot extends StatelessWidget {
   const _AppRoot();
 
@@ -99,14 +110,29 @@ class _AppRoot extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         }
+
+        final Widget current;
         switch (controller.screen) {
           case AppScreen.mainMenu:
-            return const MainMenuScreen();
+            current = const MainMenuScreen(key: ValueKey('mainMenu'));
+            break;
           case AppScreen.characterCreation:
-            return const CharacterCreationScreen();
+            current = const CharacterCreationScreen(
+                key: ValueKey('characterCreation'));
+            break;
           case AppScreen.playing:
-            return const SceneScreen();
+            current = const SceneScreen(key: ValueKey('playing'));
+            break;
         }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 260),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: current,
+        );
       },
     );
   }

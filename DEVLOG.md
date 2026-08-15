@@ -9,6 +9,220 @@ reasoning from git history later.
 New entries go at the TOP (most recent first).
 
 --------------------------------------------------------------------------
+## Session 24 — Third common event (the Tollkeeper), Wanderer's
+origin-specific track complete
+
+**Problem:** User asked to keep going until Wanderer is "all done."
+Session 21 pushed Corwin's event to the floor; Session 23 built Saoirse's
+event but left it short. This session: finish Saoirse's texture pass, add
+a third common event, and reach a real, honestly-assessed stopping point.
+
+**Solution:**
+- Pushed `wanderer_event_saoirse_past.json` from 8 to 20 real choice
+  points (15 to 26 scenes) via the same splice pattern as Corwin's texture
+  pass: an approach beat, a trust test before the big reveal, court-life
+  lore and Marrow's methods as two separate beats, a tactical prep moment
+  before the confrontation, expansion of the previously-thinnest branch
+  (fleeing), real interrogation lore tying to the succession plot, a
+  camp-night processing beat, and expanded beats in two of the three
+  endings. Also humanized the captured watcher (a new beat, reachable from
+  all three "won cleanly" combat paths) rather than leaving him a pure
+  plot function.
+- Built `wanderer_event_tollkeeper.json` from scratch: the Tollkeeper's
+  dossier explicitly said he "escalates from toll to hostage if ignored
+  too many times" - this session delivers that escalation. He's taken
+  hostages, including Old Ferrick (a deliberate callback - the player
+  already has history with him from the intro). Three tactical approaches
+  (negotiate/infiltrate/direct assault, each a stat check with distinct
+  win/fail scenes), an optional detour to recruit Bailiff Reyes
+  (established shared-spine NPC, cross-referenced consistently with his
+  existing "not irredeemable" dossier note), a shared standoff resolution
+  for any failure path, and four distinct endings for the Tollkeeper's
+  fate (crown justice, released, offered honest work, or dead) - reached
+  20 choice points, 31 scenes.
+- CAUGHT AND FIXED A REAL BUG twice this session: `retarget_all()` on a
+  scene with existing effect-bearing choices (once on
+  `wanderer_tollkeeper_contact`, once on `wanderer_tollkeeper_standoff`)
+  only updates `outcomeSuccessNode`, not `outcomeFailNode` - naively
+  applied, this leaves a stat check's success path looping back through a
+  duplicate copy of the same decision while its failure path still points
+  correctly at the original resolution, and can double-apply status/
+  reputation effects if the player picks a different option the second
+  time through. Fixed both by replacing the scene's choices outright with
+  a single continue into the new content instead of retargeting in place.
+  Ran a programmatic check afterward (any choice whose effects share a
+  non-run_history key with a choice in its own target scene) across the
+  whole file to confirm no other instance of the pattern existed - found
+  none. Documenting this here because it's a real trap in this file's own
+  retarget/retarget_all helper pattern, not a one-off typo - any future
+  splice that touches a scene with pre-existing win/fail branching needs
+  the "replace, don't retarget" approach, not the reverse.
+- Ran a full reachability trace from `wanderer_intro_01` through all three
+  common events to the shared spine after every structural change this
+  session (not just at the end) - caught the standoff bug specifically
+  because of this discipline, not luck.
+- Project total: 281 scenes across 20 files, zero dangling references,
+  zero duplicates.
+
+**Wanderer's origin-specific track is now COMPLETE**: intro (15 CP) +
+3 common events (21 + 20 + 20 CP) = 76 real choice points, ~112 scenes,
+none below floor. Logged an open scoping question in
+`npc_dialogue_and_routes.txt` rather than guessing at it: rule 10 also
+wants "50+ pieces leading into a world event," but the existing world
+events (event1-8) are shared across all 7 origins - forcing 50+
+Wanderer-exclusive content into each would make Wanderer disproportionate
+to every other origin inside SHARED scenes. Recommended treating the
+origin-specific track as satisfying rule 10 for Wanderer, and treating the
+world-event tier as built once, shared, not duplicated per origin - but
+flagged this as a real decision for the user to confirm, not something to
+silently assume either way.
+
+--------------------------------------------------------------------------
+## Session 23 — Wanderer's second common event: Saoirse's past
+
+**Problem:** User asked to fully finish the Wanderer origin, working
+across multiple turns ("continue" as needed). Rule 10's structure wants
+MULTIPLE common events per origin before world events, not just one -
+Corwin's search was the first; a second was the next concrete step toward
+"finished."
+
+**Solution:** Built `wanderer_event_saoirse_past.json` - Saoirse
+Bellwether's bodyguard past (established in her Session 19 dossier as
+private-wound backstory) resurfaces: Lady Ysolde Marrow, the already-
+established Royal Heir antagonist, sends an agent to silence a loose end
+from three years ago. This is a genuine cross-origin plot thread, not
+coincidental reuse of a name - Saoirse witnessed something in a private
+audience she shouldn't have had clearance for, and left before anyone
+decided what to do about her asking questions. Trust-gated at
+`npc.saoirse_bellwether.trust >= 3` (built during the intro's test-and-
+lesson scenes), bypassed entirely for players who never engaged with her.
+- 15 scenes, 8 real choice points: the reunion, her partial explanation,
+  the full history with Marrow, spotting the watcher, a three-way
+  confrontation choice (direct fight / trap / flee, each a distinct
+  outcome), what to do with the captured watcher (kill / interrogate-
+  release / hand to crown authorities), her full vulnerable truth, and a
+  final decision with three genuinely different endings
+  (`world_flags.saoirse_resolution`: disappeared into a new identity /
+  resolves to confront Marrow directly / stays as a permanent traveling
+  companion).
+- The "confronts_marrow" ending sets `world_flags.ysolde_marrow_threatened`
+  as a live, player-earned hook for a future Royal Heir/Succession Crisis
+  author - Saoirse's fate and the Royal storyline can now actually
+  intersect, which they couldn't before this session.
+- Rewired Corwin's 6 endings to route through a new
+  `wanderer_saoirse_check` gate instead of straight to
+  `prologue_roadside_camp` - the gate shows the trigger only above the
+  trust threshold, with an always-available bypass, same pattern as
+  Mira's trust-gated check-in.
+- Caught and fixed a stray leftover placeholder narrativeVariant key
+  (scratch text accidentally left in from drafting) before it shipped -
+  worth naming because it's exactly the kind of small authoring mistake
+  that's easy to miss without a deliberate re-read pass.
+- Corrected Saoirse's dossier to remove a claim from Session 19 that she
+  had a built Royal-origin reaction variant - checked the actual scene
+  JSON and she doesn't; that was planned but never implemented. Better to
+  fix the record than leave a dossier claiming content that isn't there.
+- Ran project-wide integrity (239 scenes, 19 files, zero dangling refs,
+  zero duplicates) AND a full reachability trace from `wanderer_intro_01`
+  through both common events to the shared spine - confirmed every
+  Wanderer-specific scene is actually reachable in sequence, not just
+  individually valid.
+
+**State of "finishing Wanderer":** intro (15 CP, done) -> Corwin's search
+(21 CP, done, at floor) -> Saoirse's past (8 CP, real complete arc, NOT
+yet at floor - needs the same texture-pass treatment Corwin's event got in
+Session 21). That texture pass is the clear next increment.
+
+--------------------------------------------------------------------------
+## Session 22 — Civilian's overhaul, started
+
+**Problem:** User asked to start Civilian's origin overhaul next, same
+treatment as Wanderer. Civilian is architecturally different, though: its
+existing Signature NPCs (Mira, Bailiff Reyes, Yeva, Old Hendrik, Petra,
+Tamsin) are already the shared spine's central cast, met by every origin -
+re-introducing them in a Civilian-only intro would be redundant, not new
+content.
+
+**Solution:** Built `civilian_intro.json` around what a Civilian player
+actually has that other origins don't: a hometown (Aldenmoor), a family,
+and people to leave behind - not a rerun of NPCs every origin already
+meets downstream. 7 new choice points: waking on departure morning,
+mother Aveline's restrained farewell, younger sister Nessa's half-serious
+argument for staying, village elder Maren's blessing at the crossroads
+shrine, childhood friend Joss at the gate, a Wisdom-checked last look back
+at the village, and a walk down the familiar road. The existing
+`prologue_civilian_intro` scene (a messenger bringing word of failing
+fields - genuinely good, compact content) was preserved as the intro's
+climactic final beat rather than discarded, moved into the new file as
+`civilian_intro_messenger`.
+- Added four new NPC dossiers (Aveline, Nessa, Elder Maren, Joss) explicitly
+  marked hometown-only / not expected to recur, distinct from the
+  Signature NPC roster - a different category the dossier format didn't
+  previously need to express.
+- Wired in the same way as Wanderer: repointed `prologue_start`'s Civilian
+  choice, removed the superseded single scene from `prologue.json`,
+  registered the new file in `SceneRepository`.
+- Verified referential integrity project-wide: 224 total scenes across 18
+  files, zero dangling references, zero duplicates.
+
+**Deliberately left undone:** 7 of 15 choice points - roughly half the
+rule 10 floor. This is an honest "started," not "finished," matching how
+Corwin's event began at Session 20 before being completed at Session 21.
+The remaining ~8 points and the transition texture into the shared spine
+are the natural continuation.
+
+--------------------------------------------------------------------------
+## Session 21 — Corwin's event pushed to rule 10's floor with texture
+
+**Problem:** Session 20 completed Corwin's search at 27 scenes / 11 choice
+points - a real closed arc, but under rule 10's 20-30 floor for a common
+event. User asked to close that gap "with more texture," not padding.
+
+**Solution:** Spliced 9 new scenes into the existing structure at 8 points,
+each doing one of rule 10's explicitly stated jobs rather than just adding
+volume:
+- `corwin_prep_departure` - a road-sense callback to Saoirse Bellwether's
+  lesson from `wanderer_intro.json` (`flags.road_sense_learned`), so an
+  early choice from the intro chain visibly pays off later, exactly the
+  "small choice teaches a lesson recognized later" goal rule 10 names.
+- `corwin_tide_customs` / `corwin_netmender_story` - fishing-village
+  culture, and the net-mender from Session 20 gets a name (Bessa) and a
+  40-years-mending-nets story of her own, so a functional plot-lead NPC
+  becomes a person instead of a signpost.
+- `corwin_childhood_beat` - Corwin's OWN backstory (the family farm, why
+  he left before Elsa did), not just hers - he'd been a search-function up
+  to this point, not a person with a past of his own.
+- `corwin_travel_obstacle` (+ two outcome scenes) - a weather stat check
+  during travel, real stakes, not just a transition.
+- `corwin_millhaven_culture` / `corwin_doubt_beat` - the town's guild-bell
+  culture, then Corwin nearly turning back before the truth comes out -
+  the "build anticipation before a big swing lands" beat rule 10 names
+  directly.
+- `elsa_asks_you` - a reversal inside the confirm-first ending path: Elsa
+  asks the PLAYER why they care, rather than the player only asking
+  questions of her.
+- `corwin_reunion_elsa_speaks` / `corwin_reunion_what_now` - expanded the
+  bring-Corwin-immediately path (previously the shortest of the three)
+  with Elsa taking control of the scene's location and setting her own
+  terms for a follow-up conversation, rather than the shouting match being
+  the entire beat.
+- `corwin_watch_deeper` - the watch-first path gets a second look that
+  complicates the "she seems happy" read before the final decision,
+  instead of taking that read at face value.
+- Two of the added scenes (`corwin_netmender_story`,
+  `corwin_reunion_elsa_speaks`) were written as single-Continue scenes
+  first, then deliberately upgraded to real 2-option choices once the
+  count landed at 19 - one short of the floor. Chose to add one more
+  genuine decision to each rather than pad with a scene that didn't need
+  one, which is what rule 10 asks for.
+- Final count: 40 scenes, 21 real choice points - inside the 20-30 range.
+  Ran a reachability check from the entry point specifically for this
+  file (all this session's edits were surgical retargeting of existing
+  choices, the highest-risk kind of edit for silently orphaning content) -
+  all 40 scenes confirmed reachable. Full project referential check: 215
+  scenes total, zero dangling references, zero duplicates.
+
+--------------------------------------------------------------------------
 ## Session 20 — Corwin's search, completed end to end
 
 **Problem:** Session 19 left `wanderer_event_corwins_sister.json` at 6

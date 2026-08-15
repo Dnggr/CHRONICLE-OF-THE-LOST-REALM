@@ -1,0 +1,551 @@
+[
+  {
+    "sceneId": "civilian_intro_01",
+    "illustrationId": null,
+    "narrative": "Your hands remember seed grain, wet earth, and the terrible arithmetic of a pantry in late winter, better than they remember anything a story would call heroic. You've known since you were young that Aldenmoor was not going to be the whole of your life. Knowing it and actually waking up on the morning it becomes true turn out to be very different things.\n\nThe house is quiet in the particular way a house gets when everyone in it is awake and pretending not to be, out of consideration for whoever isn't ready yet.",
+    "choices": [
+      {
+        "id": "civ_morning_chores",
+        "label": "Do the morning chores one last time, properly, like any other day",
+        "outcomeSuccessNode": "civilian_intro_02",
+        "effects": {
+          "world_flags.civilian_departure_mood": "chores",
+          "run_history": "Did the morning chores one last time before leaving Aldenmoor"
+        }
+      },
+      {
+        "id": "civ_morning_sister",
+        "label": "Go find your sister before anyone else is awake enough to interrupt",
+        "outcomeSuccessNode": "civilian_intro_02",
+        "effects": {
+          "world_flags.civilian_departure_mood": "sister_first",
+          "run_history": "Sought out your sister before the household woke"
+        }
+      },
+      {
+        "id": "civ_morning_alone",
+        "label": "Sit alone a while first and actually let yourself feel it",
+        "outcomeSuccessNode": "civilian_intro_02",
+        "effects": {
+          "world_flags.civilian_departure_mood": "alone",
+          "run_history": "Took a quiet moment alone before facing the day"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_02",
+    "illustrationId": null,
+    "narrative": "Your mother, Aveline, finds you before you finish deciding how to find her - she always does, some instinct older than either of you can explain. She doesn't cry. She decided a long time ago that crying was a luxury a farm with one fewer pair of hands couldn't afford this morning, and she's holding to that decision through visible effort.\n\n@Aveline: Well. Today, then. I'd hoped you'd forget to actually go through with it, if I'm honest. Foolish of me. You never forgot anything you set your mind to, not once, not since you were small enough to carry.",
+    "narrativeVariants": {
+      "flags.civilian_departure_mood == 'sister_first'": "Your mother, Aveline, finds the two of you together, which seems to settle something in her posture that had been tight since before you woke. She doesn't cry. She decided a long time ago that crying was a luxury a farm with one fewer pair of hands couldn't afford this morning, and she's holding to that decision through visible effort.\n\n@Aveline: Good. You found each other first. That matters more than either of you probably realizes yet. Well. Today, then.",
+      "flags.civilian_departure_mood == 'alone'": "Your mother, Aveline, finds you sitting alone, and doesn't immediately fill the silence the way she usually would - just sits down beside you for a moment first, before finally speaking. She doesn't cry. She decided a long time ago that crying was a luxury a farm with one fewer pair of hands couldn't afford this morning, and she's holding to that decision through visible effort.\n\n@Aveline: I'll let you have the quiet a moment longer, if you need it. But the day's not going to wait much past that. Today, then."
+    },
+    "choices": [
+      {
+        "id": "aveline_reassure",
+        "label": "Reassure her - you'll be careful, and you'll write",
+        "outcomeSuccessNode": "civilian_intro_03",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Reassured your mother Aveline before leaving"
+        }
+      },
+      {
+        "id": "aveline_blessing",
+        "label": "Ask for her blessing properly, the old formal way",
+        "outcomeSuccessNode": "civilian_intro_03",
+        "effects": {
+          "run_history": "Asked your mother for a formal blessing before leaving"
+        }
+      },
+      {
+        "id": "aveline_promise_return",
+        "label": "Promise her plainly that you'll come back, whatever happens",
+        "outcomeSuccessNode": "civilian_intro_03",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Promised your mother you would return, whatever happened"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_03",
+    "illustrationId": null,
+    "narrative": "Nessa is nine years younger than you and has spent the whole week pretending this morning wasn't coming, which means she's had a week's head start on being angry about it and hasn't used any of that time productively.\n\n@Nessa: You could just not go. People do that. Staying is allowed, you know. It's not a rule that you have to leave just because you technically could.\n\nShe says it like an argument. It's closer to a question.",
+    "choices": [
+      {
+        "id": "nessa_give_something",
+        "label": "Give her something small of yours to keep, no explanation needed",
+        "outcomeSuccessNode": "civilian_intro_04",
+        "effects": {
+          "run_history": "Gave your sister Nessa a keepsake before leaving"
+        }
+      },
+      {
+        "id": "nessa_promise_write",
+        "label": "Promise to write, and actually mean it this time",
+        "outcomeSuccessNode": "civilian_intro_04",
+        "effects": {
+          "run_history": "Promised your sister Nessa you would write"
+        }
+      },
+      {
+        "id": "nessa_tease_light",
+        "label": "Tease her the way you always do, to keep the morning from getting too heavy",
+        "outcomeSuccessNode": "civilian_intro_04",
+        "effects": {
+          "run_history": "Kept the goodbye light by teasing your sister Nessa"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_04",
+    "illustrationId": null,
+    "narrative": "Elder Maren is waiting at the crossroads shrine on your way out, which can't be coincidence - she's timed farewells like this before, for others, and knows exactly which morning to be standing where.\n\n@Elder Maren: The road doesn't care what you were at home. Farmer's child, blacksmith's apprentice, doesn't matter out there. It only cares what you do with what you knew before you leave it. Don't forget Aldenmoor taught you anything just because Aldenmoor is small.",
+    "choices": [
+      {
+        "id": "maren_take_seriously",
+        "label": "Take the blessing seriously, and ask her to say it properly",
+        "outcomeSuccessNode": "civilian_intro_05",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Took Elder Maren's blessing seriously"
+        }
+      },
+      {
+        "id": "maren_humor_politely",
+        "label": "Accept it politely, without much conviction either way",
+        "outcomeSuccessNode": "civilian_intro_05",
+        "effects": {
+          "run_history": "Politely accepted Elder Maren's blessing"
+        }
+      },
+      {
+        "id": "maren_ask_real",
+        "label": "Ask her a real question instead - what's actually out there, in her experience",
+        "outcomeSuccessNode": "civilian_intro_05",
+        "effects": {
+          "world_flags.elder_maren_advice": true,
+          "run_history": "Asked Elder Maren what she actually knew of the wider world"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_05",
+    "illustrationId": null,
+    "narrative": "Joss is leaning on the village gatepost like he's been there for hours, which, knowing him, he probably has. You've known him since before either of you could reliably tie your own boots, and he's worn the exact same expression at every important goodbye the two of you have ever had - trying too hard to look like it doesn't matter.\n\n@Joss: Figured someone should see you off who isn't going to cry about it. Your mother's got that covered for the whole village already.",
+    "choices": [
+      {
+        "id": "joss_reassure",
+        "label": "Tell him you'll be back before Aldenmoor even notices you're gone",
+        "outcomeSuccessNode": "civilian_intro_06",
+        "effects": {
+          "run_history": "Reassured Joss with a light promise to return"
+        }
+      },
+      {
+        "id": "joss_admit_scared",
+        "label": "Admit, just to him, that you're actually scared",
+        "outcomeSuccessNode": "civilian_intro_06",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Admitted to Joss that you were scared to leave"
+        }
+      },
+      {
+        "id": "joss_needle_back",
+        "label": "Needle him back affectionately instead of answering seriously",
+        "outcomeSuccessNode": "civilian_intro_06",
+        "effects": {
+          "run_history": "Kept the goodbye with Joss light with familiar teasing"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_06",
+    "illustrationId": null,
+    "narrative": "The gate is nothing special to look at - two posts and a crossbeam, the same one that's marked the edge of Aldenmoor since before your grandparents were born. It has never once, in your whole life, felt like a threshold. It does now.",
+    "choices": [
+      {
+        "id": "gate_look_back",
+        "label": "Turn and actually look back properly, however long it takes (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 10,
+        "outcomeSuccessNode": "civilian_gate_look_back_good",
+        "outcomeFailNode": "civilian_gate_look_back_rushed",
+        "effects": {
+          "run_history": "Took a long last look back at Aldenmoor before leaving"
+        }
+      },
+      {
+        "id": "gate_dont_look",
+        "label": "Don't look back at all - momentum feels safer than sentiment right now",
+        "outcomeSuccessNode": "civilian_intro_07",
+        "effects": {
+          "world_flags.civilian_looked_back": false,
+          "run_history": "Left Aldenmoor without looking back"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_gate_look_back_good",
+    "illustrationId": null,
+    "narrative": "You take the time. Aldenmoor in early light, smoke starting to rise from a handful of chimneys, Nessa's small shape still visible at the door, your mother's hand raised in something between a wave and a held-back reach. You memorize it properly, the way you'd memorize anything you knew you'd need later and couldn't carry any other way.",
+    "choices": [
+      {
+        "id": "look_back_good_continue",
+        "label": "Turn forward, the image kept safe",
+        "outcomeSuccessNode": "civilian_intro_07",
+        "effects": {
+          "world_flags.civilian_looked_back": true,
+          "reputation.honor": 1,
+          "run_history": "Memorized the sight of Aldenmoor before turning away for good"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_gate_look_back_rushed",
+    "illustrationId": null,
+    "narrative": "You mean to take the time properly, but it slips past you faster than you intended - one glance, already half-composed into a memory before you've actually finished having it, and then your feet are moving again almost on their own.",
+    "choices": [
+      {
+        "id": "look_back_rushed_continue",
+        "label": "Let the moment go, incomplete",
+        "outcomeSuccessNode": "civilian_intro_07",
+        "effects": {
+          "world_flags.civilian_looked_back": true,
+          "run_history": "Only half-managed a last look at Aldenmoor before leaving"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_07",
+    "illustrationId": null,
+    "narrative": "The road out of Aldenmoor is one you've walked before, but only ever partway - to the mill, to the next farm over, never all the way to where it stops being a road you know by name. Every farmhouse you pass is a small, specific kind of familiar. You won't have that again for a long while, and some part of you is only now doing the arithmetic on what that actually costs.",
+    "choices": [
+      {
+        "id": "road_wave_neighbors",
+        "label": "Wave to every neighbor's farm you recognize, one last time each",
+        "outcomeSuccessNode": "civilian_intro_08",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "run_history": "Said a quiet farewell to every familiar farm on the way out"
+        }
+      },
+      {
+        "id": "road_walk_fast",
+        "label": "Walk fast and don't dwell on any one farm too long",
+        "outcomeSuccessNode": "civilian_intro_08",
+        "effects": {
+          "run_history": "Walked quickly past the familiar farms without lingering"
+        }
+      },
+      {
+        "id": "road_think_forward",
+        "label": "Deliberately think about where you're going instead of what you're leaving",
+        "outcomeSuccessNode": "civilian_intro_08",
+        "effects": {
+          "run_history": "Focused on the road ahead rather than what was left behind"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_messenger",
+    "illustrationId": null,
+    "narrative": "Your hands remember seed grain, wet earth, and the terrible arithmetic of a pantry in late winter. You did not leave home because ordinary life was beneath you. You left because ordinary people deserve someone who comes back when trouble starts.\n\nThe messenger's boots leave small crescents of mud across the inn floor where you've stopped to rest. They apologize for it twice. You remember doing the same thing when you were young and afraid that making a mess was worse than bringing bad news.\n\nA messenger brings word of sick fields on the next road over. You are already packing before the sentence ends.",
+    "choices": [
+      {
+        "id": "civilian_answer_call",
+        "label": "Go where the fields are failing",
+        "outcomeSuccessNode": "civilian_aldenmoor_news",
+        "effects": {
+          "run_history": "Answered a farmer's warning about failing fields"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_08",
+    "illustrationId": null,
+    "narrative": "By midday the road crosses a weathered stone marker, moss-eaten and leaning, the kind of landmark that's stopped meaning much to the people who live near it and means everything to the people leaving. Beyond it, the fields stop being fields you could name the owners of.",
+    "choices": [
+      {
+        "id": "boundary_touch_custom",
+        "label": "Touch the stone the way the old farmers do, for luck on a first journey",
+        "outcomeSuccessNode": "civilian_intro_09",
+        "effects": {
+          "run_history": "Touched the boundary stone for luck, as Aldenmoor's farmers do"
+        }
+      },
+      {
+        "id": "boundary_read_name",
+        "label": "Read the barony's name carved into it and feel how foreign it sounds",
+        "outcomeSuccessNode": "civilian_intro_09",
+        "effects": {
+          "run_history": "Read the unfamiliar barony's name at the boundary stone"
+        }
+      },
+      {
+        "id": "boundary_no_ceremony",
+        "label": "Keep walking - it's just a stone, whatever it used to mean",
+        "outcomeSuccessNode": "civilian_intro_09",
+        "effects": {
+          "run_history": "Passed the boundary stone without ceremony"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_09",
+    "illustrationId": null,
+    "narrative": "A girl about your own age is sitting on an overturned crate at the next crossroads, boots off, examining a blister with the specific disgust of someone who hasn't walked this much in her life before this week either.\n\n@Wren: Don't suppose you've got anything for blisters. No? Figured. Wren, by the way. Left my father's orchard four days back. You've got the look of someone who left somewhere similar not long ago.",
+    "choices": [
+      {
+        "id": "wren_swap_stories",
+        "label": "Sit and swap stories about home for a while",
+        "outcomeSuccessNode": "civilian_intro_10",
+        "effects": {
+          "run_history": "Swapped stories about home with a fellow traveler, Wren"
+        }
+      },
+      {
+        "id": "wren_ask_why",
+        "label": "Ask her plainly why she left",
+        "outcomeSuccessNode": "civilian_intro_10",
+        "effects": {
+          "run_history": "Asked Wren directly why she left her father's orchard"
+        }
+      },
+      {
+        "id": "wren_keep_distance",
+        "label": "Keep the conversation brief - you're not ready to talk about home yet",
+        "outcomeSuccessNode": "civilian_intro_10",
+        "effects": {
+          "run_history": "Kept a fellow traveler at a polite distance"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_10",
+    "illustrationId": null,
+    "narrative": "The road winds past a smallholding where a farmer is losing an argument with a goat that has apparently decided the vegetable patch belongs to it now. It's not your farm, your goat, or technically your problem.",
+    "choices": [
+      {
+        "id": "farm_skill_help",
+        "label": "Step in and help - you know exactly how this goes (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 10,
+        "outcomeSuccessNode": "civilian_farm_skill_success",
+        "outcomeFailNode": "civilian_farm_skill_fail",
+        "effects": {
+          "run_history": "Tried to help a stranger corner a stubborn goat"
+        }
+      },
+      {
+        "id": "farm_skill_walk_on",
+        "label": "Leave them to it - it's not your farm to manage",
+        "outcomeSuccessNode": "civilian_intro_11",
+        "effects": {
+          "run_history": "Walked past a farmer's goat trouble without helping"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_farm_skill_success",
+    "illustrationId": null,
+    "narrative": "You have the goat cornered and calm inside a minute, using a trick so obvious to you and so invisible to the farmer that he stares at you like you've performed actual magic.\n\n@Farmer: How did you - never mind, doesn't matter, thank you. You're wasted walking wherever you're walking. Farm needs hands like that.",
+    "choices": [
+      {
+        "id": "farm_skill_success_continue",
+        "label": "Accept the compliment and continue on",
+        "outcomeSuccessNode": "civilian_intro_11",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "run_history": "Successfully helped a stranger corner a stubborn goat"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_farm_skill_fail",
+    "illustrationId": null,
+    "narrative": "The goat proves smarter than both of you combined, and by the time it's finally cornered - by exhaustion more than technique - half the vegetable patch is worse off than when you arrived to help.\n\n@Farmer: Appreciate the effort. Genuinely. Might've been better off without it, but I appreciate it.",
+    "choices": [
+      {
+        "id": "farm_skill_fail_continue",
+        "label": "Apologize and continue on, slightly humbled",
+        "outcomeSuccessNode": "civilian_intro_11",
+        "effects": {
+          "run_history": "Made a farmer's goat trouble worse trying to help"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_11",
+    "illustrationId": null,
+    "narrative": "The first night you spend somewhere that isn't Aldenmoor, in any direction, arrives quietly and lands harder than you expected. No familiar creak of the house settling. No Nessa's breathing through the shared wall. Just your own fire, your own watch, and considerably more sky than you're used to noticing.",
+    "narrativeVariants": {
+      "flags.civilian_looked_back == true": "The first night you spend somewhere that isn't Aldenmoor, in any direction, arrives quietly and lands harder than you expected. You're glad, at least, that you took the time to really look back at the gate - the image is still clear enough to hold onto, here, when the missing it gets loud."
+    },
+    "choices": [
+      {
+        "id": "homesick_let_it_hurt",
+        "label": "Let yourself feel the homesickness fully instead of pushing it down",
+        "outcomeSuccessNode": "civilian_intro_12",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Let yourself feel homesick on the first night away from Aldenmoor"
+        }
+      },
+      {
+        "id": "homesick_busy_hands",
+        "label": "Keep your hands busy with camp chores until the feeling passes",
+        "outcomeSuccessNode": "civilian_intro_12",
+        "effects": {
+          "run_history": "Kept busy with chores to avoid sitting with homesickness"
+        }
+      },
+      {
+        "id": "homesick_think_nessa",
+        "label": "Think specifically of Nessa, and what you'd tell her about today",
+        "outcomeSuccessNode": "civilian_intro_12",
+        "effects": {
+          "run_history": "Thought of Nessa and what you'd tell her about the day"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_12",
+    "illustrationId": null,
+    "narrative": "A family's cart has thrown a wheel at the worst possible bend in the road, contents spilling, a mother trying to keep three children calm while her husband swears at an axle that isn't listening. Nobody else on the road has stopped.",
+    "choices": [
+      {
+        "id": "family_help_direct",
+        "label": "Stop and help directly - this is exactly the kind of trouble you know how to fix",
+        "outcomeSuccessNode": "civilian_intro_13",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "run_history": "Helped a stranded family fix their cart"
+        }
+      },
+      {
+        "id": "family_help_organize",
+        "label": "Organize the other travelers passing by into helping too",
+        "outcomeSuccessNode": "civilian_intro_13",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "run_history": "Organized fellow travelers to help a stranded family"
+        }
+      },
+      {
+        "id": "family_keep_moving",
+        "label": "Feel bad about it, and keep moving - you can't fix everyone's cart",
+        "outcomeSuccessNode": "civilian_intro_13",
+        "effects": {
+          "run_history": "Chose not to stop and help a stranded family"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_13",
+    "illustrationId": null,
+    "narrative": "Past the family's mended cart, the road runs alongside the burned-out shell of what was, not long ago, someone's mill - not an accident, from the look of the scorch pattern, and not recent enough for anyone to still be looking for who did it. Nobody you pass mentions it. Nobody has to. Everyone already knows the shape of that particular story.",
+    "choices": [
+      {
+        "id": "truth_ask_locals",
+        "label": "Ask a local what actually happened here",
+        "outcomeSuccessNode": "civilian_intro_14",
+        "effects": {
+          "world_flags.lore_burned_mill_known": true,
+          "run_history": "Learned the story behind a burned mill on the road"
+        }
+      },
+      {
+        "id": "truth_keep_walking",
+        "label": "Keep walking - Aldenmoor never prepared you for a world with places like this in it",
+        "outcomeSuccessNode": "civilian_intro_14",
+        "effects": {
+          "run_history": "Walked past the burned mill without asking questions"
+        }
+      },
+      {
+        "id": "truth_already_understood",
+        "label": "Realize, with some discomfort, that you'd simply never had to think about this before",
+        "outcomeSuccessNode": "civilian_intro_14",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Recognized your own sheltered upbringing for the first time"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_14",
+    "illustrationId": null,
+    "narrative": "The first real town since Aldenmoor announces itself with noise before it announces itself with buildings - more people in one place than you've ever seen gathered outside a harvest festival, none of whom know your name, your family, or your father's reputation for fair dealing.",
+    "choices": [
+      {
+        "id": "town_present_farmer",
+        "label": "Walk in as exactly what you are - a farmer's child, no pretense about it",
+        "outcomeSuccessNode": "civilian_intro_15",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "run_history": "Entered the first town honestly, as a farmer's child"
+        }
+      },
+      {
+        "id": "town_present_neutral",
+        "label": "Keep your origins vague until you understand how this place works",
+        "outcomeSuccessNode": "civilian_intro_15",
+        "effects": {
+          "run_history": "Kept your background vague entering an unfamiliar town"
+        }
+      },
+      {
+        "id": "town_seek_market",
+        "label": "Head straight for the market - familiar ground, whatever the town",
+        "outcomeSuccessNode": "civilian_intro_15",
+        "effects": {
+          "run_history": "Sought out the market as familiar ground in an unfamiliar town"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_intro_15",
+    "illustrationId": null,
+    "narrative": "You take a room at the town's one inn, more coin than you're used to spending for the privilege, and sit a moment with everything the last several days have actually been - not a story yet, not the kind Aldenmoor tells about people who leave, just a stretch of road with a beginning and no clear middle yet.",
+    "choices": [
+      {
+        "id": "reflection_write_home",
+        "label": "Start a letter home, even if you're not sure yet what to say in it",
+        "outcomeSuccessNode": "civilian_intro_messenger",
+        "effects": {
+          "run_history": "Began writing a letter home from the first town"
+        }
+      },
+      {
+        "id": "reflection_just_rest",
+        "label": "Just rest - the letter can wait for something worth telling",
+        "outcomeSuccessNode": "civilian_intro_messenger",
+        "effects": {
+          "run_history": "Rested in the first town without writing home yet"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,361 @@
+[
+  {
+    "sceneId": "civilian_aldenmoor_news",
+    "illustrationId": null,
+    "narrative": "The letter you started at the inn never quite got finished before news overtakes it - a carter fresh off the Aldenmoor road, recognizing your face from a market day years back, stops you outright.\n\n@Carter: Same blight that's got the fields sick everywhere this season - it's reached your valley too. Heard it from your Elder Maren's own courier, matter of fact. Didn't want to be the one telling you, but better from me than not at all.",
+    "choices": [
+      {
+        "id": "aldenmoor_news_alarmed",
+        "label": "Feel the alarm hit immediately, unfiltered",
+        "outcomeSuccessNode": "civilian_aldenmoor_dilemma",
+        "effects": {
+          "run_history": "Reacted with immediate alarm to news of blight reaching Aldenmoor"
+        }
+      },
+      {
+        "id": "aldenmoor_news_measured",
+        "label": "Ask the carter for specifics before reacting at all",
+        "outcomeSuccessNode": "civilian_aldenmoor_dilemma",
+        "effects": {
+          "run_history": "Asked measured questions about the blight reaching Aldenmoor"
+        }
+      },
+      {
+        "id": "aldenmoor_news_guilty",
+        "label": "Feel, underneath the worry, a flicker of guilt for having already left",
+        "outcomeSuccessNode": "civilian_aldenmoor_dilemma",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Felt guilt for having left Aldenmoor before this news arrived"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_dilemma",
+    "illustrationId": null,
+    "narrative": "You already promised a stranger's messenger you'd look into sick fields on the next road over. Now your own valley needs the same kind of help, and you can't be in both places converging on the same season's disaster.",
+    "choices": [
+      {
+        "id": "dilemma_go_home",
+        "label": "Turn back for Aldenmoor - family comes first, whatever else waits",
+        "outcomeSuccessNode": "civilian_return_home_01",
+        "effects": {
+          "world_flags.civilian_aldenmoor_choice": "went_home",
+          "run_history": "Chose to turn back toward Aldenmoor over the stranger's request"
+        }
+      },
+      {
+        "id": "dilemma_continue",
+        "label": "Continue toward the fields you already promised to help - Aldenmoor has Elder Maren",
+        "outcomeSuccessNode": "civilian_continue_road_01",
+        "effects": {
+          "world_flags.civilian_aldenmoor_choice": "continued_on",
+          "run_history": "Chose to continue on rather than return to Aldenmoor"
+        }
+      },
+      {
+        "id": "dilemma_send_word",
+        "label": "Send word and coin ahead to Aldenmoor, and continue on yourself",
+        "outcomeSuccessNode": "civilian_send_word_01",
+        "effects": {
+          "gold": -10,
+          "world_flags.civilian_aldenmoor_choice": "sent_word",
+          "run_history": "Sent word and coin to Aldenmoor while continuing on yourself"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_return_home_01",
+    "illustrationId": null,
+    "narrative": "The road back feels shorter than the road out did, which makes no physical sense and every emotional one. Aldenmoor comes into view looking smaller than you remembered and exactly as familiar - except for the fields, patchy and yellowed the same way you've now seen twice on this same short journey.",
+    "choices": [
+      {
+        "id": "return_go_aveline_first",
+        "label": "Go straight to your mother's house first",
+        "outcomeSuccessNode": "civilian_return_aveline",
+        "effects": {
+          "run_history": "Went straight to Aveline's house upon returning to Aldenmoor"
+        }
+      },
+      {
+        "id": "return_go_maren_first",
+        "label": "Find Elder Maren first - she'll know the actual scope of the trouble",
+        "outcomeSuccessNode": "civilian_return_maren",
+        "effects": {
+          "run_history": "Sought out Elder Maren first upon returning to Aldenmoor"
+        }
+      },
+      {
+        "id": "return_walk_fields_first",
+        "label": "Walk the fields yourself before talking to anyone",
+        "outcomeSuccessNode": "civilian_return_fields",
+        "effects": {
+          "run_history": "Inspected Aldenmoor's fields yourself before speaking to anyone"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_return_aveline",
+    "illustrationId": null,
+    "narrative": "Aveline doesn't cry this time either, though it costs her visibly more than it did at the gate. She holds onto you a beat longer than the goodbye did, like confirming with her hands what her eyes are already telling her.\n\n@Aveline: You came back. I told myself not to hope for that, and here you are anyway, undoing all my careful not-hoping.\n\nShe pulls back, businesslike again almost immediately. @Aveline: Well. Since you're here. The east field's the worst of it. Nessa's been out there every day pretending she knows what she's looking at.",
+    "choices": [
+      {
+        "id": "aveline_continue",
+        "label": "Go find Nessa in the east field",
+        "outcomeSuccessNode": "civilian_return_convergence",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Reunited with Aveline upon returning home"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_return_maren",
+    "illustrationId": null,
+    "narrative": "Elder Maren doesn't look surprised to see you, which somehow doesn't diminish how glad she seems about it.\n\n@Elder Maren: The road taught you something already, I see - or brought you back before it could finish. Either way. The blight's the same one everyone's contending with this season, near as any of us can tell. Not unique to us. Small comfort, but a real one.",
+    "choices": [
+      {
+        "id": "maren_continue",
+        "label": "Ask her plainly what Aldenmoor actually needs",
+        "outcomeSuccessNode": "civilian_return_convergence",
+        "effects": {
+          "world_flags.elder_maren_advice": true,
+          "run_history": "Learned the scope of Aldenmoor's blight from Elder Maren"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_return_fields",
+    "illustrationId": null,
+    "narrative": "The east field is worse than you let yourself imagine on the road back - not ruined yet, but close enough that 'the same as everywhere else' stops being comforting the moment it's your own family's harvest doing the failing.",
+    "choices": [
+      {
+        "id": "fields_continue",
+        "label": "Go find your family, the scope of it now painfully clear",
+        "outcomeSuccessNode": "civilian_return_convergence",
+        "effects": {
+          "run_history": "Personally assessed the damage to Aldenmoor's fields"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_return_convergence",
+    "illustrationId": null,
+    "narrative": "Nessa is exactly where everyone said she'd be, kneeling in the yellowed rows doing something that looks equal parts determined and completely ineffective. She doesn't hear you approach until you're right beside her.\n\n@Nessa: You came back. I knew you would, I told everyone you would, nobody believed me. -then, quieter- Can you actually fix it, or did you just come back to watch it happen with the rest of us?\n\nIt's not really a fair question. She asks it anyway, because she's nine years younger and hasn't learned yet which questions aren't fair.",
+    "choices": [
+      {
+        "id": "convergence_organize_valley",
+        "label": "Organize the whole valley the way you would any shared crisis - fair shares, shared labor",
+        "outcomeSuccessNode": "civilian_aldenmoor_organize",
+        "effects": {
+          "run_history": "Organized Aldenmoor's response to the blight collectively"
+        }
+      },
+      {
+        "id": "convergence_use_road_knowledge",
+        "label": "Use what you've already learned on the road about this exact blight",
+        "condition": "world_flags.harvest_cause_known == true",
+        "outcomeSuccessNode": "civilian_aldenmoor_knowledge",
+        "effects": {
+          "run_history": "Applied road-learned knowledge of the blight to help Aldenmoor"
+        }
+      },
+      {
+        "id": "convergence_honest_uncertain",
+        "label": "Be honest with Nessa - you don't know yet, but you're not leaving until you do",
+        "outcomeSuccessNode": "civilian_aldenmoor_honest",
+        "effects": {
+          "reputation.honor": 2,
+          "run_history": "Was honest with Nessa about not having easy answers"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_organize",
+    "illustrationId": null,
+    "narrative": "You do for Aldenmoor exactly what you'd have wanted a stranger to do for any village on the road - divide the labor fairly, pool what little surplus exists, make sure no single household bears more than its share of a disaster nobody chose. It's not magic. It's just competence, applied with love instead of distance.\n\n@Elder Maren, watching from the field's edge: There it is. That's what leaving taught you that staying wouldn't have. Good.",
+    "choices": [
+      {
+        "id": "organize_continue",
+        "label": "See it through with your own hands, days at a time",
+        "outcomeSuccessNode": "civilian_aldenmoor_joss_visit",
+        "effects": {
+          "reputation.commonfolk": 3,
+          "reputation.honor": 2,
+          "world_flags.aldenmoor_organized": true,
+          "run_history": "Organized Aldenmoor's entire response to the blight fairly"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_knowledge",
+    "illustrationId": null,
+    "narrative": "What you learned crouched over a stranger's failing field, days ago and a whole journey removed, turns out to matter here in a way you couldn't have predicted - the same starved, over-planted soil, the same fix, if there's still time for one.\n\n@Nessa: Wait, you already KNEW about this? From somewhere else?\n\n@You: Learned it on the road. Didn't think it'd matter here so soon.",
+    "choices": [
+      {
+        "id": "knowledge_continue",
+        "label": "Put the knowledge to immediate, practical use",
+        "outcomeSuccessNode": "civilian_aldenmoor_joss_visit",
+        "effects": {
+          "reputation.commonfolk": 2,
+          "world_flags.aldenmoor_knowledge_applied": true,
+          "run_history": "Applied blight knowledge learned elsewhere to save Aldenmoor's fields"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_honest",
+    "illustrationId": null,
+    "narrative": "Nessa doesn't look reassured, exactly, but something in her shoulders unknots slightly at the honesty rather than false comfort.\n\n@Nessa: Okay. Okay, that's - that's actually better than if you'd just said it'll be fine. Nobody's said one true thing to me all week.",
+    "choices": [
+      {
+        "id": "honest_continue",
+        "label": "Stay, and figure it out together, one honest step at a time",
+        "outcomeSuccessNode": "civilian_aldenmoor_joss_visit",
+        "effects": {
+          "reputation.honor": 2,
+          "run_history": "Chose honesty with Nessa over false comfort"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_joss_visit",
+    "illustrationId": null,
+    "narrative": "Joss finds you mid-effort, wiping mud on trousers that have clearly given up looking presentable days ago.\n\n@Joss: Look who couldn't stay away. I'm not going to make this weird by admitting I'm glad. So I won't. I'm just going to hand you this shovel and let the gladness stay implied.",
+    "choices": [
+      {
+        "id": "joss_visit_work_together",
+        "label": "Take the shovel and work beside him without a word needed",
+        "outcomeSuccessNode": "civilian_aldenmoor_resolution",
+        "effects": {
+          "run_history": "Worked alongside Joss without needing to say anything"
+        }
+      },
+      {
+        "id": "joss_visit_acknowledge",
+        "label": "Acknowledge the gladness out loud, on purpose, just to see his face",
+        "outcomeSuccessNode": "civilian_aldenmoor_resolution",
+        "effects": {
+          "run_history": "Openly acknowledged Joss's gladness that you'd returned"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_aldenmoor_resolution",
+    "illustrationId": null,
+    "narrative": "Aldenmoor doesn't come through this season unscathed - no valley does, not this year - but it comes through together, and considerably better than it would have without you, which is a different and more useful thing to have been than merely present for the goodbye.\n\nAveline finds you the morning you finally, actually leave again, second time being no easier than the first despite everyone's best efforts to pretend otherwise.\n\n@Aveline: Go on, then. Properly this time. You've more than earned the leaving.",
+    "narrativeVariants": {
+      "flags.aldenmoor_organized == true": "Aldenmoor doesn't come through this season unscathed, but it comes through together, and the fair-shares system you organized outlasts the crisis itself - Elder Maren mentions, almost offhand, that the valley might keep doing it this way even once the blight's fully passed. Aveline finds you the morning you finally leave again.\n\n@Aveline: Go on, then. Properly this time. You've more than earned the leaving - and left something behind worth more than you probably realize yet."
+    },
+    "choices": [
+      {
+        "id": "resolution_continue",
+        "label": "Leave Aldenmoor a second time, lighter for having come back first",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "reputation.commonfolk": 1,
+          "run_history": "Left Aldenmoor a second time, having helped it through the blight first"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_continue_road_01",
+    "illustrationId": null,
+    "narrative": "You keep walking, and it costs more than the decision felt like it should when you made it. Every mile puts more distance between you and a valley that might genuinely need the hands you're choosing not to give it.\n\n@You (to yourself, more than once): Elder Maren's handled worse without me. Aveline's handled worse without me. That's not the same as it being easy to believe at three in the morning.",
+    "choices": [
+      {
+        "id": "continue_road_trust",
+        "label": "Trust that Aldenmoor is stronger than your absence, and mean it",
+        "outcomeSuccessNode": "civilian_continue_road_02",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Chose to trust Aldenmoor's own strength over your presence"
+        }
+      },
+      {
+        "id": "continue_road_guilt",
+        "label": "Let the guilt sit, unresolved, and carry it forward anyway",
+        "outcomeSuccessNode": "civilian_continue_road_02",
+        "effects": {
+          "run_history": "Carried unresolved guilt forward after choosing not to return home"
+        }
+      },
+      {
+        "id": "continue_road_justify",
+        "label": "Remind yourself the stranger's fields need you too - this isn't nothing",
+        "outcomeSuccessNode": "civilian_continue_road_02",
+        "effects": {
+          "run_history": "Focused on the stranger's fields to justify not returning home"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_continue_road_02",
+    "illustrationId": null,
+    "narrative": "Word does reach you, eventually, days later, secondhand and imperfect the way news always is once it's traveled far enough - Aldenmoor weathered the blight, thinner and poorer for it but intact, Elder Maren and the valley's own stubbornness apparently sufficient where your presence would have been a comfort, not a necessity.\n\nIt's good news. It doesn't entirely feel like it, not at first, and that particular gap between the facts and the feeling turns out to be something you'll carry for a while yet.",
+    "choices": [
+      {
+        "id": "continue_road_02_go",
+        "label": "Let the relief and the guilt coexist, and keep moving",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "world_flags.aldenmoor_survived_without_you": true,
+          "run_history": "Learned Aldenmoor survived the blight without your help"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_send_word_01",
+    "illustrationId": null,
+    "narrative": "You find a rider willing to carry both coin and word to Aldenmoor for what feels like an unreasonable fee and pay it anyway, watching them go with the particular helplessness of having done something and still not knowing if it was the right something.\n\n@You (in the letter, roughly): Use this however Elder Maren says is fairest. I'm sorry I'm not there to help carry it myself. I'll make it up properly when I can.",
+    "choices": [
+      {
+        "id": "send_word_continue_immediately",
+        "label": "Continue on immediately - the gesture has to be enough for now",
+        "outcomeSuccessNode": "civilian_send_word_02",
+        "effects": {
+          "run_history": "Continued on immediately after sending word and coin home"
+        }
+      },
+      {
+        "id": "send_word_wait_reply",
+        "label": "Wait a day for some kind of reply before continuing",
+        "outcomeSuccessNode": "civilian_send_word_02",
+        "effects": {
+          "run_history": "Waited briefly for a reply before continuing on"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "civilian_send_word_02",
+    "illustrationId": null,
+    "narrative": "A reply does eventually find you, in Elder Maren's own economical hand, three lines that manage to be both gracious and quietly pointed at once.\n\n@Elder Maren's letter: The coin helped more than you'd think. So would you have, if you'd come. Both things are true; only one of them was possible this season, and you chose the other. I don't say that as blame - only so you know it was noticed, by more people than just me.",
+    "choices": [
+      {
+        "id": "send_word_02_continue",
+        "label": "Carry the letter's honesty with you, unresolved but not unkind",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "world_flags.aldenmoor_sent_word_outcome": true,
+          "reputation.commonfolk": 1,
+          "run_history": "Received Elder Maren's honest, ungrudging reply about the coin sent home"
+        }
+      }
+    ]
+  }
+]

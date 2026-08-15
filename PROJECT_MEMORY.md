@@ -243,3 +243,89 @@ summaries, not private or verbatim chat transcripts.
 - Left undone: a Redemption branch for players who initially decline
   Corwin's search, and the other six origins' intros - both noted as next
   steps, not silently skipped.
+
+## 2026-08-03 — Corwin's event pushed to the rule-10 floor; Civilian overhaul started
+
+- Pushed `wanderer_event_corwins_sister.json` from 27 to 40 scenes / 11 to
+  21 real choice points by splicing texture into the existing structure
+  rather than padding: a callback to Saoirse's road-sense lesson from the
+  intro actually paying off, fishing-village culture and the net-mender
+  Bessa getting her own small story, Corwin's own childhood (not just
+  Elsa's), a weather obstacle, Millhaven's guild culture, a doubt beat
+  before the truth, and expanded beats in two of the three ending paths.
+  Verified full reachability from the entry point after all the surgical
+  retargeting - all 40 scenes confirmed reachable.
+- Started Civilian's overhaul. Recognized this origin is architecturally
+  different from Wanderer: its Signature NPCs (Mira, Hendrik, Yeva, Petra,
+  Bailiff Reyes, Tamsin) are already the shared spine's cast that every
+  origin meets, so the new intro doesn't re-introduce them - it builds a
+  hometown (Aldenmoor), a mother, a sister, a village elder, and a
+  childhood friend instead, none of whom are expected to recur.
+  `civilian_intro.json`: 7 of a planned 15 choice points, explicitly
+  logged as a start, not a finish - same pattern as how Corwin's event
+  began before being completed.
+- The existing single-scene Civilian intro (a messenger scene) was good
+  content and got preserved as the new intro's climactic final beat rather
+  than thrown away.
+- Project total after this session: 224 scenes across 18 scene files,
+  verified zero dangling references, zero duplicates.
+
+## 2026-08-03 — Wanderer's second common event: Saoirse's past
+
+- User asked to fully finish the Wanderer origin across as many turns as
+  needed. Built the second common event: Saoirse Bellwether's past as a
+  Royal Heir's bodyguard catches up with her, via an agent of Lady Ysolde
+  Marrow (the already-established Royal Heir antagonist) - genuine
+  cross-origin plot connection, not just a shared name.
+- `wanderer_event_saoirse_past.json`: 15 scenes, 8 real choice points,
+  trust-gated (npc.saoirse_bellwether.trust >= 3, else bypassed), three
+  distinct endings. The "confronts Marrow" ending sets a world flag a
+  future Royal Heir author can pick up directly.
+- Rewired Corwin's 6 endings to route through this event's gate before
+  reaching the shared spine.
+- Caught my own mistake before it shipped: a stray leftover placeholder
+  variant key from drafting, removed. Also corrected Saoirse's dossier,
+  which had claimed a Royal-origin reaction variant existed - checked the
+  actual JSON, it didn't, fixed the record rather than leave it wrong.
+- Verified project-wide (239 scenes, 19 files, zero issues) AND ran a
+  full reachability trace from the Wanderer's very first scene through
+  both common events to the shared spine.
+- Current state: intro done (15 CP), Corwin's event done and at floor (21
+  CP), Saoirse's event is a real complete arc but under the floor (8 CP) -
+  same state Corwin's was in before its texture pass. That's the next
+  step toward "Wanderer finished."
+
+## 2026-08-03 — Third common event (Tollkeeper), Wanderer origin-specific track complete
+
+- Continued from Saoirse's event at 8/20 choice points: pushed it to 20
+  via the same texture-splice pattern used for Corwin (approach beat,
+  trust test, court lore, tactical prep, expanded thin branches,
+  interrogation lore tied to the succession plot, camp-night beat,
+  expanded endings).
+- Built a full third common event: `wanderer_event_tollkeeper.json`. The
+  Tollkeeper's own dossier called for exactly this ("escalates from toll
+  to hostage if ignored too many times") - he's taken hostages including
+  Old Ferrick, a deliberate callback to the intro. Three tactical
+  approaches with real stat checks, an optional Bailiff Reyes cross-
+  reference, four distinct endings for his fate. 20 choice points, 31
+  scenes.
+- Caught and fixed a real structural bug twice this session: retargeting
+  ALL choices in a scene that already had stat-check success/fail
+  branching only updates the success path, leaving failure pointing at
+  stale content and risking double-applied effects. Fixed both instances
+  by replacing the scene's choices outright instead of retargeting them,
+  then ran a programmatic scan of the whole file for the same pattern -
+  confirmed clean. This is now a known trap to watch for in any future
+  splice work using this file's retarget helpers.
+- Wanderer's origin-specific track (intro + 3 common events) is now
+  COMPLETE: 76 real choice points, ~112 scenes, all at or above rule 10's
+  floor. Verified full reachability from the very first scene through all
+  three events to the shared spine.
+- Flagged, rather than silently decided, an open scoping question: rule
+  10 also wants 50+ pieces leading into a world event, but the world
+  events are shared across all 7 origins - stuffing 50+ Wanderer-only
+  content into each would unbalance them badly against other origins.
+  Recommended treating the origin-specific track as satisfying rule 10 for
+  Wanderer and building the world-event tier once, shared - logged in
+  npc_dialogue_and_routes.txt for the user to confirm or override.
+- Project total: 281 scenes, 20 files, zero issues.

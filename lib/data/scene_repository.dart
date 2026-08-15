@@ -22,6 +22,20 @@ class SceneRepository {
     // npc_dialogue_and_routes.txt's CURRENT PLAYABLE SEQUENCE note.
     'assets/scenes/wanderer_intro.json',
     'assets/scenes/wanderer_event_corwins_sister.json',
+    // Wanderer's second common event: Corwin's 6 endings now route through
+    // wanderer_saoirse_check (trust-gated) before rejoining the shared
+    // spine, rather than straight to prologue_roadside_camp.
+    'assets/scenes/wanderer_event_saoirse_past.json',
+    // Wanderer's third common event: Saoirse's 3 endings now route through
+    // wanderer_tollkeeper_check (only fires if he's still alive) before
+    // rejoining the shared spine.
+    'assets/scenes/wanderer_event_tollkeeper.json',
+    // Civilian is the second origin rebuilt to rule 10's density floor -
+    // 7 of a planned 15 choice points so far (their own hometown,
+    // family, and departure), before rejoining the shared spine at the
+    // same messenger scene that used to be the entire intro. See
+    // npc_dialogue_and_routes.txt's CURRENT PLAYABLE SEQUENCE note.
+    'assets/scenes/civilian_intro.json',
     'assets/scenes/royal_heir_route.json',
     'assets/scenes/royal_aldous_route.json',
     'assets/scenes/mira_talbot_route.json',

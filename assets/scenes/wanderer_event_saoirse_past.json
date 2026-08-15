@@ -1,0 +1,662 @@
+[
+  {
+    "sceneId": "wanderer_saoirse_check",
+    "illustrationId": null,
+    "narrative": "The road has a way of putting people back in front of you when it isn't finished with them yet.",
+    "choices": [
+      {
+        "id": "saoirse_check_trigger",
+        "label": "A familiar figure is waiting at the next bend - Saoirse",
+        "condition": "npc.saoirse_bellwether.trust >= 3",
+        "outcomeSuccessNode": "wanderer_saoirse_approach"
+      },
+      {
+        "id": "saoirse_check_skip",
+        "label": "The road ahead is empty. Keep moving",
+        "outcomeSuccessNode": "prologue_roadside_camp"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_return",
+    "illustrationId": null,
+    "narrative": "She's leaning against a waymarker like she's been waiting exactly as long as necessary and not a moment longer - the same trick she pulled the first time you met her. This time, though, she keeps glancing past your shoulder at the road behind you, and hasn't stopped since you came into view.\n\n@Saoirse: Good. You're still walking upright and asking questions instead of getting yourself killed by not asking them. That's more than I expected, honestly.\n\nShe doesn't relax when she says it. If anything, she gets more watchful.",
+    "choices": [
+      {
+        "id": "saoirse_ask_wrong",
+        "label": "Ask her directly what's got her watching the road like that",
+        "outcomeSuccessNode": "wanderer_saoirse_explains",
+        "effects": {
+          "world_flags.saoirse_approach": "direct",
+          "run_history": "Asked Saoirse directly what was wrong"
+        }
+      },
+      {
+        "id": "saoirse_offer_blind",
+        "label": "Offer to help with whatever it is, before she's even said what it is",
+        "outcomeSuccessNode": "wanderer_saoirse_explains",
+        "effects": {
+          "world_flags.saoirse_approach": "blind_offer",
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Offered Saoirse help before knowing what was wrong"
+        }
+      },
+      {
+        "id": "saoirse_hang_back",
+        "label": "Hang back a moment and just watch what she's watching for",
+        "outcomeSuccessNode": "wanderer_saoirse_explains",
+        "effects": {
+          "world_flags.saoirse_approach": "observed",
+          "run_history": "Watched Saoirse's own watchfulness before asking anything"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_explains",
+    "illustrationId": null,
+    "narrative": "@Saoirse: Someone from before found where I've been staying this season. That's not supposed to be possible. I was careful. I'm always careful. Being found means someone spent real resources making sure carefulness didn't matter.",
+    "narrativeVariants": {
+      "flags.saoirse_approach == 'observed'": "You clock it before she confirms it - the particular way she's tracking the treeline, not randomly nervous but methodically checking sightlines, like someone who's done this before and hoped never to do it again.\n\n@Saoirse: You noticed. Good instincts. Someone from before found where I've been staying this season. That's not supposed to be possible."
+    },
+    "choices": [
+      {
+        "id": "saoirse_press_details",
+        "label": "Press her for exactly who, and why it matters this much",
+        "outcomeSuccessNode": "wanderer_saoirse_trust_test",
+        "effects": {
+          "run_history": "Pressed Saoirse for details about who was hunting her"
+        }
+      },
+      {
+        "id": "saoirse_let_her_tell",
+        "label": "Let her tell it in whatever order she needs to",
+        "outcomeSuccessNode": "wanderer_saoirse_trust_test",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Let Saoirse explain her past at her own pace"
+        }
+      },
+      {
+        "id": "saoirse_ask_fight_or_run",
+        "label": "Ask plainly - does she want to run from this, or finally face it",
+        "outcomeSuccessNode": "wanderer_saoirse_trust_test",
+        "effects": {
+          "run_history": "Asked Saoirse whether she wanted to run or face her past"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_history",
+    "illustrationId": null,
+    "narrative": "@Saoirse: I told you once I used to guard a Royal Heir. What I didn't say is why I stopped. I was on duty the night a woman came to see my charge privately - Lady Ysolde Marrow, though I didn't know her name yet. I wasn't supposed to let her in without clearance. I did anyway, because she was, and is, very good at being let in. Whatever was said in that room, my charge was different afterward. Colder. More careful about who they trusted. I started asking questions I wasn't supposed to ask. I left before anyone had to decide what to do about that.\n\nShe says it flat, the way she says everything hard. @Saoirse: Ysolde Marrow does not forget people who ask the wrong questions. Apparently three years is not long enough for her to stop caring about it.",
+    "choices": [
+      {
+        "id": "history_take_seriously",
+        "label": "Take the weight of that seriously - this is bigger than a personal grudge",
+        "outcomeSuccessNode": "wanderer_saoirse_court_lore",
+        "effects": {
+          "world_flags.lore_ysolde_marrow_known": true,
+          "run_history": "Understood the political weight of Saoirse's history with Ysolde Marrow"
+        }
+      },
+      {
+        "id": "history_focus_present",
+        "label": "Focus on the present danger first - politics can wait",
+        "outcomeSuccessNode": "wanderer_saoirse_court_lore",
+        "effects": {
+          "run_history": "Focused on the immediate threat rather than Saoirse's political history"
+        }
+      },
+      {
+        "id": "history_ask_regret",
+        "label": "Ask if she regrets leaving, knowing what it's cost her since",
+        "outcomeSuccessNode": "wanderer_saoirse_court_lore",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Asked Saoirse whether she regretted leaving her post"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_watcher",
+    "illustrationId": null,
+    "narrative": "You see him before Saoirse does, for once - a figure too still at the treeline's edge, watching the camp with the particular patience of someone paid well enough to be patient. Saoirse follows your line of sight and goes rigid.\n\n@Saoirse: That's one of Marrow's. I'd know that stillness anywhere - they train it into you like a discipline. He won't move until he's certain, and he won't be certain until he's sure I'm alone enough not to have help.",
+    "choices": [
+      {
+        "id": "watcher_confront_now",
+        "label": "Confront him directly, before he can report back (Strength check)",
+        "requiredAttribute": "strength",
+        "difficultyClass": 13,
+        "outcomeSuccessNode": "wanderer_saoirse_confront_won",
+        "outcomeFailNode": "wanderer_saoirse_confront_hurt",
+        "effects": {
+          "run_history": "Confronted Ysolde Marrow's watcher directly"
+        }
+      },
+      {
+        "id": "watcher_set_trap",
+        "label": "Set a trap and let him come to you on your terms (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 12,
+        "outcomeSuccessNode": "wanderer_saoirse_trap_won",
+        "outcomeFailNode": "wanderer_saoirse_confront_hurt",
+        "effects": {
+          "run_history": "Set a trap for Ysolde Marrow's watcher"
+        }
+      },
+      {
+        "id": "watcher_warn_move",
+        "label": "Warn Saoirse to break camp and move immediately instead of engaging",
+        "outcomeSuccessNode": "wanderer_saoirse_flee",
+        "effects": {
+          "run_history": "Chose to flee rather than confront Ysolde Marrow's watcher"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_confront_won",
+    "illustrationId": null,
+    "narrative": "You close the distance before he can decide whether to run or fight, and the decision gets made for him - he's skilled, but skilled alone against someone who's already committed to closing the gap loses more often than it wins. He goes down hard, disarmed, glaring up at you with the particular fury of someone whose entire job depended on not being caught.\n\nSaoirse arrives a half-second later, blade already drawn, and stops just short of using it.",
+    "choices": [
+      {
+        "id": "confront_won_continue",
+        "label": "Decide together what happens to him now",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher_person",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Defeated Ysolde Marrow's watcher in direct confrontation"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_trap_won",
+    "illustrationId": null,
+    "narrative": "He walks into exactly the position you wanted him in, confidence in his own patience becoming the thing that undoes him - by the time he realizes the ground and the angles have been chosen for him, not by him, it's already too late to matter. Saoirse pins him without needing to say a word, years of practice evident in every motion.\n\n@Saoirse: You're better at this than you let on. Remind me not to underestimate you again.",
+    "choices": [
+      {
+        "id": "trap_won_continue",
+        "label": "Decide together what happens to him now",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher_person",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 3,
+          "run_history": "Outmaneuvered Ysolde Marrow's watcher with a prepared trap"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_confront_hurt",
+    "illustrationId": null,
+    "narrative": "It goes worse than planned - he's better than his stillness let on, and it takes both of you together, and a cut you'll feel for days, before he's finally down and disarmed. Saoirse hauls you back from finishing it, breathing hard.\n\n@Saoirse: Alive. We need him alive, actually - dead men don't answer questions, and I have several.",
+    "choices": [
+      {
+        "id": "confront_hurt_press_own",
+        "label": "Push through the pain and press him for answers yourself",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher_person",
+        "effects": {
+          "health": -12,
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Fought through injury to press the watcher for answers"
+        }
+      },
+      {
+        "id": "confront_hurt_let_saoirse",
+        "label": "Let Saoirse take the lead - you've done enough for one fight",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher_person",
+        "effects": {
+          "health": -12,
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Fought Ysolde Marrow's watcher to a costly standstill, then stepped back"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_flee",
+    "illustrationId": null,
+    "narrative": "You don't wait to find out if he's as patient as Saoirse thinks - camp is broken and the two of you are three miles gone before full dark, moving fast and quiet through terrain that doesn't forgive mistakes. Whether he ever picked up the trail again, you won't know for certain. That not-knowing has its own particular weight.\n\n@Saoirse: Running's not cowardice. I want to be clear about that, in case you're deciding it was. Sometimes the smartest fight is the one you don't have.",
+    "choices": [
+      {
+        "id": "flee_continue",
+        "label": "Keep moving, the watcher behind you, for now",
+        "outcomeSuccessNode": "wanderer_saoirse_flee_texture",
+        "effects": {
+          "run_history": "Fled Ysolde Marrow's watcher rather than confront him"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_aftermath",
+    "illustrationId": null,
+    "narrative": "He doesn't talk easily, but he doesn't need to talk much either - the signet half-hidden under his collar says enough on its own, a Marrow household mark worn where a careless glance wouldn't catch it. Saoirse's jaw tightens at the sight of it. Whatever doubt she had about who sent him is gone now.\n\n@Saoirse: So. What do we do with him.",
+    "choices": [
+      {
+        "id": "aftermath_kill",
+        "label": "End it here - a loose end reporting back is a danger neither of you can afford",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "reputation.infamy": 3,
+          "reputation.honor": -2,
+          "world_flags.saoirse_watcher_fate": "killed",
+          "run_history": "Killed Ysolde Marrow's captured watcher"
+        }
+      },
+      {
+        "id": "aftermath_interrogate_release",
+        "label": "Question him for what he knows, then let him go with a warning",
+        "outcomeSuccessNode": "wanderer_saoirse_interrogation_lore",
+        "effects": {
+          "reputation.honor": 1,
+          "world_flags.saoirse_watcher_fate": "released",
+          "run_history": "Interrogated and released Ysolde Marrow's watcher"
+        }
+      },
+      {
+        "id": "aftermath_hand_authorities",
+        "label": "Bind him and hand him to the nearest crown authority",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "reputation.crown": 1,
+          "world_flags.saoirse_watcher_fate": "crown_custody",
+          "run_history": "Turned Ysolde Marrow's watcher over to crown authorities"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_full_truth",
+    "illustrationId": null,
+    "narrative": "Whatever happened with the watcher, something in Saoirse has come loose that wasn't loose before - the careful control finally slipping, just for tonight, just for you.\n\n@Saoirse: I didn't leave the Crownlands because I was brave. I left because I was scared, and I told myself it was principle so I could live with the fear. I've spent three years testing every Wanderer I meet, half-hoping one of them would be steady enough that I could stop being the only steady thing in my own life for once. I don't know if that's fair to any of you. I don't think I've ever said that part out loud before.",
+    "narrativeVariants": {
+      "flags.saoirse_watcher_fate == 'killed'": "Whatever happened with the watcher, something in Saoirse has come loose that wasn't loose before - not quite regret, not quite relief, some third thing sitting uneasily between them.\n\n@Saoirse: I didn't leave the Crownlands because I was brave. I left because I was scared, and I told myself it was principle so I could live with the fear. Tonight cost something I'm not sure I've fully accounted for yet. I don't think I've said that part out loud before either."
+    },
+    "choices": [
+      {
+        "id": "full_truth_gentle",
+        "label": "Tell her gently that testing people and needing them aren't opposites",
+        "outcomeSuccessNode": "wanderer_saoirse_camp_night",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 3,
+          "reputation.honor": 1,
+          "run_history": "Reassured Saoirse that needing steadiness wasn't a weakness"
+        }
+      },
+      {
+        "id": "full_truth_practical",
+        "label": "Keep it practical - ask what she actually wants to do now, feelings aside",
+        "outcomeSuccessNode": "wanderer_saoirse_camp_night",
+        "effects": {
+          "run_history": "Kept the conversation practical rather than emotional with Saoirse"
+        }
+      },
+      {
+        "id": "full_truth_share_own",
+        "label": "Share something honest of your own in return, unprompted",
+        "outcomeSuccessNode": "wanderer_saoirse_camp_night",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Shared something honest of your own with Saoirse in return"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_decision",
+    "illustrationId": null,
+    "narrative": "@Saoirse: Three ways I can see this going, near as I can tell. I disappear again, better this time, and you never hear from me past whatever we settle tonight. I go back - not to serve, never that again, but to actually confront Ysolde Marrow with what I know, whatever that costs. Or I just... stay. On the road. With you, if you'll have the company, and let the rest of it be someone else's problem eventually.\n\nShe says all three like she genuinely doesn't know which one she wants you to talk her into.",
+    "choices": [
+      {
+        "id": "decision_disappear",
+        "label": "Help her disappear properly this time - a clean, permanent exit",
+        "outcomeSuccessNode": "wanderer_saoirse_disappear_prep",
+        "effects": {
+          "npc.saoirse_bellwether.status": "departed",
+          "world_flags.saoirse_resolution": "disappeared",
+          "run_history": "Helped Saoirse disappear completely, this time for good"
+        }
+      },
+      {
+        "id": "decision_confront_ysolde",
+        "label": "Tell her the truth deserves to be confronted, not outrun forever",
+        "outcomeSuccessNode": "ending_saoirse_confronts",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 3,
+          "world_flags.saoirse_resolution": "confronts_marrow",
+          "reputation.honor": 2,
+          "run_history": "Convinced Saoirse to confront Lady Ysolde Marrow directly"
+        }
+      },
+      {
+        "id": "decision_stay_road",
+        "label": "Ask her to stay - the road's better with steady company on both sides",
+        "outcomeSuccessNode": "wanderer_saoirse_stays_terms",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 3,
+          "world_flags.saoirse_resolution": "stays_on_road",
+          "run_history": "Asked Saoirse to stay on the road as a traveling companion"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_saoirse_disappeared",
+    "illustrationId": null,
+    "narrative": "You help her scrub the trail clean the old way - false trails, a name quietly retired, a route north that doesn't connect to anything Marrow's people would think to check. By dawn, Saoirse Bellwether has, functionally, stopped existing, and someone else entirely has taken the next stretch of road in her place.\n\n@Not-Saoirse: Thank you. For all of it. If we meet again, I likely won't be using this name - so if a stranger ever seems to know you better than they should, you'll understand why.\n\nShe's gone before full light, and the road feels a little emptier for it.",
+    "choices": [
+      {
+        "id": "saoirse_disappeared_continue",
+        "label": "Continue on alone, carrying the secret of a name that no longer exists",
+        "outcomeSuccessNode": "wanderer_tollkeeper_check",
+        "effects": {
+          "run_history": "Watched Saoirse vanish into a new identity, for good this time"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_saoirse_confronts",
+    "illustrationId": null,
+    "narrative": "@Saoirse: All right. All right - you're right, and I hate that you're right. Running bought me three years. It was never going to buy me peace.\n\nShe doesn't leave immediately - there's a route to plan, evidence to gather, allies to consider carefully before walking back into danger with open eyes instead of a hidden name. But something in how she carries herself has already changed, the specific weight of a decision finally made rather than endlessly deferred.\n\n@Saoirse: This isn't goodbye yet. But when it is, I want you to know it was you who tipped it. For whatever that's worth to carry.",
+    "choices": [
+      {
+        "id": "saoirse_confronts_continue",
+        "label": "Continue the road, knowing a reckoning is coming for Ysolde Marrow",
+        "outcomeSuccessNode": "wanderer_tollkeeper_check",
+        "effects": {
+          "world_flags.ysolde_marrow_threatened": true,
+          "run_history": "Set Saoirse on a path toward confronting Lady Ysolde Marrow"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_saoirse_stays",
+    "illustrationId": null,
+    "narrative": "@Saoirse: Stay, then. Gods help you, but stay.\n\nIt's not a clean resolution - Marrow's reach doesn't simply vanish because you asked nicely - but it's a real one, the two of you facing whatever comes next together instead of Saoirse facing it, as she has for three years, entirely alone.\n\nShe falls into step beside you like she's done it a hundred times before, which, in every way that matters except the literal one, she basically has.",
+    "choices": [
+      {
+        "id": "saoirse_stays_continue",
+        "label": "Continue the road together, no longer just crossing paths",
+        "outcomeSuccessNode": "wanderer_tollkeeper_check",
+        "effects": {
+          "run_history": "Gained Saoirse Bellwether as a permanent traveling companion"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_approach",
+    "illustrationId": null,
+    "narrative": "You clock her before she clocks you, for once - a stillness at the waymarker that doesn't match anyone just resting. Something about how she's standing is different from the road-worn confidence you remember from before. Tighter. More deliberate.",
+    "choices": [
+      {
+        "id": "approach_call_out",
+        "label": "Call out to her openly, no attempt to hide you've seen her",
+        "outcomeSuccessNode": "wanderer_saoirse_return",
+        "effects": {
+          "run_history": "Approached Saoirse openly, calling out from a distance"
+        }
+      },
+      {
+        "id": "approach_circle_wide",
+        "label": "Circle wide and approach from an angle she can see clearly, hands visible",
+        "outcomeSuccessNode": "wanderer_saoirse_return",
+        "effects": {
+          "world_flags.saoirse_approach_read_danger": true,
+          "run_history": "Approached Saoirse carefully, reading the tension in her stance"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_trust_test",
+    "illustrationId": null,
+    "narrative": "She studies you for a long moment before deciding whether to keep talking - the same evaluating look she gave you the very first time you met, except this time the stakes of getting it wrong are considerably higher than a road-sense lesson.\n\n@Saoirse: What I'm about to tell you isn't the kind of thing you can un-know. Once you're carrying it, you're carrying some of the risk too, whether you agreed to that or not. I need you to actually understand that before I keep going.",
+    "choices": [
+      {
+        "id": "trust_test_accept_risk",
+        "label": "Tell her plainly you understand, and want to know anyway",
+        "outcomeSuccessNode": "wanderer_saoirse_history",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Accepted the risk of Saoirse's dangerous secret"
+        }
+      },
+      {
+        "id": "trust_test_ask_why_you",
+        "label": "Ask why she's choosing to trust you with it at all",
+        "outcomeSuccessNode": "wanderer_saoirse_history",
+        "effects": {
+          "run_history": "Asked Saoirse why she was choosing to trust you specifically"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_court_lore",
+    "illustrationId": null,
+    "narrative": "@Saoirse: People hear \"bodyguard\" and picture standing very still by a door. Most of it's that, honestly. But you learn a court by guarding it - who actually holds power versus who just performs holding it, which smiles mean something and which are just teeth. I was good at that reading. Still am, apparently, given how long it took Marrow's people to find me anyway.\n\nThere's something almost fond in how she says it, underneath the danger - the specific pride of someone who was genuinely excellent at a job she can never safely do again.",
+    "choices": [
+      {
+        "id": "court_lore_ask_favorite",
+        "label": "Ask what she misses about it, if anything",
+        "outcomeSuccessNode": "wanderer_saoirse_marrow_methods",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Asked Saoirse what she missed about court life"
+        }
+      },
+      {
+        "id": "court_lore_ask_worst",
+        "label": "Ask what she doesn't miss at all",
+        "outcomeSuccessNode": "wanderer_saoirse_marrow_methods",
+        "effects": {
+          "run_history": "Asked Saoirse what she didn't miss about her old life"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_marrow_methods",
+    "illustrationId": null,
+    "narrative": "@Saoirse: Marrow doesn't work in a hurry. That's the thing people underestimate about her. She doesn't send someone the week after an insult - she waits until it's inconvenient for you to remember why you should be afraid, then reminds you anyway. Three years of quiet was never mercy. It was scheduling.\n\nShe says it with the specific bitterness of someone who respects a method she despises.",
+    "choices": [
+      {
+        "id": "marrow_methods_take_note",
+        "label": "File that away carefully - this won't be the last you hear her name",
+        "outcomeSuccessNode": "wanderer_saoirse_prep_tactics",
+        "effects": {
+          "world_flags.lore_ysolde_marrow_known": true,
+          "run_history": "Learned Lady Ysolde Marrow's patient methods in detail"
+        }
+      },
+      {
+        "id": "marrow_methods_reassure",
+        "label": "Reassure Saoirse that patient or not, she's not facing this alone now",
+        "outcomeSuccessNode": "wanderer_saoirse_prep_tactics",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Reassured Saoirse she wouldn't face Marrow's threat alone"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_prep_tactics",
+    "illustrationId": null,
+    "narrative": "You see him before Saoirse does, for once - a figure too still at the treeline's edge, watching the camp with the particular patience of someone paid well enough to be patient. There's a moment, just a moment, before Saoirse notices him too, where the choice of how to handle this is entirely yours to shape.",
+    "choices": [
+      {
+        "id": "prep_signal_saoirse",
+        "label": "Signal Saoirse quietly rather than react visibly yourself",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher",
+        "effects": {
+          "run_history": "Quietly alerted Saoirse to the watcher without giving anything away"
+        }
+      },
+      {
+        "id": "prep_act_immediately",
+        "label": "Trust your own read and start moving before you've even confirmed it with her",
+        "outcomeSuccessNode": "wanderer_saoirse_watcher",
+        "effects": {
+          "run_history": "Acted on your own read of the watcher before consulting Saoirse"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_flee_texture",
+    "illustrationId": null,
+    "narrative": "Two days of hard, careful travel later, with no sign of pursuit, Saoirse finally allows herself to slow down - not relax exactly, she doesn't seem to fully know how anymore, but slow down.\n\n@Saoirse: Running was the right call. I need to actually believe that, since I'm the one who taught you it's sometimes the smartest fight you don't have. Doesn't stop it feeling like something else entirely.",
+    "choices": [
+      {
+        "id": "flee_texture_reassure",
+        "label": "Tell her plainly that surviving isn't the same as losing",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Reassured Saoirse that fleeing wasn't a defeat"
+        }
+      },
+      {
+        "id": "flee_texture_practical",
+        "label": "Ask what comes next, practically, now that you're both clear",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "run_history": "Focused Saoirse on practical next steps after fleeing"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_interrogation_lore",
+    "illustrationId": null,
+    "narrative": "He talks more than he probably should, the particular looseness of someone who's just had a very bad night and hasn't recalibrated yet. Not everything - he's still loyal enough, or frightened enough of his own employer, to hold some of it back. But enough.\n\n@Watcher: She's not just cleaning up old loose ends. There's a bigger move coming, timed to the succession - she wants every witness to anything inconvenient handled before anyone starts asking harder questions than usual. You're not the only name on a list like mine.\n\nSaoirse's expression doesn't change. Whatever she's feeling, she's keeping it entirely off her face.",
+    "choices": [
+      {
+        "id": "interrogation_lore_release_true",
+        "label": "Let him go, exactly as promised, and let the information sit heavy",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "world_flags.lore_marrow_succession_plot": true,
+          "run_history": "Learned Ysolde Marrow was preparing for the succession specifically"
+        }
+      },
+      {
+        "id": "interrogation_lore_extra_warning",
+        "label": "Let him go, but make sure he understands this was a mercy, not weakness",
+        "outcomeSuccessNode": "wanderer_saoirse_full_truth",
+        "effects": {
+          "world_flags.lore_marrow_succession_plot": true,
+          "reputation.infamy": 1,
+          "run_history": "Released the watcher with an unmistakable warning attached"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_camp_night",
+    "illustrationId": null,
+    "narrative": "Neither of you sleeps well, which turns out to mean neither of you pretends to, either - just the fire, and the particular honesty that comes easier at 3 A.M. than at any reasonable hour. Saoirse mends a strap on her pack that doesn't strictly need mending, hands needing something to do while the rest of her catches up.\n\n@Saoirse: I keep running the maths on it. Stay hidden, I'm safe but small. Go back, I might actually matter again, or I might just be handing Marrow exactly what she originally wanted. There isn't a version where the maths comes out clean.",
+    "choices": [
+      {
+        "id": "camp_night_no_clean_math",
+        "label": "Tell her some decisions were never going to have clean math",
+        "outcomeSuccessNode": "wanderer_saoirse_decision",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Told Saoirse not every decision needs clean math"
+        }
+      },
+      {
+        "id": "camp_night_ask_gut",
+        "label": "Ask her, past all the calculation, what her gut actually wants",
+        "outcomeSuccessNode": "wanderer_saoirse_decision",
+        "effects": {
+          "run_history": "Asked Saoirse what she wanted past the calculation"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_disappear_prep",
+    "illustrationId": null,
+    "narrative": "Before the trail-scrubbing starts in earnest, she stops and looks at you directly, the evaluating look again, except softer this time.\n\n@Saoirse: Once I do this, finding me again won't be possible even for you. I need you to actually be sure that's what you want to help with, not just the easiest thing to agree to at 3 A.M.",
+    "choices": [
+      {
+        "id": "disappear_prep_sure",
+        "label": "Tell her plainly you're sure - her safety matters more than your access to her",
+        "outcomeSuccessNode": "ending_saoirse_disappeared",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Confirmed you were certain about helping Saoirse disappear permanently"
+        }
+      },
+      {
+        "id": "disappear_prep_ask_letter",
+        "label": "Ask if she'll at least leave a way to know she's alive, even indirectly",
+        "outcomeSuccessNode": "ending_saoirse_disappeared",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "world_flags.saoirse_indirect_contact": true,
+          "run_history": "Asked Saoirse for some indirect way to know she survived"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_stays_terms",
+    "illustrationId": null,
+    "narrative": "@Saoirse: If I'm staying, I want terms, not just sentiment. I'm not anyone's bodyguard again - not even yours, not really, whatever it ends up looking like from outside. And the moment Marrow's reach becomes more danger to you than I'm worth, you tell me, and I go. Those aren't negotiable.",
+    "choices": [
+      {
+        "id": "stays_terms_agree",
+        "label": "Agree to her terms without trying to talk her out of any of them",
+        "outcomeSuccessNode": "ending_saoirse_stays",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 1,
+          "run_history": "Accepted Saoirse's terms for staying without argument"
+        }
+      },
+      {
+        "id": "stays_terms_push_back",
+        "label": "Push back gently on the last one - you'd rather face that risk together",
+        "outcomeSuccessNode": "ending_saoirse_stays",
+        "effects": {
+          "npc.saoirse_bellwether.trust": 2,
+          "run_history": "Pushed back on Saoirse's terms, choosing to share the risk"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_saoirse_watcher_person",
+    "illustrationId": null,
+    "narrative": "Disarmed and pinned, he stops performing menace almost immediately - just a tired, frightened person now, young enough that this might genuinely be his first field assignment gone wrong.\n\n@Watcher: I have a mother who thinks I collect taxes for a living. I'd very much like to keep it that way, if we're negotiating anything here.",
+    "choices": [
+      {
+        "id": "watcher_person_soften",
+        "label": "Let his fear soften how this goes, at least a little",
+        "outcomeSuccessNode": "wanderer_saoirse_aftermath",
+        "effects": {
+          "reputation.honor": 1,
+          "run_history": "Let the watcher's fear soften how you treated him"
+        }
+      },
+      {
+        "id": "watcher_person_unmoved",
+        "label": "Stay unmoved - sympathy doesn't change what he came here to do",
+        "outcomeSuccessNode": "wanderer_saoirse_aftermath",
+        "effects": {
+          "run_history": "Stayed unmoved by the watcher's fear and personal life"
+        }
+      }
+    ]
+  }
+]

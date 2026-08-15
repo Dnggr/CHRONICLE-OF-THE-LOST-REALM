@@ -1,0 +1,712 @@
+[
+  {
+    "sceneId": "wanderer_tollkeeper_check",
+    "illustrationId": null,
+    "narrative": "News has a way of finding people who've already crossed paths with its subject once before.",
+    "choices": [
+      {
+        "id": "tollkeeper_check_trigger",
+        "label": "A shaken traveler brings word: the Tollkeeper has taken hostages",
+        "condition": "npc.the_tollkeeper.status == 'alive'",
+        "outcomeSuccessNode": "wanderer_tollkeeper_news"
+      },
+      {
+        "id": "tollkeeper_check_skip",
+        "label": "No such news reaches you",
+        "outcomeSuccessNode": "prologue_roadside_camp"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_news",
+    "illustrationId": null,
+    "narrative": "@Traveler: He's not just collecting silver anymore. Took a whole cart's worth of merchants hostage two nights back - says he'll start sending them back one piece at a time if the crown doesn't send someone to actually listen to him for once. Old trader, couple of guards, and - \n\nThe traveler hesitates, checking your face for recognition. @Traveler: One of them's called Ferrick. Wiry old man, cart full of everything. Say he mentioned knowing you, if that means anything.",
+    "choices": [
+      {
+        "id": "news_rush",
+        "label": "Head for the roadblock immediately - there's no time to waste",
+        "outcomeSuccessNode": "wanderer_tollkeeper_dread",
+        "effects": {
+          "world_flags.tollkeeper_news_response": "rushed",
+          "run_history": "Rushed toward the Tollkeeper's hostage situation"
+        }
+      },
+      {
+        "id": "news_gather_info",
+        "label": "Ask the traveler everything else they know first",
+        "outcomeSuccessNode": "wanderer_tollkeeper_dread",
+        "effects": {
+          "world_flags.tollkeeper_news_response": "informed",
+          "run_history": "Gathered information before heading to the roadblock"
+        }
+      },
+      {
+        "id": "news_uncertain",
+        "label": "Take a moment to actually decide if this is your fight to have",
+        "outcomeSuccessNode": "wanderer_tollkeeper_dread",
+        "effects": {
+          "world_flags.tollkeeper_news_response": "deliberate",
+          "run_history": "Took time to decide whether to intervene at all"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_approach",
+    "illustrationId": null,
+    "narrative": "The treeline that once held a single formally-dressed extortionist now holds considerably more - a rope barrier, a second figure you don't recognize, and, glimpsed between trees, a huddle of people who are very clearly not going anywhere on their own.",
+    "narrativeVariants": {
+      "flags.tollkeeper_news_response == 'informed'": "The treeline that once held a single formally-dressed extortionist now holds considerably more - a rope barrier, a second figure you don't recognize (hired muscle, if the traveler's description was right), and, glimpsed between trees, a huddle of people who are very clearly not going anywhere on their own. You know roughly what you're walking into, at least."
+    },
+    "choices": [
+      {
+        "id": "approach_scout",
+        "label": "Scout the position carefully before doing anything else (Wisdom check)",
+        "requiredAttribute": "wisdom",
+        "difficultyClass": 12,
+        "outcomeSuccessNode": "wanderer_tollkeeper_scouted",
+        "outcomeFailNode": "wanderer_tollkeeper_spotted",
+        "effects": {
+          "run_history": "Scouted the Tollkeeper's hostage position"
+        }
+      },
+      {
+        "id": "approach_announce",
+        "label": "Announce yourself openly and demand to talk",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "run_history": "Announced yourself openly at the Tollkeeper's roadblock"
+        }
+      },
+      {
+        "id": "approach_seek_reyes",
+        "label": "Backtrack first to find Bailiff Reyes and bring crown authority to bear",
+        "outcomeSuccessNode": "wanderer_tollkeeper_reyes",
+        "effects": {
+          "run_history": "Sought out Bailiff Reyes before confronting the Tollkeeper"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_scouted",
+    "illustrationId": null,
+    "narrative": "You get close enough to count them properly without being seen - four hostages, Ferrick among them looking more indignant than frightened, two guards for hire who seem less committed to this than their employer, and the Tollkeeper himself, pacing a line in the dirt like a man rehearsing an argument he's not sure he still believes.",
+    "choices": [
+      {
+        "id": "scouted_target_guards",
+        "label": "Plan around the less-committed hired guards as the weak point",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "world_flags.tollkeeper_plan": "target_guards",
+          "run_history": "Planned to exploit the hired guards' weak commitment"
+        }
+      },
+      {
+        "id": "scouted_target_tollkeeper",
+        "label": "Plan around the Tollkeeper's own visible uncertainty instead",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "world_flags.tollkeeper_plan": "target_him",
+          "run_history": "Planned around the Tollkeeper's own visible uncertainty"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_spotted",
+    "illustrationId": null,
+    "narrative": "You're not as quiet as you meant to be - a snapped branch, a shifted shadow, something gives you away, and the hired guard's crossbow is up and pointed at the treeline before you've fully processed being caught.\n\n@Guard: Company! We've got company!\n\nWhatever advantage careful scouting might have bought you is gone now, replaced with every eye at the roadblock turning your way at once.",
+    "choices": [
+      {
+        "id": "spotted_hands_up",
+        "label": "Raise your hands and approach slowly, buying time to talk",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "run_history": "Approached openly with hands raised after being spotted"
+        }
+      },
+      {
+        "id": "spotted_bold",
+        "label": "Own the exposure - walk in like you meant to be seen all along",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "reputation.infamy": 1,
+          "run_history": "Bluffed confidence after being spotted scouting"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_reyes",
+    "illustrationId": null,
+    "narrative": "Bailiff Reyes is not, it turns out, hard to find - word of hostages on a crown road travels fast in his direction specifically. He's already assembling a response when you reach him, jaw set in the particular grim line of a man who quotes statutes because feelings complicate enforcement.\n\n@Bailiff Reyes: A tax collector's assistant taking hostages over a grievance with the crown. There's a tidy little irony in that I'd almost admire, if people weren't currently at risk because of it. You're offering to help, or you're offering to get in my way. Which is it?",
+    "choices": [
+      {
+        "id": "reyes_offer_help",
+        "label": "Offer to help him directly - two approaches are better than one",
+        "outcomeSuccessNode": "wanderer_tollkeeper_reyes_history",
+        "effects": {
+          "reputation.crown": 1,
+          "world_flags.tollkeeper_reyes_involved": true,
+          "run_history": "Enlisted Bailiff Reyes's help against the Tollkeeper"
+        }
+      },
+      {
+        "id": "reyes_ask_mercy",
+        "label": "Ask him, before anything else, to consider mercy if it comes to that",
+        "outcomeSuccessNode": "wanderer_tollkeeper_reyes_history",
+        "effects": {
+          "world_flags.tollkeeper_reyes_involved": true,
+          "world_flags.tollkeeper_reyes_mercy_asked": true,
+          "run_history": "Asked Bailiff Reyes to consider mercy toward the Tollkeeper"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_contact",
+    "illustrationId": null,
+    "narrative": "Up close, he looks less like the composed extortionist from your first meeting and more like a man who's gambled everything on a play he's no longer sure was wise. The formal phrasing is still there, but it's fraying at the edges.\n\n@Tollkeeper: Ah. You. I confess I hoped it might be you, and dreaded it in equal measure. Circumstances have escalated somewhat since our last transaction, as I'm sure you've noticed.",
+    "narrativeVariants": {
+      "flags.tollkeeper_reyes_involved == true": "Up close, he looks less like the composed extortionist from your first meeting and more like a man who's gambled everything on a play he's no longer sure was wise - and the sight of Bailiff Reyes's crown colors behind you visibly costs him something.\n\n@Tollkeeper: Ah. You. And you brought the crown's own errand-runner. I confess I hoped it might be you, and dreaded it in equal measure. Circumstances have escalated somewhat since our last transaction, as I'm sure you've noticed."
+    },
+    "choices": [
+      {
+        "id": "contact_to_prep",
+        "label": "Decide how to handle this, and quickly",
+        "outcomeSuccessNode": "wanderer_tollkeeper_prep"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_negotiate_win",
+    "illustrationId": null,
+    "narrative": "You find the actual argument underneath the theater - not really about silver at all, not anymore, but about a man who lost everything to a system he used to serve and has no idea how to be heard by it otherwise. It takes longer than either of you expect, but somewhere in the middle of it, he lowers the knife he'd been holding more for effect than intent.\n\n@Tollkeeper: I don't - I don't actually want to hurt anyone. I want someone from that court to look at what they did to me and call it what it was. This was a very poor way of arranging that. I see that now, rather late.",
+    "choices": [
+      {
+        "id": "negotiate_win_continue",
+        "label": "Help him find a way out of this that isn't a cell or a grave",
+        "outcomeSuccessNode": "wanderer_tollkeeper_grievance",
+        "effects": {
+          "npc.the_tollkeeper.status": "surrendered",
+          "reputation.honor": 3,
+          "run_history": "Talked the Tollkeeper into surrendering without violence"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_negotiate_fail",
+    "illustrationId": null,
+    "narrative": "Whatever you say doesn't land the way you needed it to - if anything, being reasoned with seems to remind him how far past reasonable this has already gone, and his grip on the situation tightens instead of loosening.\n\n@Tollkeeper: Words. Everyone always has words. I had words too, once, in front of a court that didn't listen to a single one of them. Forgive me if I've lost patience with the format.",
+    "choices": [
+      {
+        "id": "negotiate_fail_apologize",
+        "label": "Acknowledge the misstep and try a different approach",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff",
+        "effects": {
+          "run_history": "Acknowledged the failed negotiation and shifted tactics"
+        }
+      },
+      {
+        "id": "negotiate_fail_firm",
+        "label": "Match his hardened tone with equal firmness",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff",
+        "effects": {
+          "run_history": "Matched the Tollkeeper's hardened tone after failed negotiation"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_infiltrate_win",
+    "illustrationId": null,
+    "narrative": "You circle wide while attention is elsewhere, and the hired guards - never as committed to this as their employer - don't put up much of a fight when you cut the hostages loose from the blind side. Ferrick, of all of them, is the one who keeps his composure best, already halfway to a joke about the situation before he's even fully free.\n\n@Ferrick: Knew keeping an eye out for interesting company would pay off eventually. Wasn't expecting quite this literally.",
+    "choices": [
+      {
+        "id": "infiltrate_win_continue",
+        "label": "Get everyone clear before the Tollkeeper notices what's happened",
+        "outcomeSuccessNode": "wanderer_tollkeeper_guards_texture",
+        "effects": {
+          "npc.old_ferrick.trust": 1,
+          "run_history": "Freed the hostages through stealth before the Tollkeeper noticed"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_infiltrate_fail",
+    "illustrationId": null,
+    "narrative": "You're most of the way to the hostages when a loose stone gives you away, and suddenly every plan you had collapses into the much simpler, much worse problem of being caught mid-attempt with nowhere good to go.\n\n@Tollkeeper: Oh, that's - that's genuinely disappointing. I'd have respected a direct approach considerably more than this.",
+    "choices": [
+      {
+        "id": "infiltrate_fail_bluff",
+        "label": "Bluff your way past the accusation of subtlety",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff",
+        "effects": {
+          "run_history": "Bluffed after being caught attempting stealth"
+        }
+      },
+      {
+        "id": "infiltrate_fail_honest",
+        "label": "Admit plainly that the stealth attempt failed",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff",
+        "effects": {
+          "run_history": "Admitted honestly that the stealth attempt had failed"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_assault_win",
+    "illustrationId": null,
+    "narrative": "It's not clean and it's not quiet, but it's fast - the hired guards break and run at the first real sign of resistance, leaving the Tollkeeper alone and considerably less composed than he'd like to be, disarmed before he's fully processed the fight starting.\n\nFerrick, watching from where the hostages huddled, lets out a low whistle. @Ferrick: Remind me never to leave you holding my coin pouch AND assume you're harmless. Might've undersold you rather badly, in hindsight.",
+    "choices": [
+      {
+        "id": "assault_win_continue",
+        "label": "Secure the hostages and decide what happens to him now",
+        "outcomeSuccessNode": "wanderer_tollkeeper_violence_aftermath",
+        "effects": {
+          "npc.old_ferrick.trust": 1,
+          "run_history": "Overpowered the Tollkeeper and his hired guards directly"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_assault_fail",
+    "illustrationId": null,
+    "narrative": "The hired guards turn out to be more competent than their nervous employer, and it costs you - real blood, a scramble that goes worse before it goes anywhere near better, hostages caught in the chaos of a fight none of them signed up for either.\n\n@Tollkeeper: This is precisely the outcome I was hoping to avoid! Does no one in this profession believe in a controlled de-escalation anymore?",
+    "choices": [
+      {
+        "id": "assault_fail_continue",
+        "label": "Push through the chaos toward some kind of resolution",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff",
+        "effects": {
+          "health": -18,
+          "run_history": "Was wounded in a direct assault on the Tollkeeper's position"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_standoff",
+    "illustrationId": null,
+    "narrative": "Whatever composure existed at this roadblock is gone now, replaced with the particular chaos of a situation nobody, including the man who started it, still has full control over. A hostage cries out. A guard's crossbow wavers between targets that keep moving. The Tollkeeper himself looks less like a schemer now and more like a man watching his own plan become something he never actually wanted it to be.",
+    "choices": [
+      {
+        "id": "standoff_to_moment",
+        "label": "Decide, now, before someone else decides for you",
+        "outcomeSuccessNode": "wanderer_tollkeeper_standoff_moment"
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_hostages_freed",
+    "illustrationId": null,
+    "narrative": "The hostages scatter gratitude and shaken nerves in roughly equal measure. Ferrick finds you specifically before the others, uncharacteristically sincere for exactly as long as it takes to say what he means.\n\n@Ferrick: Owe you for this one properly. Not the kind of debt I'm in the habit of paying, so treasure it.\n\nWhich leaves the matter of the Tollkeeper himself, however this particular version of him ended up - alive, disarmed, and very much still your problem to decide.",
+    "narrativeVariants": {
+      "npc.the_tollkeeper.status == 'dead'": "The hostages scatter gratitude and shaken nerves in roughly equal measure - and a quieter relief, too, at not having to decide what happens next to the man behind the rope barrier, since that decision already made itself. Ferrick finds you before the others.\n\n@Ferrick: Owe you for this one properly. Didn't expect it to end quite that finally, but I suppose a settled debt is a settled debt, one way or another."
+    },
+    "choices": [
+      {
+        "id": "hostages_freed_to_ferrick",
+        "label": "See how Ferrick's holding up before deciding anything else",
+        "outcomeSuccessNode": "wanderer_tollkeeper_ferrick_reflects"
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_tollkeeper_crown_justice",
+    "illustrationId": null,
+    "narrative": "Reyes takes custody without ceremony, reading him rights and charges in the same flat voice he uses for everything. Whether that's justice or just paperwork depends entirely on who you ask.\n\n@Bailiff Reyes: Trial, not an execution. I know what people expect from me. I try not to always give it to them.\n\nIt's the closest thing to hope you've heard from him yet.",
+    "choices": [
+      {
+        "id": "crown_justice_continue",
+        "label": "Continue on, the matter formally closed",
+        "outcomeSuccessNode": "wanderer_tollkeeper_reyes_word",
+        "effects": {
+          "run_history": "Saw the Tollkeeper turned over to formal crown justice"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_tollkeeper_released",
+    "illustrationId": null,
+    "narrative": "He doesn't quite know what to do with mercy he didn't ask for and clearly wasn't expecting. It takes him a long moment to find any words at all.\n\n@Tollkeeper: I don't - this isn't the outcome I planned for, in any version of how today could have gone. Thank you. I don't imagine that means much, from someone who tried to rob you for a toll not long ago. I mean it regardless.",
+    "choices": [
+      {
+        "id": "released_continue",
+        "label": "Leave him to whatever comes next, unresolved but alive",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Left the Tollkeeper free, his future uncertain but his life spared"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_tollkeeper_redeemed",
+    "illustrationId": null,
+    "narrative": "It's a strange offer to make to a man who tried to rob you twice, and stranger still that he accepts it - something in him finally cracking open at being offered a path that isn't punishment or forgiveness exactly, just a plain, practical second chance.\n\n@Tollkeeper: I was a tax officer once. Good with numbers, actually, before I became - whatever this was. If there's honest work that wants a man good with numbers and short on better options, I find I am, unexpectedly, willing to take it.",
+    "choices": [
+      {
+        "id": "redeemed_continue",
+        "label": "Point him toward the nearest place that might actually give him that chance",
+        "outcomeSuccessNode": "wanderer_tollkeeper_redeemed_where",
+        "effects": {
+          "run_history": "Set the Tollkeeper on a path toward honest work and an actual second chance"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "ending_tollkeeper_dead",
+    "illustrationId": null,
+    "narrative": "The roadblock stands empty behind you within the hour, hostages scattered back to their own roads, no trace left of the man who tried, badly and then desperately, to make the crown answer for what it took from him. Whether anyone will remember him as anything other than a cautionary tale is not a question you have an answer to.",
+    "choices": [
+      {
+        "id": "tollkeeper_dead_continue",
+        "label": "Continue on",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Left the site of the Tollkeeper's final stand behind"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_dread",
+    "illustrationId": null,
+    "narrative": "The walk back toward that stretch of road gives you more time than you'd like to remember the last conversation you had with him there - formal, faintly absurd, resolved one way or another before anyone was actually in danger. This is a different version of the same man, apparently. You're not sure yet how different.",
+    "choices": [
+      {
+        "id": "dread_hope_reason",
+        "label": "Hope, despite everything, that reason still works on him",
+        "outcomeSuccessNode": "wanderer_tollkeeper_approach",
+        "effects": {
+          "run_history": "Hoped reason would still work on the escalated Tollkeeper"
+        }
+      },
+      {
+        "id": "dread_expect_worst",
+        "label": "Prepare yourself for whoever he's become since then",
+        "outcomeSuccessNode": "wanderer_tollkeeper_approach",
+        "effects": {
+          "run_history": "Braced for how much the Tollkeeper had changed"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_reyes_history",
+    "illustrationId": null,
+    "narrative": "He falls into step beside you without slowing his own pace to match, forcing you to keep up rather than the reverse.\n\n@Bailiff Reyes: You're wondering why I'm not surprised a tax dispute turned into hostages. I'm not surprised because I watch what desperation does to people for a living, and it rarely does anything creative. Just the same handful of bad decisions, over and over, dressed up as though they're original.\n\nThere's something almost sad underneath the flat statute-quoting cadence, just for a moment.",
+    "choices": [
+      {
+        "id": "reyes_history_press",
+        "label": "Ask if that's compassion talking, under the enforcement",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "run_history": "Pressed Bailiff Reyes on whether he felt compassion beneath his duty"
+        }
+      },
+      {
+        "id": "reyes_history_practical",
+        "label": "Keep the conversation on the practical plan instead",
+        "outcomeSuccessNode": "wanderer_tollkeeper_contact",
+        "effects": {
+          "run_history": "Kept Bailiff Reyes focused on the practical plan"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_prep",
+    "illustrationId": null,
+    "narrative": "He's still talking - something about circumstances and regrettable necessities - but the actual decision of how this ends belongs to you now, in the next few seconds, more than it belongs to his speech.",
+    "choices": [
+      {
+        "id": "prep_watch_hostages",
+        "label": "Keep your eyes on the hostages' reactions, not his - they'll tell you more",
+        "outcomeSuccessNode": "wanderer_tollkeeper_tactic_choice",
+        "effects": {
+          "world_flags.tollkeeper_watched_hostages": true,
+          "run_history": "Watched the hostages' reactions before deciding how to act"
+        }
+      },
+      {
+        "id": "prep_watch_him",
+        "label": "Keep your eyes on him specifically - his hands, his hesitation",
+        "outcomeSuccessNode": "wanderer_tollkeeper_tactic_choice",
+        "effects": {
+          "run_history": "Watched the Tollkeeper himself for signs of hesitation"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_tactic_choice",
+    "illustrationId": null,
+    "narrative": "Whatever you noticed, the moment to act on it is now, before his speech finishes and the situation decides itself without your input.",
+    "choices": [
+      {
+        "id": "contact_negotiate",
+        "label": "Try to talk him down from this entirely (Charisma check)",
+        "requiredAttribute": "charisma",
+        "difficultyClass": 13,
+        "outcomeSuccessNode": "wanderer_tollkeeper_negotiate_win",
+        "outcomeFailNode": "wanderer_tollkeeper_negotiate_fail",
+        "effects": {
+          "run_history": "Attempted to negotiate the Tollkeeper down from his hostage-taking"
+        }
+      },
+      {
+        "id": "contact_infiltrate",
+        "label": "Create a distraction and slip the hostages free directly (Dexterity check)",
+        "requiredAttribute": "dexterity",
+        "difficultyClass": 13,
+        "outcomeSuccessNode": "wanderer_tollkeeper_infiltrate_win",
+        "outcomeFailNode": "wanderer_tollkeeper_infiltrate_fail",
+        "effects": {
+          "run_history": "Attempted to free the hostages through stealth and misdirection"
+        }
+      },
+      {
+        "id": "contact_assault",
+        "label": "Force the issue directly - the hostages need out now, not eventually (Strength check)",
+        "requiredAttribute": "strength",
+        "difficultyClass": 14,
+        "outcomeSuccessNode": "wanderer_tollkeeper_assault_win",
+        "outcomeFailNode": "wanderer_tollkeeper_assault_fail",
+        "effects": {
+          "run_history": "Chose direct confrontation to free the Tollkeeper's hostages"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_grievance",
+    "illustrationId": null,
+    "narrative": "Before you help him find a way out of this, he seems to need to finish saying the rest of it, like the words have been waiting a long time for someone willing to actually hear them.\n\n@Tollkeeper: Twenty-two years collecting the crown's due, honestly, competently, and the moment a ledger came up short through no fault of mine, I was the convenient explanation. No hearing. No chance to show the numbers myself. Just gone, character ruined, twenty-two years erased by one bad afternoon that wasn't even my doing.",
+    "choices": [
+      {
+        "id": "grievance_believe",
+        "label": "Tell him you believe him - it happens more than the crown admits",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "npc.the_tollkeeper.trust": 2,
+          "run_history": "Believed the Tollkeeper's account of his unjust dismissal"
+        }
+      },
+      {
+        "id": "grievance_neutral",
+        "label": "Stay neutral - sympathy doesn't undo what he did with the grievance",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "run_history": "Stayed neutral on the Tollkeeper's account of his dismissal"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_guards_texture",
+    "illustrationId": null,
+    "narrative": "One of the hired guards, freed of any actual loyalty to the job the moment the hostages started moving, lingers a moment instead of running.\n\n@Guard: For what it's worth - he never actually meant for anyone to get hurt. Kept saying it, every night. Doesn't make it right. Made it easier to keep taking his coin, though, if I'm honest with myself about it.",
+    "choices": [
+      {
+        "id": "guards_texture_press",
+        "label": "Ask what else he can tell you about the Tollkeeper's state of mind",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "run_history": "Learned more about the Tollkeeper's state of mind from a hired guard"
+        }
+      },
+      {
+        "id": "guards_texture_let_go",
+        "label": "Let him go without pressing further - he's said his piece",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "run_history": "Let the hired guard go without further questioning"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_violence_aftermath",
+    "illustrationId": null,
+    "narrative": "The adrenaline takes longer to leave than the fight did. Your hands aren't quite steady securing the Tollkeeper's wrists, and for a moment neither of you says anything - just the aftermath, ordinary and undramatic and somehow harder to sit with than the fight itself.",
+    "choices": [
+      {
+        "id": "violence_aftermath_steady",
+        "label": "Take a breath and let it pass before doing anything else",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "run_history": "Took a moment to steady yourself after the fight"
+        }
+      },
+      {
+        "id": "violence_aftermath_push_through",
+        "label": "Push through it - there's still work to do here",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "run_history": "Pushed through the aftermath of violence to finish the job"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_standoff_moment",
+    "illustrationId": null,
+    "narrative": "Someone is going to do something irreversible in the next few seconds if nothing changes - that much is obvious from every face at the roadblock. The only real question left is who moves first, and toward what.",
+    "choices": [
+      {
+        "id": "standoff_moment_calm_voice",
+        "label": "Use your voice, not your weapon - one calm, clear instruction, aimed at everyone at once",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "npc.the_tollkeeper.status": "surrendered",
+          "reputation.honor": 2,
+          "run_history": "Talked the entire standoff down with a single calm instruction"
+        }
+      },
+      {
+        "id": "standoff_moment_decisive_action",
+        "label": "Take the one decisive action that actually ends it, whatever it costs",
+        "outcomeSuccessNode": "wanderer_tollkeeper_hostages_freed",
+        "effects": {
+          "npc.the_tollkeeper.status": "dead",
+          "reputation.infamy": 3,
+          "run_history": "Ended the standoff with decisive, final force"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_disposition",
+    "illustrationId": null,
+    "narrative": "Which leaves the matter of the Tollkeeper himself, however this particular version of him ended up - alive, disarmed, and very much still your problem to decide.",
+    "narrativeVariants": {
+      "npc.the_tollkeeper.status == 'dead'": "Which leaves nothing further to decide about the Tollkeeper himself - that decision already made itself, one way or another, back at the roadblock."
+    },
+    "choices": [
+      {
+        "id": "disposition_hand_reyes",
+        "label": "Hand him over to Bailiff Reyes for proper judgment",
+        "condition": "npc.the_tollkeeper.status != 'dead'",
+        "outcomeSuccessNode": "ending_tollkeeper_crown_justice",
+        "effects": {
+          "reputation.crown": 2,
+          "run_history": "Handed the surviving Tollkeeper to Bailiff Reyes for judgment"
+        }
+      },
+      {
+        "id": "disposition_let_go",
+        "label": "Let him go with nothing but a warning - he's lost enough already",
+        "condition": "npc.the_tollkeeper.status != 'dead'",
+        "outcomeSuccessNode": "ending_tollkeeper_released",
+        "effects": {
+          "npc.the_tollkeeper.status": "spared",
+          "reputation.honor": 1,
+          "run_history": "Released the Tollkeeper with only a warning"
+        }
+      },
+      {
+        "id": "disposition_help_work",
+        "label": "Offer, against your better judgment, to help him find honest work instead",
+        "condition": "npc.the_tollkeeper.status != 'dead'",
+        "outcomeSuccessNode": "ending_tollkeeper_redeemed",
+        "effects": {
+          "npc.the_tollkeeper.status": "redeemed",
+          "npc.the_tollkeeper.trust": 3,
+          "reputation.honor": 2,
+          "run_history": "Offered to help the Tollkeeper find honest work"
+        }
+      },
+      {
+        "id": "disposition_already_dead",
+        "label": "There's nothing left to decide - continue on",
+        "condition": "npc.the_tollkeeper.status == 'dead'",
+        "outcomeSuccessNode": "ending_tollkeeper_dead",
+        "effects": {
+          "run_history": "Left the roadblock behind, the Tollkeeper's story finally over"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_ferrick_reflects",
+    "illustrationId": null,
+    "narrative": "Ferrick's composure cracks, just slightly, once the immediate danger's actually passed and there's nothing left to perform unbothered about.\n\n@Ferrick: Don't often get reminded I'm not actually as untouchable as I like to pretend. Strange thing to owe a stranger for. Stranger still that it's you, specifically, given our own history hasn't exactly been spotless.\n\nWhatever that history was, he seems to be reconsidering some of it, right now, in real time.",
+    "choices": [
+      {
+        "id": "ferrick_reflects_gracious",
+        "label": "Tell him the past is the past - today's what matters",
+        "outcomeSuccessNode": "wanderer_tollkeeper_disposition",
+        "effects": {
+          "npc.old_ferrick.trust": 2,
+          "run_history": "Offered Old Ferrick grace regardless of your shared history"
+        }
+      },
+      {
+        "id": "ferrick_reflects_pointed",
+        "label": "Note, not unkindly, that debts do tend to even out eventually",
+        "outcomeSuccessNode": "wanderer_tollkeeper_disposition",
+        "effects": {
+          "run_history": "Pointedly noted to Ferrick that debts tend to even out"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_redeemed_where",
+    "illustrationId": null,
+    "narrative": "@Tollkeeper: Where, precisely, does a disgraced tax officer with a recent hostage situation on his record find someone willing to take a chance on him? I ask sincerely. I have no idea, and I suspect you might have thoughts.",
+    "choices": [
+      {
+        "id": "redeemed_where_guild",
+        "label": "Suggest he try the trade guilds along the Salt Road - they value numbers over reputations",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "world_flags.tollkeeper_redeemed_path": "guild",
+          "run_history": "Pointed the redeemed Tollkeeper toward the Salt Road trade guilds"
+        }
+      },
+      {
+        "id": "redeemed_where_start_over",
+        "label": "Tell him honestly he may need to start further from home than he'd like",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "world_flags.tollkeeper_redeemed_path": "far_away",
+          "run_history": "Told the redeemed Tollkeeper he might need a fresh start elsewhere"
+        }
+      }
+    ]
+  },
+  {
+    "sceneId": "wanderer_tollkeeper_reyes_word",
+    "illustrationId": null,
+    "narrative": "Reyes pauses before leading his prisoner off, glancing back at you with something almost like respect, filtered carefully through his usual flatness.\n\n@Bailiff Reyes: You could have ended this several messier ways. You didn't. I notice things like that, even when I don't say so at the time.\n\nIt's not warmth, exactly. From him, it might be close.",
+    "choices": [
+      {
+        "id": "reyes_word_acknowledge",
+        "label": "Acknowledge the rare compliment for what it is",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "npc.bailiff_reyes.trust": 1,
+          "run_history": "Received a rare acknowledgment from Bailiff Reyes"
+        }
+      },
+      {
+        "id": "reyes_word_deflect",
+        "label": "Deflect it - you were just doing what needed doing",
+        "outcomeSuccessNode": "prologue_roadside_camp",
+        "effects": {
+          "run_history": "Deflected Bailiff Reyes's acknowledgment"
+        }
+      }
+    ]
+  }
+]

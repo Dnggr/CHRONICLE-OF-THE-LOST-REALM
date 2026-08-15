@@ -128,17 +128,38 @@ CURRENT PLAYABLE SEQUENCE
 Shared spine (all origins): Old Hendrik roadside scene -> caravan/ruin ->
 Harvest Failure -> Mira Talbot -> Salt Road Rebellion -> Event 2 warning.
 
-Origin-specific openings are being rebuilt one at a time per rule 10's
-density floor, starting with Wanderer (see `wanderer_intro.json` and the
-WANDERER NPC DOSSIERS section below) - a full 15-choice-point chain
-building toward Corwin Ashe's missing-sister search. That search,
-`wanderer_event_corwins_sister.json`, is now COMPLETE end to end: 27
-scenes, 11 real choice points, three distinct approach paths, five named
-endings - short of rule 10's 20-30 floor for a common event, but a real,
-closed arc rather than a placeholder. The other six origins (Civilian,
-Royal Heir, Elf, Dwarf, Vampire, Mercenary) still use a single-scene intro
-and are next in line for the same treatment as Wanderer's - do not assume
-they've been expanded just because Wanderer has.
+WANDERER: ORIGIN-SPECIFIC TRACK COMPLETE. Intro (`wanderer_intro.json`,
+15 CP) -> Corwin Ashe's missing-sister search
+(`wanderer_event_corwins_sister.json`, 21 CP, 5 named endings) -> Saoirse
+Bellwether's past resurfacing via Lady Ysolde Marrow's agents
+(`wanderer_event_saoirse_past.json`, 20 CP, trust-gated at
+npc.saoirse_bellwether.trust >= 3, 3 named endings) -> the Tollkeeper's
+hostage escalation (`wanderer_event_tollkeeper.json`, 20 CP, gated on him
+still being alive, 4 named endings) -> shared spine. 76 real choice points
+total across ~112 scenes, none below rule 10's floor.
+
+OPEN SCOPING QUESTION for whoever picks this up next: rule 10 also calls
+for "50+ connected quests/common events" leading into a world event. The
+existing world events (event1-8) are SHARED across all 7 origins - forcing
+50+ Wanderer-exclusive pieces into each would make Wanderer's presence in
+shared content wildly disproportionate to every other origin's. Until
+directed otherwise, treat the origin-specific track above as satisfying
+rule 10 for Wanderer, and treat "the 50+ world-event tier" as something
+built ONCE per world event (shared, origin-agnostic depth), not duplicated
+7 times per origin. Do not start building Wanderer-exclusive content
+inside event1-8 without confirming that's actually wanted first - it's a
+materially different, and much larger, scope than another intro+events
+track.
+
+Civilian is next, IN PROGRESS: `civilian_intro.json` has 7 of a planned 15
+choice points (their own hometown of Aldenmoor, mother, sister, village
+elder, childhood friend, the walk to the village gates) before folding
+into the same messenger scene that used to be the entire intro, then
+rejoining the shared spine. See CIVILIAN NPC DOSSIERS below - these four
+characters are hometown-only and not expected to recur unless Aldenmoor is
+revisited later. The remaining four origins (Royal Heir, Elf, Dwarf,
+Vampire, Mercenary) still use a single-scene intro and haven't been
+started.
 
 Old Hendrik is intentionally introduced before Mira. He gives the player a
 human reason to care about the Talbot farm before the game asks for help. His
@@ -324,17 +345,25 @@ THE TOLLKEEPER | Enemy | Wanderer-linked
 First impression: dressed too well for a bandit, speaks too formally to be
 anything else, blocking a road that was free yesterday.
 Public want: total, unchallenged control of a stretch of the Old Salt Road.
-Private wound: a fired Crownlands tax officer, replicating unofficially
-and worse the exact system that discarded him.
+Private wound: a fired Crownlands tax officer (twenty-two years' service,
+dismissed over a ledger shortfall that wasn't his doing), replicating
+unofficially and worse the exact system that discarded him.
 Voice: formal, archaic phrasing even mid-threat; treats extortion like a
-transaction owed to him personally.
+transaction owed to him personally. Cracks under real pressure - by his
+escalation event, the composure is visibly fraying.
 Feeling progression:
-  performative politeness -> real threat once refused -> (if defeated)
-  either death, a spared/humiliated standing enemy, or a rare grudging
-  respect if the player out-argues rather than out-fights him.
-Route hooks: Revenge (his, against the crown, if explored further), Power
-(the player's, if they take over his racket instead of ending it -
-unexplored, flag as a future hook), Mercy as its own tracked honor trigger.
+  performative politeness (intro, first contact) -> real threat once
+  refused -> ESCALATION (wanderer_event_tollkeeper.json): hostages,
+  including Old Ferrick, when the toll alone stops working for him ->
+  one of four built endings depending on how he's stopped and what the
+  player chooses afterward: crown justice (trial, not execution - ties to
+  Bailiff Reyes's established "not irredeemable" dossier note), released
+  with a warning, offered a genuine path to honest work, or dead.
+Route hooks: Revenge (his, against the crown - PARTIALLY explored: his
+grievance monologue exists, a full revenge-route payoff doesn't yet),
+Power (the player's, if they took over his racket instead of ending it -
+still unexplored, still flagged), Mercy as its own tracked honor trigger
+(now built - see the disposition choice in his event).
 Dialogue seed:
   @Tollkeeper: Passage is ten silver. Refusal is also an option, of course.
   Every option is an option, until it isn't.
@@ -347,16 +376,31 @@ First impression: doesn't introduce herself - answers a question the
 player hadn't finished asking yet.
 Public want: to find out, honestly, whether this Wanderer is different
 from the ones who eventually gave up the road.
-Private wound: was once a Royal Heir's bodyguard and left that life; the
-specifics of why are deliberately withheld past "I chose this instead."
+Private wound (RESOLVED, trust-gated - see below): was bodyguard to a
+Royal Heir; let Lady Ysolde Marrow into a private audience she shouldn't
+have had clearance for, watched her charge change afterward, started
+asking questions, and left before anyone decided what to do about that.
+Three years later, Marrow's agents finally find her.
 Voice: answers questions with harder questions; teaches by making the
-player notice something themselves rather than being told.
+player notice something themselves rather than being told. Cracks, once,
+into real vulnerability during her event - deliberate, not a voice
+inconsistency (see her event's final dossier note below).
 Feeling progression:
-  tested -> grudging usefulness proven -> real teaching -> a bond the
-  player can lean on later, but that she will not chase if ignored.
-Route hooks: Mentor, cross-origin hook for Royal Heir players (she reacts
-to that origin distinctly - see her dossier note on Aldous/court
-recognition, a thread for a future author to pick up).
+  tested -> grudging usefulness proven -> real teaching -> (if
+  npc.saoirse_bellwether.trust >= 3) her past resurfaces and the
+  relationship either ends (she disappears into a new identity), deepens
+  into companionship (she stays on the road), or transforms into
+  something bigger (she resolves to confront Marrow directly, seeding
+  future Royal Heir content).
+Route hooks: Mentor; the Wanderer's SECOND common event
+(`wanderer_event_saoirse_past.json`, trust-gated at 3+, else bypassed
+entirely) - 15 scenes, 8 real choice points so far, ties directly into
+Lady Ysolde Marrow (established Royal Heir antagonist) without
+contradicting her existing dossier - this is a genuine cross-origin plot
+thread, not a coincidence of shared naming. If `world_flags.saoirse
+_resolution == 'confronts_marrow'`, a future Royal Heir/Succession Crisis
+author has a live, player-earned hook to bring Saoirse back into that
+storyline directly.
 Dialogue seed:
   @Saoirse: I didn't ask if you were scared. I asked what you did next.
   Those are different questions and only one of them is useful to me.
@@ -385,8 +429,13 @@ Feeling progression:
   peace, or is left in messier, more human uncertainty for the rest of
   the run.
 Route hooks: the Wanderer's first common event IS his search, and it is
-now FULLY BUILT end to end - see `wanderer_event_corwins_sister.json`
-(27 scenes, 11 real choice points). Three distinct approach paths at the
+now FULLY BUILT and clears rule 10's density floor - see
+`wanderer_event_corwins_sister.json` (40 scenes, 21 real choice points,
+including texture beats: a road-sense callback to Saoirse's lesson,
+fishing-village tide culture, the net-mender Bessa's own small story,
+Corwin's own childhood before the road, a weather obstacle en route to
+Millhaven, Millhaven's guild culture, and a doubt beat before the truth
+comes out). Three distinct approach paths at the
 bakery (confirm with Elsa first / bring Corwin immediately / watch before
 deciding) lead to five different named endings
 (`world_flags.corwin_sister_resolution`: earned_reunion, privacy_protected,
@@ -445,6 +494,82 @@ Dialogue seed:
 Author rule: the Fool must never give the player mechanically actionable
 information (no "go here, do this"). Everything said should read as
 significant only in retrospect.
+
+CIVILIAN NPC DOSSIERS — INTRO CHAIN (civilian_intro.json)
+-----------------------------------------------------------
+Written for the rule-10 Civilian overhaul. Unlike Wanderer, the Civilian
+origin's existing Signature NPCs (Mira Talbot, Bailiff Reyes, Yeva Solt,
+Old Hendrik, Petra Voss, Tamsin) are ALREADY the shared spine's central
+cast, met by every origin, not exclusive to Civilian - so this intro does
+NOT re-introduce them. Instead it builds what a Civilian player actually
+has that other origins don't: a home, a family, and a hometown (Aldenmoor)
+to leave behind, giving the later shared-spine encounters (especially
+Harvest Failure) more weight for this origin specifically, since a
+Civilian player has just lived through their own smaller version of
+"a community depending on you" before the game's first common event asks
+the same question at village scale.
+
+AVELINE | Mother | Civilian-linked, hometown-only (Aldenmoor)
+First impression: finds the player before they finish deciding how to
+find her - an instinct, not a coincidence.
+Public want: to send her child off prepared, without either of them
+noticing how much that costs her.
+Private wound: decided long ago that visible grief was a luxury the farm
+couldn't afford; holds to that decision through effort, not ease.
+Voice: practical warmth, undercuts her own emotion with logistics
+("I'd hoped you'd forget to actually go through with it, if I'm honest").
+Route hooks: none directly (hometown-only, not expected to recur) - but
+her line about never forgetting anything the player set their mind to is
+a deliberate plant for a possible callback if Aldenmoor is ever revisited.
+Author rule: never let Aveline cry on-page. The restraint is the character.
+
+NESSA | Younger sister | Civilian-linked, hometown-only (Aldenmoor)
+First impression: has spent a week pre-loading her anger about this
+morning and hasn't used the head start productively.
+Public want: for the player to simply not go, stated as an argument that
+both of them know is really a question.
+Private wound: nine years younger, too young to have a real plan for what
+her home looks like once her sibling's gone.
+Voice: deflects real feeling into logic-toned arguments ("Staying is
+allowed, you know").
+Route hooks: none directly - a possible reunion/return beat if Aldenmoor
+is ever revisited later in the campaign (unbuilt).
+Author rule: Nessa's scene must end on the player's terms (gift, promise,
+or humor) - never resolve her feelings FOR her; she's still upset when the
+scene ends, however the player handled it, and that's correct.
+
+ELDER MAREN | Village elder | Civilian-linked, hometown-only (Aldenmoor)
+First impression: already waiting at the crossroads shrine, having timed
+this goodbye the way she's timed others before it.
+Public want: to send every departing child off with something true to
+carry, not just ceremony.
+Private wound: unwritten on purpose - she is function-first here (a
+blessing-giver), not a deep route target.
+Voice: plain, slightly weathered wisdom, deliberately undercuts her own
+authority ("doesn't matter out there... only cares what you do with what
+you knew before you leave it").
+Route hooks: none built. A candidate for a Faith/Zealotry-route touch
+point if Aldenmoor content ever expands.
+Author rule: keep her blessing SHORT. She is one beat in a chain of many;
+letting her monologue would unbalance the pacing rule 6 protects.
+
+JOSS | Childhood friend | Civilian-linked, hometown-only (Aldenmoor)
+First impression: leaning on the gatepost like he's been there for hours,
+performing nonchalance he does not feel.
+Public want: to see the player off without being the one who cries about it.
+Private wound: unspoken envy, deliberately never confirmed on-page -
+whether he wishes he were leaving too is left for the player to wonder
+about, not resolved by the text.
+Voice: deflects everything through humor first ("Your mother's got that
+covered for the whole village already").
+Route hooks: none built yet - a plausible Rivalry or Love route target if
+Aldenmoor is ever revisited, intentionally left open rather than closed
+off by this intro.
+Author rule: Joss never says a genuinely sincere line without immediately
+undercutting it with a joke - if a future scene has him being sincere and
+staying sincere, that's a different, more vulnerable version of the
+character than this intro establishes, and should be treated as
+deliberate growth, not a voice inconsistency.
 
 SCENE-BY-SCENE WRITING CHECKLIST
 --------------------------------
